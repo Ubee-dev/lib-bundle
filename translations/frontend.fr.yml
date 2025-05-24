@@ -1,0 +1,6 @@
+Khalil1608_lib:
+    default:
+        server_error: Désolé, une erreur technique est survenue, réessayez plus tard
+    layout:
+        modal:
+            close: Fermer

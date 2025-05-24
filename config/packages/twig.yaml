@@ -1,0 +1,6 @@
+twig:
+  form_themes:
+    - '@Khalil1608Lib/Form/Type/lib_button.html.twig'
+    - '@Khalil1608Lib/Form/Type/custom_html.html.twig'
+  globals:
+    mediaManager: '@Khalil1608\LibBundle\Service\MediaManager'

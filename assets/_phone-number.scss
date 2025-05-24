@@ -1,0 +1,88 @@
+$spacer: undefined !default;
+$calling-code-color: undefined !default;
+$black: undefined !default;
+$z-index-base: 0 !default;
+$z-index-above: 1 !default;
+
+$flag-width: 2rem;
+$calling-code-width: 3.25rem;
+$select-width:  $flag-width + $calling-code-width + 1rem;
+
+.phone-number {
+
+  display: block;
+  position: relative;
+  z-index: $z-index-base;
+
+  &__hide-input{
+    display: none;
+  }
+
+  &__input_wrapper {
+    width: 100%;
+
+    input {
+      padding-left: calc($select-width + $spacer);
+    }
+  }
+
+  &__country {
+    position:absolute;
+    z-index: $z-index-above;
+    top:0; left:0; right:0; bottom: 0;
+    width: $flag-width + $calling-code-width;
+    margin-right: $spacer;
+    margin-left:$spacer/2;
+  }
+
+  &__flag {
+    position: absolute;
+    top:0; bottom:0; left:0; right:.25rem;
+    display: flex;
+    align-items: center;
+
+    img {
+      display: inline-block;
+      width: $flag-width;
+    }
+  }
+
+  &__calling-code {
+    line-height: 1;
+    margin-left: $spacer/3;
+    color: $calling-code-color;
+  }
+
+  &__country-select {
+    margin-top: 0;
+    margin-bottom: 0;
+    max-width: initial;
+    position: relative;
+    height: 100%;
+    width: $select-width;
+    z-index: $z-index-above;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+    padding-right: $spacer;
+  }
+
+  &__country-select-arrow {
+    display: block;
+    position:absolute;
+    right:-$spacer/1.5;
+    top: 50%;
+    transform: translateY(-50%);
+    content: '';
+    width: 0;
+    height: 0;
+    border-width: 0.35em 0.2em 0 0.2em;
+    border-style: solid;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    color: $black;
+    opacity: 0.7;
+    -webkit-transition: color 0.1s;
+    transition: color 0.1s;
+  }
+}

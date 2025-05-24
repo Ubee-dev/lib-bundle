@@ -1,0 +1,10 @@
+framework:
+  session:
+    cookie_lifetime: 0 # on browser close
+    gc_maxlifetime: 14000 # 4 hours in seconds
+    
+when@test: &framework_test
+  framework:
+    test: true
+    
+when@dev: *framework_test

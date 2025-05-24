@@ -1,0 +1,6 @@
+{% block delete_button_widget %}
+    <button class="js-delete-btn delete-btn--custom"
+            data-ajax-url="{{ path('Khalil1608_lib.admin.ajax_delete') }}" {{ block('widget_attributes') }} type="button">
+        <i class="fa fa-trash-o" aria-hidden="true"></i>
+    </button>
+{% endblock %}

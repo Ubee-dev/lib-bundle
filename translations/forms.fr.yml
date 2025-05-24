@@ -1,0 +1,25 @@
+Khalil1608_lib:
+    name:
+        label: Nom
+    lastname:
+        label: Nom
+    firstname:
+        label: Prénom
+    phone:
+        label: Téléphone
+    email:
+        label: Adresse email
+    post_code:
+        label: Code postal
+    message:
+        label: Message
+    photo:
+        label: Photo
+    image:
+        label: Image
+    position:
+        label: Position
+    submit:
+        label: Soumettre
+    submit_send:
+        label: Envoyer

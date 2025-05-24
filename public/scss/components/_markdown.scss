@@ -1,0 +1,61 @@
+.editor-toolbar.fullscreen,
+.CodeMirror-fullscreen
+{
+    z-index: 10000;
+}
+
+.CodeMirror-wrap.invalid {
+    border: 1px solid #dd4b39;
+    //background: rgba(221, 75, 57, 0.1);
+    border-top: 0;
+}
+
+.CodeMirror-line.invalid {
+    border-left: 3px solid #dd4b39;
+}
+
+.editor-preview {
+    background: #ffffff;
+}
+
+.markdown-error {
+    margin: 0;
+    width: 100%;
+    border-radius: 0;
+}
+
+.fa-markdown-guide__icon {
+    width: auto !important;
+    position: absolute;
+    right: 15px;
+    border: 0 !important;
+    color: #3c8dbc !important;
+    opacity: 1;
+}
+
+.fa-markdown-guide__icon::before {
+    content: "\f059";
+    color: #3c8dbc !important;
+}
+
+.fa-sharp::before {
+    content: "#";
+    font-weight: bold;
+}
+
+.fa-markdown-guide__icon::after {
+    color: #3c8dbc !important;
+    font-weight: bold;
+    content: "\00a0Guide du markdown";
+    font-family: Source Sans Pro,Helvetica Neue,Helvetica,Arial,sans-serif !important;
+}
+
+.fa-markdown-guide__icon:hover {
+    font-weight: bold;
+    text-decoration: underline !important;
+    text-decoration-color: #3c8dbc;
+}
+
+.editor-toolbar, .editor-toolbar:hover {
+    opacity: 1 !important;
+}

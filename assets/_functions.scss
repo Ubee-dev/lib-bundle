@@ -1,0 +1,118 @@
+@use 'sass:math';
+
+@function lightest($a, $b) {
+  @if (lightness($a) - lightness($b) > 0) {
+    @return $a;
+  }
+
+  @return $b;
+}
+
+@function darkest($a, $b) {
+  @if (lightness($a) - lightness($b) > 0) {
+    @return $b;
+  }
+
+  @return $a;
+}
+
+@function lightened-1($color) {
+  @return mix($color, white, 12%);
+}
+
+@function lightened-2($color) {
+  @return mix($color, white, 25%);
+}
+
+@function lightened-3($color) {
+  @return mix($color, white, 50%);
+}
+
+@function sanitize($vars...){
+  $i: 1;
+  @each $var in $vars {
+    @if $var == undefined {
+      @error "Undefined parameter passed at position #{$i}";
+    }
+    $i: $i+1;
+  }
+  @return true;
+}
+
+
+@function deep-get($keys...) {
+  // nth($keys, 1) must be a map
+  // other keys in spread must be nested in the map
+
+  @if length($keys) < 3 {
+    @error "Not a deep map, use map_get($map, $key) instead";
+  }
+
+  $value: map_get(nth($keys, 1), nth($keys, 2));
+
+  @for $key from 3 through length($keys) {
+    $value: map_get($value, nth($keys, $key));
+  }
+
+  @return $value;
+}
+
+@function rem($input, $font-size-root: 16px) {
+  $unit: unit($input);
+  $rem-value: null;
+
+  @if $unit == 'px' {
+    $rem-value: math.div($input, $font-size-root) * 1rem;
+  } @else if $unit == 'rem' {
+    $rem-value: $input;
+  } @else {
+    @error $unit + ' unit is not supported';
+  }
+
+  @return $rem-value;
+}
+
+// $fs: $font-size-base, $lh: $line-height-base
+@function font-margin-top($fs, $lh) {
+  @return $fs * $lh;
+}
+
+@function brightness($color) {
+  @return round(math.div(red($color) * 299 + green($color) * 587, 1000));
+}
+
+/// Returns the more contrasting color on source-color among candidates
+@function contrasting-color($source-color, $candidates...) {
+  $color-brightness: brightness($source-color);
+  $darkest: darkest($candidates...);
+  $lightest: lightest($candidates...);
+  $threshold: 168;
+
+  @if $color-brightness > $threshold and $source-color != #EBAC67 { //exception for the $orange color
+    @return $darkest;
+  }
+
+  @else {
+    @return $lightest;
+  }
+}
+
+/// Replace `$search` with `$replace` in `$string`
+/// @author Hugo Giraudel
+/// @param {String} $string - Initial string
+/// @param {String} $search - Substring to replace
+/// @param {String} $replace ('') - New value
+/// @return {String} - Updated string
+@function str-replace($string, $search, $replace: '') {
+  $index: str-index($string, $search);
+
+  @if $index {
+    @return str-slice($string, 1, $index - 1) + $replace + str-replace(str-slice($string, $index + str-length($search)), $search, $replace);
+  }
+
+  @return $string;
+}
+
+@function encode-color($color) {
+  @return str-replace(quote(#{$color}), '#', "%23");
+}

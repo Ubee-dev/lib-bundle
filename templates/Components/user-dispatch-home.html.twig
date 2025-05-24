@@ -1,0 +1,41 @@
+{#
+@param string       student_path_name
+@param string       collaborator_path_name
+@param string       home_translation_base   ex: "project.home"
+#}
+{% trans_default_domain 'frontend' %}
+
+<div class="user-dispatch-home">
+    <div class="row m-0">
+        <div class="col-12 col-lg-5 col-xl-6 user-dispatch-home__left-column">
+            <div>
+                <h1 class="mb-1">
+                    <span class="user-dispatch-home__pre-title">{{ (home_translation_base ~ '.index.title_prefix')|trans }}</span><br>
+                    <span class="user-dispatch-home__title">{{ (home_translation_base ~ '.index.title')|trans }}</span>
+                </h1>
+                <p class="text_lg mb-0">{{ (home_translation_base ~ '.index.subtitle')|trans }}</p>
+            </div>
+
+        </div>
+
+        <div class="col-12 col-lg-7 col-xl-6 user-dispatch-home__right-column">
+            {# STUDENT #}
+            <a href="{{ path(student_path_name) }}" class="user-dispatch-home__user-box">
+                {% include '@Khalil1608Lib/Svg/_student.svg.twig' with {'class': 'w-100 d-none d-sm-inline-block'} only %}
+
+                <span class="btn btn_unfilled btn_full-width px-1">
+                    {{ (home_translation_base ~ '.index.student_link')|trans }}
+                </span>
+            </a>
+
+            {# COLLABORATOR #}
+            <a href="{{ path(collaborator_path_name) }}" class="user-dispatch-home__user-box">
+                {% include '@Khalil1608Lib/Svg/_collaborator.svg.twig' with {'class': 'w-100 d-none d-sm-inline-block'} only %}
+
+                <span class="btn btn_unfilled btn_full-width px-1">
+                    {{ (home_translation_base ~ '.index.collaborator_link')|trans }}
+                </span>
+            </a>
+        </div>
+    </div>
+</div>

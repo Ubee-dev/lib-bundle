@@ -1,0 +1,33 @@
+{#
+
+    @param string   id  Unique ID
+
+#}
+
+{% trans_default_domain "frontend" %}
+
+{% set error_template %}
+    <div class="message-box message-box_red js-modal_dynamic__error">{{ 'Khalil1608_lib.default.server_error'|trans }}</div>
+{% endset %}
+
+<div id="js-modal_dynamic" class="modal" data-current-href="{# Empty by default #}" aria-labelledby="{{ id }}__title" aria-hidden="true">
+    <div class="modal__dialog" role="document">
+        <div class="modal__container">
+            <div class="modal__content">
+                <div class="modal__header">
+                    <h5 class="mt-0 js-modal_dynamic__title" id="{{ id }}__title"></h5>
+
+                    <button type="button" class="modal__close text_gray js-modal__close" aria-label="{{ 'Khalil1608_lib.layout.modal.close'|trans }}">
+                        <i class="fa fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="modal__body js-modal__content" data-error-template="{{ error_template|escape }}">
+                    {# Loaded dynamically #}
+                </div>
+
+                {% block modal_footer %} {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>

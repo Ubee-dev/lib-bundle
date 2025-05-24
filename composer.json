@@ -1,0 +1,63 @@
+{
+    "name": "khalil1608/lib-bundle",
+    "description": "Lib bundle",
+    "type": "symfony-bundle",
+    "version": "1.0.0",
+    "autoload": {
+        "psr-4": {
+            "Khalil1608\\LibBundle\\": "src/",
+            "Khalil1608\\LibBundle\\Tests\\": "tests/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Khalil1608\\LibBundle\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "aws/aws-sdk-php": "^3.36",
+        "php": "^8.3",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "ext-mbstring": "*",
+        "doctrine/doctrine-bundle": "^2.7",
+        "doctrine/doctrine-migrations-bundle": "^3.3",
+        "doctrine/orm": "2.19.6",
+        "dompdf/dompdf": "^2.0",
+        "php-amqplib/rabbitmq-bundle": "2.16.*",
+        "erusev/parsedown": "^1.7",
+        "erusev/parsedown-extra": "^0.8.1",
+        "getbrevo/brevo-php": "2.0.*",
+        "giggsey/libphonenumber-for-php": "^8.10",
+        "lyracom/rest-php-sdk": "^4.0",
+        "moneyphp/money": "^4.0",
+        "phpoffice/phpspreadsheet": "^1.24",
+        "sentry/sentry-symfony": "^4.7.0",
+        "symfony/asset": "7.2.*",
+        "symfony/console": "7.2.*",
+        "symfony/dotenv": "7.2.*",
+        "symfony/expression-language": "7.2.*",
+        "symfony/flex": "^2",
+        "symfony/form": "7.2",
+        "symfony/framework-bundle": "7.2.*",
+        "symfony/google-mailer": "7.2.*",
+        "symfony/intl": "7.2.*",
+        "symfony/mailer": "7.2.*",
+        "symfony/monolog-bundle": "^3.8",
+        "symfony/runtime": "7.2.*",
+        "symfony/security-bundle": "7.2.*",
+        "symfony/security-core": "7.2.*",
+        "symfony/translation": "7.2.*",
+        "symfony/twig-bundle": "7.2.*",
+        "symfony/validator": "7.2.*",
+        "symfony/yaml": "7.2.*",
+        "twig/extra-bundle": "^3.4.0",
+        "twig/intl-extra": "^3.4.2"
+    },
+    "require-dev": {
+        "php-mock/php-mock": "^2.4",
+        "dg/bypass-finals": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable" : true
+}

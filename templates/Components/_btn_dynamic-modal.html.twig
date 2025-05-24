@@ -1,0 +1,16 @@
+{#
+
+    @param string       class           CSS class
+    @param string       target          Modal selector
+    @param text/html    text            Button inner HTML
+    @param string       modal_title     Targetted modal title
+    @param path         modal_href      Path to fetch targetted modal body using Ajax
+
+#}
+
+<button type="button"
+        class="{{ class }}"
+        data-targeted-modal="#js-modal_dynamic"
+        data-modal-title="{{ modal_title }}"
+        data-modal-href="{{ modal_href }}"
+>{{ text|raw }}</button>

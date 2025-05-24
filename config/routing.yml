@@ -1,0 +1,6 @@
+when@test:
+  Khalil1608_lib_render_iframe:
+    resource: Khalil1608\LibBundle\Controller\RenderIframeController
+    
+  Khalil1608_lib_dummy_controller:
+    resource: Khalil1608\LibBundle\Tests\Helper\DummyController

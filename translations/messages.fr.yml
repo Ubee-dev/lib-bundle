@@ -1,0 +1,63 @@
+id: Id
+Active: active
+Configuration: Configuration
+Dashboard: Dashboard
+
+# lib translations
+Khalil1608_lib:
+    id: Id
+    active: Activé
+    created_at: Date de création
+    updated_at: Date de dernière modification
+    delete_btn: Supprimer
+    position: Position
+    download: Télécharger
+    link: Url
+    image: Image
+    name: Nom
+    lastname: Nom
+    firstname: Prénom
+    password: Mot de passe
+    repeat_password: Confirmation du mot de passe
+    passwords_must_match: Les mots de passes doivent être égales.
+    front_name: Nom en front office
+    back_name: Nom en back office
+    phone: Téléphone
+    email: Adresse email
+    post_code: Code postal
+    message: Message
+    photo: Photo
+    publish_at: Date de publication
+    published_at: Publié le
+    submit: Soumettre
+    submit_send: Envoyer
+    action: Action
+    actions: Actions
+    student_groups: Groupes d'élève
+    student_id:
+        label: Id de l'élève
+        help: Id de l'élève sur l'extranet
+    student_firstname: Prénom de l'élève
+    student_lastname: Nom de l'élève
+    student_email: Email de l'élève
+    general: Général
+    label: Libellé
+    description: Description
+    title: Titre
+    sub_title: Sous-titre
+    start_at: Date et heure de début
+    end_at: Date et heure de fin
+    address:
+        to_string: Adresse
+        streetNumber:
+            label: N° de voie
+        street:
+            label: Voie
+        complement:
+            label: Complément d'adresse
+        postal_code:
+            label: Code postal
+        city:
+            label: Ville
+        country:
+            label: Pays

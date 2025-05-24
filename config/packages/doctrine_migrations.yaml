@@ -1,0 +1,8 @@
+doctrine_migrations:
+  migrations_paths:
+    'DoctrineMigrations': '%kernel.project_dir%/migrations'
+  storage:
+    table_storage:
+      table_name: 'migration_versions'
+  services:
+    'Doctrine\Migrations\Version\MigrationFactory': 'Khalil1608\LibBundle\Migrations\Factory\MigrationFactoryDecorator'

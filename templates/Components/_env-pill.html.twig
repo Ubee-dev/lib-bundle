@@ -1,0 +1,5 @@
+{% set env = getEnvName(app.environment) %}
+
+{% if env %}
+    <span class="env-pill env-pill_{{ env|replace({'é': 'e'}) }}">{{ env }}</span>
+{% endif %}

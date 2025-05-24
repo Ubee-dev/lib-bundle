@@ -1,0 +1,184 @@
+parameters:
+  env(PAGE_SIZE): 30
+  upload_dir: /uploads
+  mediaClassName: null
+  #todo tester si on peut l'écraser en lancant les tests parallèles
+  env(TEST_TOKEN): "1"
+  env(MUTE_OPS_ALERTS): false
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+    bind:
+      $container: '@service_container'
+      $requestStack: '@request_stack'
+      $slackToken: '%env(resolve:SLACK_TOKEN)%'
+      $s3BackupBucket: '%env(resolve:S3_BACKUP_BUCKET)%'
+      $listPageSize: '%env(resolve:PAGE_SIZE)%'
+      $currentEnv: '%env(resolve:APP_ENV)%'
+  
+  # auto-register Service
+  Khalil1608\LibBundle\:
+    resource: '../src/*'
+    exclude: '../src/{Entity}'
+  
+  # controllers are imported separately to make sure they're public
+  # and have a tag that allows actions to type-hint Service
+  Khalil1608\LibBundle\Controller\:
+    resource: '../src/Controller'
+    tags: [ 'controller.service_arguments' ]
+
+  Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider:
+    arguments:
+      $apiKey: '%env(MAILER_PASSWORD)%'
+  
+  Khalil1608\LibBundle\Service\S3Client:
+    arguments:
+      $key: '%env(S3_KEY)%'
+      $secret: '%env(S3_SECRET)%'
+      $region: "%s3_region%"
+      $version: "%s3_version%"
+  
+  Khalil1608\LibBundle\Producer\EmailProducer:
+    $producer: '@old_sound_rabbit_mq.send_email_producer'
+  
+  Khalil1608\LibBundle\Producer\BulkEmailProducer:
+    $producer: '@old_sound_rabbit_mq.send_bulk_email_producer'
+  
+  Khalil1608\LibBundle\Producer\ErrorProducer:
+    $producer: '@old_sound_rabbit_mq.error_producer'
+  
+  Khalil1608\LibBundle\Producer\SlackNotificationProducer:
+    $producer: '@old_sound_rabbit_mq.send_slack_notification_producer'
+  
+  Khalil1608\LibBundle\Producer\CompressPdfProducer:
+    $producer: '@old_sound_rabbit_mq.compress_pdf_producer'
+  
+  Doctrine\Migrations\Version\DbalMigrationFactory: ~
+  Khalil1608\LibBundle\Migrations\Factory\MigrationFactoryDecorator:
+    decorates: Doctrine\Migrations\Version\DbalMigrationFactory
+    arguments: [ '@Khalil1608\LibBundle\Migrations\Factory\MigrationFactoryDecorator.inner', '%env(APP_ENV)%', '@doctrine.orm.entity_manager', '@kernel' ]
+
+  Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\EmailProvider:
+    arguments:
+      $apiKey: '%env(MAILER_PASSWORD)%'
+  
+  Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface: '@Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\EmailProvider'
+  Khalil1608\LibBundle\Service\EmailProvider\BulkEmailProviderInterface: '@Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider'
+  
+  Khalil1608\LibBundle\Service\EmailProvider\Brevo\EmailProvider:
+    arguments:
+      $brevoApiKey: '%env(BREVO_API_KEY)%'
+  
+  Khalil1608\LibBundle\Serializer\DateTimeNormalizer:
+    tags:
+      - { name: serializer.normalizer }
+  
+  Khalil1608\LibBundle\EventListener\InvalidArgumentExceptionListener:
+    tags:
+      - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 9 }
+  
+  Khalil1608\LibBundle\ValueResolver\EmailValueResolver:
+    tags:
+      - controller.argument_value_resolver:
+          name: email
+          priority: 150
+          
+  Khalil1608\LibBundle\Service\OpsAlertManager:
+    arguments:
+      $muteOpsAlerts: '%env(bool:MUTE_OPS_ALERTS)%'
+    
+    
+when@test:
+  parameters:
+    env(IS_CI): ""
+    env(SLACK_TOKEN): ""
+    env(SLACK_NOTIFICATION_TS): ""
+    
+  services:
+    _defaults:
+      autowire: true
+      autoconfigure: true
+      public: false
+      
+    Khalil1608\LibBundle\Service\FormManager:
+      arguments:
+        $blockBots: false
+    
+    Khalil1608\LibBundle\Tests\Helper\ValidationReporter:
+      public: true
+  
+    Khalil1608\LibBundle\Tests\Helper\Factory:
+      public: true
+    Khalil1608\LibBundle\Tests\Helper\Cleaner:
+      arguments:
+        $currentEnv: '%env(APP_ENV)%'
+      
+    Khalil1608\LibBundle\Tests\Behat\CommonContext:
+      arguments:
+        $testToken: "%env(TEST_TOKEN)%"
+        $isCI: "%env(IS_CI)%"
+        $slackNotificationTs: "%env(SLACK_NOTIFICATION_TS)%"
+      
+    Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider:
+      arguments:
+        $testToken: "%env(TEST_TOKEN)%"
+
+    Khalil1608\LibBundle\Tests\Helper\ContextState:
+    Khalil1608\LibBundle\Tests\Helper\FactoryInterface: '@Khalil1608\LibBundle\Tests\Helper\Factory'
+    Khalil1608\LibBundle\Tests\Helper\CleanerInterface: '@Khalil1608\LibBundle\Tests\Helper\Cleaner'
+    Khalil1608\LibBundle\Tests\Helper\ContextStateInterface: '@Khalil1608\LibBundle\Tests\Helper\ContextState'
+    Khalil1608\LibBundle\Service\EmailProviderInterface: '@Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider'
+    Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface: '@Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider'
+    
+    Khalil1608\LibBundle\Tests\Helper\HttpMock:
+      arguments:
+        $testToken: '%env(TEST_TOKEN)%'
+    
+    Khalil1608\LibBundle\Tests\Helper\DummyController:
+      tags: [ 'controller.service_arguments' ]
+      
+    Khalil1608\LibBundle\Producer\EmailProducer:
+      class: Khalil1608\LibBundle\Tests\Helper\EmailProducerStub
+      arguments:
+        $producer: '@old_sound_rabbit_mq.send_email_producer'
+        $currentEnv: 'test'
+    
+    Khalil1608\LibBundle\Tests\Helper\MonologCISlackHandler:
+      arguments:
+        $isCi: '%env(IS_CI)%'
+        $slackNotificationTs: "%env(SLACK_NOTIFICATION_TS)%"
+        $token: '%env(SLACK_TOKEN)%'
+        $channel: 'ci'
+        $level: 'critical'
+        
+when@dev:
+  parameters:
+    env(IS_CI): "false"
+    env(SLACK_TOKEN): ""
+    env(SLACK_NOTIFICATION_TS): ""
+  services:
+    _defaults:
+      autowire: true
+      autoconfigure: true
+      public: false
+    
+    Khalil1608\LibBundle\Tests\Helper\Factory:
+    Khalil1608\LibBundle\Tests\Helper\Cleaner:
+      arguments:
+        $currentEnv: '%env(APP_ENV)%'
+        
+    Khalil1608\LibBundle\Tests\Helper\CleanerInterface: '@Khalil1608\LibBundle\Tests\Helper\Cleaner'
+    
+    Khalil1608\LibBundle\Tests\Helper\HttpMock:
+      arguments:
+        $testToken: '%env(TEST_TOKEN)%'
+        
+    Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider:
+      arguments:
+        $testToken: "%env(TEST_TOKEN)%"
+    
+    Khalil1608\LibBundle\Service\EmailProviderInterface: '@Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider'
+    Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface: '@Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider'

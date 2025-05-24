@@ -1,0 +1,16 @@
+{% block lib_button_widget %}
+    {% set classNames = "js-lib-btn lib-btn " %}
+    {% set classNames = requires_confirmation ? classNames ~ 'js-lib-btn--requires-confirmation lib-btn--requires-confirmation ' : classNames %}
+    {% set classNames = execute_once ? classNames ~ 'js-lib-btn--execute-once ' : classNames %}
+    {% set classNames = refresh ? classNames ~ 'js-lib-btn--refresh ' : classNames %}
+    <button class="{{ classNames }}" {{ block('widget_attributes') }} type="button">
+        {% if icon %}
+            <div class="lib-btn__icon-wrapper">
+                <i class="{{ icon }} lib-btn__icon" aria-hidden="true"></i>
+                {{ label }}
+            </div>
+        {% else %}
+            {{ label }}
+        {% endif %}
+    </button>
+{% endblock %}

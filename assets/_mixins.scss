@@ -1,0 +1,117 @@
+@use "sass:math";
+@use "functions" as *;
+
+@mixin list-unstyled() {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@mixin headings-typography($headings-font-sizes, $headings-font-weights, $has-mt: false, $headings-line-height: 1.2) {
+  @each $h, $value in $headings-font-sizes {
+    #{$h}, .#{$h} {
+      font-size: $value;
+      font-weight: map-get($headings-font-weights, $h);
+
+      @include font-spacing($value, $headings-line-height, $has-mt);
+    }
+  }
+}
+
+@mixin font-spacing($fs: $font-size-base, $lh: $line-height-base, $has-mt: false) {
+  $mt: font-margin-top($fs, $lh);
+
+  @if $has-mt {
+    margin-top : $mt;
+  }
+
+  margin-bottom : math.div($mt, 2);
+}
+
+@mixin headings() {
+  h1, h2, h3, h4, h5, h6,
+  .h1, .h2, .h3, .h4, .h5, .h6 {
+    @content;
+  }
+}
+
+@mixin modifiers($values, $property: background-color) {
+  @each $modifier, $value in $values {
+    &_#{$modifier} {
+      #{$property}: $value;
+    }
+  }
+}
+
+@mixin cover($position: absolute, $top: 0, $right: 0, $bottom: 0, $left: 0) {
+  position: $position;
+  top: $top;
+  right: $right;
+  bottom: $bottom;
+  left: $left;
+}
+
+@mixin center($position: absolute) {
+  position:   $position;
+  top:        50%;
+  left:       50%;
+  transform:  translate(-50%, -50%);
+}
+
+@mixin v-center($position: absolute) {
+  position:   $position;
+  top:        50%;
+  transform:  translateY(-50%);
+}
+
+@mixin flex-center($direction: column) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin underlined($color, $spacer) {
+  &:after {
+    content:'';
+    display: block;
+    width: 5rem;
+    height: 0.15rem;
+    background: $color;
+    margin-top: math.div($spacer, 2);
+  }
+}
+
+@mixin interactive-states() {
+  &:focus, &:hover,
+  &:active, &.active,
+  &:active:focus, &.active:focus {
+    @content;
+  }
+}
+
+@mixin specificity-war($times: 1) {
+  $selector: #{&};
+
+  @if $times > 1 {
+    @for $time from 1 through $times {
+      $selector: #{$selector}#{&};
+    }
+  }
+
+  &#{$selector} {
+    @content;
+  }
+}
+
+@mixin overlay($opacity: .7, $color: black, $selector: "&:before") {
+  position: relative;
+
+  #{unquote($selector)} {
+    content: '';
+    @include cover();
+    background-color: transparentize($color, $opacity);
+
+    @content;
+  }
+}

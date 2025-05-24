@@ -1,0 +1,22 @@
+{% if app.environment == 'test'%}
+    {% set mockedJSTimestamp = getMockedJSTimestamp() %}
+
+    {% if mockedJSTimestamp is not null %}
+        <script src="{{ asset("bundles/Khalil1608lib/js/timeshift/timeshift.js") }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+
+        <script type="text/javascript">
+            const mockedDate = new Date();
+            mockedDate.setTime({{ mockedJSTimestamp }});
+            TimeShift.setTimezoneOffset(mockedDate.getTimezoneOffset());
+            _.merge(Date, TimeShift.Date);
+            var originalDate = new TimeShift.OriginalDate().getTime();    // Get the actual date before setting
+            var mockTimestamp = parseInt({{ mockedJSTimestamp }});
+            TimeShift.setTime(() => {
+                var dateNow = new TimeShift.OriginalDate().getTime();
+                return mockTimestamp + dateNow - originalDate;
+            });
+            Date = TimeShift.Date;
+        </script>
+    {% endif %}
+{% endif %}

@@ -1,0 +1,26 @@
+when@prod:
+  sentry:
+    dsn: "%env(SENTRY_DSN)%"
+    register_error_listener: false # Disables the ErrorListener to avoid duplicated log in sentry
+    register_error_handler: false # Disables the ErrorListener, ExceptionListener and FatalErrorListener integrations of the base PHP SDK
+    options:
+      in_app_exclude:
+        - "%kernel.build_dir%"
+        - "%kernel.cache_dir%"
+        - "%kernel.project_dir%/vendor"
+      integrations:
+        - 'Sentry\Integration\IgnoreErrorsIntegration'
+
+  services:
+    Sentry\Integration\IgnoreErrorsIntegration:
+      arguments:
+        $options:
+          ignore_exceptions:
+            - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+  
+  monolog:
+    handlers:
+      sentry:
+        type: sentry
+        level: !php/const Monolog\Logger::CRITICAL
+        hub_id: Sentry\State\HubInterface

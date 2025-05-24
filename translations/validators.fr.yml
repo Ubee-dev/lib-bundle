@@ -1,0 +1,49 @@
+Khalil1608_lib:
+  field:
+    invalid: "Ce champ est invalide."
+  phone:
+    regex:
+      html5_pattern: '(?:(?:\+|00)[1-9]\d|0)\d{9}'
+      pattern: '/^(?:(?:\+|00)[1-9]\d|0)\d{9}$/'
+  
+  post_code:
+    regex:
+      html5_pattern: '([A-Z]+[A-Z]?\-)?[0-9]{1,2} ?[0-9]{3}'
+      pattern: "/^(F-)?((2[A|B])|[0-9]{2})[0-9]{3}$/"
+      message: Cette valeur n'est pas un code postal valide.
+  
+  image:
+    not_blank:
+      message: Cette image est obligatoire.
+  
+  email:
+    must_match:
+      message: Les emails doivent être égales.
+    invalid: Cette valeur n'est pas un email valide.
+  
+  password:
+    must_match:
+      message: Les mots de passes doivent être égales.
+  
+  phone_number:
+    invalid: Le numéro de téléphone saisi est invalide.
+  
+  required_filed: Ce champ est obligatoire.
+  not_blank: Cette valeur ne doit pas être vide.
+  not_allowed_value: 'La valeur {{ current_value }} est invalide. Les valeurs acceptées sont: {{ allowed_values }}.'
+  
+  money:
+    greather_than: Cette valeur doit être supérieure à {{ compared_value }}.
+    
+  media:
+    extension:
+      invalid: "Extension de fichier invalide ({{ extension }}). Extensions autorisées : {{ extensions }}"
+#      invalid: Type de fichier invalide. ({{ mime_type }} uniquement)
+    mime_type:
+      invalid: "Type de fichier invalide ({{ type }}). Types autorisés : {{ types }}"
+    max_size:
+      invalid: "Fichier trop volumineux ({{ size }} {{ suffix }}). Taille maximum : {{ limit }} {{ suffix }}."
+      
+  url:
+    must_be_valid_video_platform: "L'URL doit être une URL valide pour les plateformes suivantes : {{ providers }}."
+      
