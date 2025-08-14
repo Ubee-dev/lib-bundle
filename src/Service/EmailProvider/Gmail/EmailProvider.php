@@ -32,7 +32,7 @@ readonly class EmailProvider implements EmailProviderInterface
         $message = [
             $contentType => $body,
             'subject' => $subject,
-            'from_email' => is_string($from) ? $from : $from[0],
+            'from_email' => is_string($from) ? $from : $from['email'],
             'to' => array_map(static function ($t) use ($to) {
                 return [
                     'email' => $t,
