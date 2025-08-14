@@ -17,7 +17,6 @@ const Markdown = {
         const markdownAreas = document.querySelectorAll('.js-markdown');
         this.initOptions = initOptions;
 
-        console.log("this.initOptions", this.initOptions)
         if (markdownAreas.length) {
             markdownAreas.forEach(area => {
                 this.addEditor(area, this.initOptions);
@@ -30,8 +29,6 @@ const Markdown = {
     },
 
     changePreviewContent: function (plainText, preview) {
-
-        console.log("bbbbbbbbbbbbbbbbbb");
         fetch(this.initOptions.previewUrl, {
             method: 'POST',
             headers: {
@@ -64,8 +61,6 @@ const Markdown = {
         const options = this.defaultOptions(markdownArea);
 
         if(overrideOptions.length > 0) {
-            console.log("overrideOptions", overrideOptions)
-
             Object.keys(overrideOptions).forEach((key) => {
                 this.initOptions[key] = overrideOptions[key];
             });
@@ -107,10 +102,7 @@ const Markdown = {
         // Load toolbar.
         options.toolbar = this.toolbar(markdownArea);
 
-        console.log("this.initOptions.previewUrl", this.initOptions.previewUrl)
         if(this.initOptions.previewUrl) {
-
-            console.log('previewUrl is set');
             options.previewRender = (plainText, preview) => {
                 return this.changePreviewContent(plainText, preview) || 'Loading';
             };
@@ -332,6 +324,10 @@ const Markdown = {
         const toolbar = this.defaultToolbar();
         toolbar.push(this.iframeTool());
         toolbar.push(this.buttonTool());
+        toolbar.push(this.stepsTool());
+        toolbar.push(this.featuresTool());
+        toolbar.push(this.ctaBannerTool());
+        toolbar.push(this.calloutBlockTool());
         return toolbar;
     },
 
@@ -701,6 +697,193 @@ const Markdown = {
             title: "Ancre de titre"
         };
     },
+    stepsTool: function () {
+        const self = this;
+        return {
+            name: "steps",
+            action: function (editor) {
+                // Demander le nombre d'étapes
+                const stepsNumber = prompt("Combien d'étapes voulez-vous créer ? (2-10)");
+
+                if (!stepsNumber || isNaN(stepsNumber) || stepsNumber < 2 || stepsNumber > 10) {
+                    alert("Veuillez entrer un nombre valide entre 2 et 10");
+                    return;
+                }
+
+                const num = parseInt(stepsNumber);
+
+                // Générer le markdown pour les steps
+                let stepsMarkdown = "{steps-start}\n";
+
+                for (let i = 1; i <= num; i++) {
+                    stepsMarkdown += `{step:${i}:Titre de l'étape ${i}}\n`;
+                    stepsMarkdown += `Description de l'étape ${i}. Vous pouvez utiliser du **texte gras** et des listes :\n`;
+                    stepsMarkdown += `- Premier point important\n`;
+                    stepsMarkdown += `- Deuxième point important\n`;
+                    stepsMarkdown += `{/step}\n\n`;
+                }
+
+                stepsMarkdown += "{steps-end}";
+
+                // Insérer le markdown dans l'éditeur
+                const cm = editor.codemirror;
+                const cursor = cm.getCursor();
+
+                // Insérer à la position du curseur
+                cm.replaceRange(stepsMarkdown, cursor);
+
+                // Positionner le curseur pour faciliter l'édition
+                cm.setCursor(cursor.line + 1, 0);
+                cm.focus();
+            },
+            className: "fa fa-list-ol",
+            title: "Insérer des étapes (Steps)"
+        };
+    },
+    featuresTool: function () {
+        const self = this;
+        return {
+            name: "features",
+            action: function (editor) {
+                // Demander le nombre de features
+                const featuresNumber = prompt("Combien de features voulez-vous créer ? (2-6)");
+
+                if (!featuresNumber || isNaN(featuresNumber) || featuresNumber < 2 || featuresNumber > 6) {
+                    alert("Veuillez entrer un nombre valide entre 2 et 6");
+                    return;
+                }
+
+                const num = parseInt(featuresNumber);
+
+                // Classes Font Awesome complètes pour les exemples
+                const defaultIcons = [
+                    'fas fa-comments',
+                    'fas fa-bullhorn',
+                    'fas fa-building',
+                    'fas fa-users',
+                    'fas fa-cog',
+                    'fas fa-star'
+                ];
+
+                // Générer le markdown pour les features
+                let featuresMarkdown = "{features-start}\n";
+
+                for (let i = 1; i <= num; i++) {
+                    const iconClass = defaultIcons[i - 1] || 'fas fa-star';
+                    featuresMarkdown += `{feature:${iconClass}:Feature Title ${i}:Description de la feature ${i} avec tous les détails importants}\n`;
+                }
+
+                featuresMarkdown += "{features-end}";
+
+                // Insérer le markdown dans l'éditeur
+                const cm = editor.codemirror;
+                const cursor = cm.getCursor();
+
+                // Insérer à la position du curseur
+                cm.replaceRange(featuresMarkdown, cursor);
+
+                // Positionner le curseur pour faciliter l'édition
+                cm.setCursor(cursor.line + 1, 0);
+                cm.focus();
+            },
+            className: "fa fa-star",
+            title: "Insérer des features (Font Awesome classes complètes)"
+        };
+    },
+    ctaBannerTool: function () {
+        const self = this;
+        return {
+            name: "cta-banner",
+            action: function (editor) {
+                // Demander les informations du CTA banner
+                const title = prompt("Titre du CTA banner :");
+                if (!title) return;
+
+                const description = prompt("Description du CTA banner (markdown autorisé, utilisez \\n pour les retours à la ligne) :");
+                if (!description) return;
+
+                const button1Text = prompt("Texte du premier bouton :");
+                if (!button1Text) return;
+
+                const button1URL = prompt("URL du premier bouton :");
+                if (!button1URL) return;
+
+                const button2Text = prompt("Texte du deuxième bouton :");
+                if (!button2Text) return;
+
+                const button2URL = prompt("URL du deuxième bouton :");
+                if (!button2URL) return;
+
+                // Traiter les retours à la ligne dans la description
+                const processedDescription = description.replace(/\\n/g, '\n');
+
+                // Générer le markdown pour le CTA banner avec la nouvelle syntaxe
+                const ctaBannerMarkdown = `{cta-banner-start}
+{title}
+${title}
+{description}
+${processedDescription}
+{button1}
+${button1Text}|${button1URL}
+{button2}
+${button2Text}|${button2URL}
+{cta-banner-end}`;
+
+                // Insérer le markdown dans l'éditeur
+                const cm = editor.codemirror;
+                const cursor = cm.getCursor();
+
+                // Insérer à la position du curseur
+                cm.replaceRange(ctaBannerMarkdown, cursor);
+
+                // Positionner le curseur après l'insertion
+                const lines = ctaBannerMarkdown.split('\n');
+                cm.setCursor(cursor.line + lines.length, 0);
+                cm.focus();
+            },
+            className: "fa fa-bullhorn",
+            title: "Insérer un CTA Banner (nouvelle syntaxe multi-lignes)"
+        };
+    },
+    calloutBlockTool: function () {
+        const self = this;
+        return {
+            name: "callout-block",
+            action: function (editor) {
+                // Demander les informations du bloc callout
+                const title = prompt("Titre du bloc callout :");
+                if (!title) return;
+
+                const description = prompt("Description du bloc callout (markdown autorisé, utilisez \\n pour les retours à la ligne) :");
+                if (!description) return;
+
+                // Traiter les retours à la ligne dans la description
+                const processedDescription = description.replace(/\\n/g, '\n');
+
+                // Générer le markdown pour le bloc callout avec la nouvelle syntaxe multi-lignes
+                const calloutBlockMarkdown = `{callout-block-start}
+{title}
+${title}
+{description}
+${processedDescription}
+{callout-block-end}`;
+
+                // Insérer le markdown dans l'éditeur
+                const cm = editor.codemirror;
+                const cursor = cm.getCursor();
+
+                // Insérer à la position du curseur
+                cm.replaceRange(calloutBlockMarkdown, cursor);
+
+                // Positionner le curseur après l'insertion
+                const lines = calloutBlockMarkdown.split('\n');
+                cm.setCursor(cursor.line + lines.length, 0);
+                cm.focus();
+            },
+            className: "fa fa-info-circle",
+            title: "Insérer un bloc callout (avec support markdown)"
+        };
+    }
 };
 
 export default Markdown;

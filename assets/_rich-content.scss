@@ -12,7 +12,8 @@ $spacers: (
         3: $spacer,
         4: ($spacer * 1.5),
         5: ($spacer * 2),
-        6: ($spacer * 3)
+        6: ($spacer * 2.4),
+        7: ($spacer * 3),
 ) !default;
 $font-size: undefined !default;
 $line-height: undefined !default;
@@ -30,8 +31,32 @@ $font-size-sm: undefined !default;
 $transition: all .2s ease-in-out  !default;
 $headings-font-family: undefined !default;
 
+// Variables pour les steps
+$primary-color: #669999 !default;
+$secondary-color: #cc3333 !default;
+$white: #ffffff !default;
+$black: #000000 !default;
+$gray-light: #f8f9fa !default;
+$gray-medium: #6c757d !default;
+$text-color: #333333 !default;
+$border-radius: 8px !default;
+$breakpoint-sm: 576px !default;
+$breakpoint-md: 768px !default;
+$shadow-small: 0 2px 10px rgba(0, 0, 0, 0.08) !default;
+$shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1) !default;
+$shadow-large: 0 8px 25px rgba(0, 0, 0, 0.15) !default;
+$dark-gray: #333 !default;
+
 .rich-content {
   font-size: $font-size * $size-coeff;
+
+  hr{
+    border-width: 0;
+    border-bottom-width: 0px;
+    border-bottom-width: 1px;
+    border-color: $primary-color;
+    border-style: solid;
+  }
 
   .ratio {
     position: relative;
@@ -88,7 +113,7 @@ $headings-font-family: undefined !default;
     font-weight: $h3-font-weight;
   }
 
-  h3, h4 {
+  h3:not(.callout-block-title), h4 {
     margin-top: map-get($spacers, 5);
   }
 
@@ -125,7 +150,7 @@ $headings-font-family: undefined !default;
     padding-bottom: $spacer;
   }
 
-  a:not(.btn):not(.footnote-ref) {
+  a:not(.btn):not(.footnote-ref):not(.cta-banner-btn) {
     @extend .link !optional;
     text-decoration: underline;
 
@@ -276,6 +301,478 @@ $headings-font-family: undefined !default;
       }
     }
   }
+
+  // ==================== STEPS COMPONENT ====================
+
+  // Steps Container
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: map-get($spacers, 6);
+    margin: map-get($spacers, 7) 0;
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+      gap: map-get($spacers, 6);
+    }
+  }
+
+  .step-card {
+    background: $white;
+    border-radius: $border-radius;
+    padding: $spacer * 1.5;
+    box-shadow: $shadow-medium;
+    border-top: 4px solid $primary-color;
+    transition: $transition;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: $shadow-large;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, $primary-color, $secondary-color);
+    }
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: $spacer;
+  }
+
+  .step-number-compact {
+    width: 40px;
+    height: 40px;
+    background: $primary-color;
+    color: $white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $headings-font-family;
+    font-weight: $font-weight-bold;
+    margin-right: $spacer;
+    flex-shrink: 0;
+    font-size: 1.1rem;
+  }
+
+  .step-title-compact {
+    font-family: $headings-font-family;
+    font-size: 1.2rem;
+    color: $black;
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .step-content-compact {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: $text-color;
+
+    p {
+      margin-bottom: $spacer * 0.75;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    // Override default ul styles specifically for steps
+    ul {
+      margin: ($spacer * 0.75) 0 0;
+      padding-left: $spacer * 1.5;
+      list-style: none;
+
+      li {
+        margin: ($spacer * 0.5) 0;
+        position: relative;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        // Override default bullet for steps
+        &:before {
+          content: '✓';
+          color: $primary-color;
+          font-weight: $font-weight-bold;
+          position: absolute;
+          left: 0;
+          top: 0;
+          transform: translateX(calc(-100% - #{$spacer * 0.5}));
+        }
+
+        strong {
+          color: $secondary-color;
+        }
+      }
+    }
+
+    em {
+      color: $gray-medium;
+      font-style: italic;
+      display: block;
+      margin-bottom: $spacer * 0.75;
+    }
+  }
+
+  // Steps Process Header (optionnel pour contexte)
+  .steps-process-header {
+    text-align: center;
+    margin-bottom: $spacer * 3;
+
+    .process-title {
+      font-family: $headings-font-family;
+      font-size: 2rem;
+      color: $primary-color;
+      margin-bottom: $spacer;
+      font-weight: $font-weight-bold;
+    }
+
+    .process-description {
+      font-size: 1.1rem;
+      color: $gray-medium;
+      max-width: 700px;
+      margin: 0 auto $spacer * 1.5;
+    }
+
+    .process-tagline {
+      font-size: 1rem;
+      color: $secondary-color;
+      font-weight: 600;
+      font-family: $headings-font-family;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: $breakpoint-md) {
+    .steps-process-header .process-title {
+      font-size: 1.5rem;
+    }
+
+    .step-card {
+      padding: $spacer;
+    }
+
+    .step-number-compact {
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
+      margin-right: $spacer * 0.75;
+    }
+
+    .step-title-compact {
+      font-size: 1.1rem;
+    }
+  }
+
+  // ==================== FEATURES COMPONENT ====================
+  // Features Container
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: map-get($spacers, 4);
+    margin: map-get($spacers, 7) 0;
+    align-items: start;
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+      gap: map-get($spacers, 4);
+    }
+  }
+
+  .feature-card {
+    background: $gray-light;
+    border-radius: $border-radius;
+    padding: map-get($spacers, 4);
+    border-left: 4px solid $primary-color;
+    transition: $transition;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      background: $white;
+      box-shadow: $shadow-small;
+      transform: translateX(3px);
+    }
+  }
+
+  .feature-header {
+    display: flex;
+    align-items: center;
+    gap: map-get($spacers, 3);
+    margin-bottom: map-get($spacers, 3);
+  }
+
+  .feature-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    color: $primary-color;
+  }
+
+  .feature-title {
+    font-family: $headings-font-family;
+    font-size: 1rem;
+    color: $black;
+    margin: 0;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .feature-description {
+    font-size: 0.85rem;
+    color: $gray-medium;
+    line-height: 1.4;
+    margin: 0;
+    flex-grow: 1;
+  }
+
+  // Features Process Header (optionnel)
+  .features-process-header {
+    text-align: center;
+    margin-bottom: map-get($spacers, 5);
+
+    .process-title {
+      font-family: $headings-font-family;
+      font-size: 1.5rem;
+      color: $black;
+      margin-bottom: map-get($spacers, 3);
+      font-weight: 600;
+    }
+
+    .process-description {
+      font-size: 1rem;
+      color: $gray-medium;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  // Responsive adjustments pour features
+  @media (max-width: $breakpoint-md) {
+    .features-process-header .process-title {
+      font-size: 1.3rem;
+    }
+
+    .feature-card {
+      padding: map-get($spacers, 3);
+    }
+
+    .feature-icon {
+      font-size: 1.3rem;
+    }
+
+    .feature-title {
+      font-size: 0.95rem;
+    }
+  }
+
+  // ==================== CTA BANNER COMPONENT ====================
+
+  .cta-banner {
+    background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%));
+    color: $white;
+    padding: map-get($spacers, 7);
+    border-radius: $border-radius;
+    text-align: center;
+    margin: map-get($spacers, 7) 0;
+    position: relative;
+    overflow: hidden;
+
+    // Animation subtile d'arrière-plan
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: shimmer 4s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(180deg); }
+    }
+  }
+
+  .cta-banner-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .cta-banner-title {
+    font-family: $headings-font-family;
+    font-size: 1.8rem;
+    margin-bottom: map-get($spacers, 4);
+    font-weight: $font-weight-bold;
+    line-height: 1.3;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 1.5rem;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 1.3rem;
+    }
+  }
+
+  .cta-banner-description {
+    font-size: 1.1rem;
+    margin-bottom: map-get($spacers, 6);
+    opacity: 0.95;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+
+    strong {
+      color: $white;
+    }
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 1rem;
+      margin-bottom: map-get($spacers, 5);
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 0.95rem;
+    }
+  }
+
+  .cta-banner-buttons {
+    display: flex;
+    gap: map-get($spacers, 4);
+    justify-content: center;
+    flex-wrap: wrap;
+
+    @media (max-width: $breakpoint-sm) {
+      flex-direction: column;
+      align-items: center;
+      gap: map-get($spacers, 3);
+    }
+  }
+
+  .cta-banner-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: map-get($spacers, 3);
+    padding: map-get($spacers, 4) map-get($spacers, 6);
+    border-radius: $border-radius;
+    font-family: $headings-font-family;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none !important;
+    transition: $transition;
+    min-width: 200px;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+    @media (max-width: $breakpoint-sm) {
+      width: 100%;
+      max-width: 280px;
+      min-width: auto;
+    }
+
+    // Bouton primaire (vert)
+    &.primary {
+      background: $primary-color;
+      color: $white;
+      border-color: $primary-color;
+      box-shadow: 0 4px 15px rgba(102, 153, 153, 0.3);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.9);
+        color: $primary-color !important;
+        border-color: rgba(255, 255, 255, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+        text-decoration: none !important;
+      }
+    }
+
+    // Bouton secondaire (rouge)
+    &.secondary {
+      background: $secondary-color;
+      color: $white;
+      border-color: $secondary-color;
+      box-shadow: 0 4px 15px rgba(204, 51, 51, 0.3);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.9);
+        color: $secondary-color !important;
+        border-color: rgba(255, 255, 255, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+        text-decoration: none !important;
+      }
+    }
+  }
+
+  // ==================== CALLOUT BLOCK COMPONENT ====================
+
+  .callout-block {
+    background: $gray-light;
+    border-radius: $border-radius;
+    padding: map-get($spacers, 6);
+    margin: map-get($spacers, 7) 0;
+    border-left: 4px solid $primary-color;
+    position: relative;
+
+    @media (max-width: $breakpoint-md) {
+      padding: map-get($spacers, 5);
+      margin: map-get($spacers, 6) 0 map-get($spacers, 4);
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      padding: map-get($spacers, 4);
+    }
+  }
+
+  .callout-block-title {
+    font-family: $headings-font-family;
+    font-size: 1.6rem;
+    color: $black;
+    margin-bottom: map-get($spacers, 3);
+    font-weight: $font-weight-bold;
+    line-height: 1.3;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 1.4rem;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 1.2rem;
+    }
+  }
+
+  .callout-block-description {
+    font-size: 1rem;
+    color: $dark-gray;
+    line-height: 1.6;
+    margin: 0;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      font-size: 0.9rem;
+    }
+  }
 }
 
 .quote {
@@ -290,14 +787,14 @@ $headings-font-family: undefined !default;
   }
 
   &:before {
-    content: '“';
+    content: '"';
     top: 0;
     left: 0;
     font-family: $headings-font-family;
   }
 
   &:after {
-    content: '”';
+    content: '"';
     bottom: 0;
     right: 0;
     font-family: $headings-font-family;
