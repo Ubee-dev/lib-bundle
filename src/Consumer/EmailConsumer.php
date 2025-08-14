@@ -35,6 +35,7 @@ class EmailConsumer implements ConsumerInterface
                 to: $mailData['to'],
                 body: $mailData['text'],
                 subject: $mailData['subject'],
+                replyTo: $mailData['replyTo'] ?? null,
                 contentType: Mailer::HTML_CONTENT_TYPE,
                 attachments: $mailData['attachments'] ?? []
             );
