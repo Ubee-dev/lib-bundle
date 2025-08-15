@@ -36,9 +36,6 @@ abstract class Media extends AbstractEntity
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $title = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $description = null;
-
     public function __construct()
     {
         $now = new DateTime('now');
@@ -122,17 +119,6 @@ abstract class Media extends AbstractEntity
     public function setTitle(?string $title): self
     {
         $this->title = $title;
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): self
-    {
-        $this->description = $description;
         return $this;
     }
 
