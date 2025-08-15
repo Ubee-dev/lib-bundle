@@ -2,6 +2,7 @@
 
 namespace Khalil1608\LibBundle\Tests\Helper;
 
+use Khalil1608\LibBundle\Model\Type\Email;
 use Khalil1608\LibBundle\Producer\EmailProducer;
 use OldSound\RabbitMqBundle\RabbitMq\Producer as RabbitProducer;
 
@@ -22,7 +23,8 @@ class EmailProducerStub extends EmailProducer
         string $text,
         string $subject,
         array $attachments = [],
-        int $retryNumber = 0
+        int $retryNumber = 0,
+        ?Email $replyTo = null
     ): void
     {
         $this->fakeEmailProvider->sendMail(
