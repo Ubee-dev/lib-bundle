@@ -89,6 +89,9 @@ services:
   Khalil1608\LibBundle\Service\OpsAlertManager:
     arguments:
       $muteOpsAlerts: '%env(bool:MUTE_OPS_ALERTS)%'
+      
+  Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
+    arguments: [ '@snc_redis.default' ]
     
     
 when@test:

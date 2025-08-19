@@ -19,7 +19,7 @@ class UtmManager
             $utms = $request->cookies->get('utm') ?? [];
 
             if($utms) {
-                $utms = json_decode($request->cookies->get('utm'));
+                $utms = json_decode($request->cookies->get('utm'), true, 512, JSON_THROW_ON_ERROR) ?? [];
             }
         }
         return $utms;
