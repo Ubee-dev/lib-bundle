@@ -5,6 +5,9 @@ parameters:
   #todo tester si on peut l'écraser en lancant les tests parallèles
   env(TEST_TOKEN): "1"
   env(MUTE_OPS_ALERTS): false
+  env(TURNSTILE_SECRET_KEY): ''
+  env(TURNSTILE_SITE_KEY): ''
+  env(ANTI_ROBOT_DEFAULT_VERIFIER): 'honeypot' # 'turnstile' or 'honeypot'
 
 services:
   _defaults:
@@ -92,6 +95,39 @@ services:
       
   Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
     arguments: [ '@snc_redis.default' ]
+    
+  # Factory pour les vérificateurs anti-robot
+  Khalil1608\LibBundle\Service\AntiRobot\AntiRobotVerifierFactory:
+    arguments:
+      $defaultVerifier: '%env(ANTI_ROBOT_DEFAULT_VERIFIER)%'
+      $verifiers: !tagged_iterator app.anti_robot_verifier
+  
+  # Implémentation Honeypot (utilise FormManager existant)
+  Khalil1608\LibBundle\Service\AntiRobot\HoneypotVerifier:
+    arguments:
+      $formManager: '@Khalil1608\LibBundle\Service\FormManager'
+    tags:
+      - { name: 'app.anti_robot_verifier' }
+  
+  # Implémentation Turnstile (optionnelle)
+  Khalil1608\LibBundle\Service\AntiRobot\TurnstileVerifier:
+    arguments:
+      $secretKey: '%env(TURNSTILE_SECRET_KEY)%'
+      $siteKey: '%env(TURNSTILE_SITE_KEY)%'
+    tags:
+      - { name: 'app.anti_robot_verifier' }
+  
+  # Compiler pass pour enregistrer automatiquement les vérificateurs
+  Khalil1608\LibBundle\DependencyInjection\Compiler\AntiRobotVerifierPass:
+    tags:
+      - { name: kernel.compiler_pass }
+  
+  # Extension Twig pour exposer les données du vérificateur
+  Khalil1608\LibBundle\Twig\AntiRobotExtension:
+    arguments:
+      - '@Khalil1608\LibBundle\Service\AntiRobot\AntiRobotVerifierFactory'
+    tags:
+      - { name: twig.extension }
     
     
 when@test:
