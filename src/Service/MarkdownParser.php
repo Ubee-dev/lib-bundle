@@ -21,6 +21,7 @@ class MarkdownParser implements MarkdownParserInterface
     private ParsedownExtra $parser;
     private EntityManagerInterface $entityManager;
     private ?string $mediaClassName;
+    private ?string $siteDomain;
 
     use VideoTrait;
 
@@ -31,6 +32,7 @@ class MarkdownParser implements MarkdownParserInterface
         $this->parser = new ParsedownExtra();
         $this->entityManager = $entityManager;
         $this->mediaClassName = $parameterBag->get('mediaClassName');
+        $this->siteDomain = $parameterBag->get('site.domain', null);
     }
 
     /**
@@ -336,7 +338,41 @@ class MarkdownParser implements MarkdownParserInterface
      */
     public function addLinkJsClass(string $html): string
     {
-        return preg_replace('/<a (href="[^"]*")>/', '<a $1 class="js-external-link-target">', $html);
+        return preg_replace_callback('/<a\s+href="([^"]*)"([^>]*)>/i', function($matches) {
+            $href = $matches[1];
+            $existingAttributes = $matches[2];
+
+            // Skip if already has target attribute
+            if (preg_match('/\btarget\s*=/', $existingAttributes)) {
+                return $matches[0];
+            }
+
+            $isExternal = $this->isExternalLink($href);
+            $shouldAddNofollow = $this->shouldAddNofollow($href);
+
+            $attributes = [];
+
+            // Ajouter la classe JS si elle n'existe pas déjà
+            if (!preg_match('/\bclass\s*=/', $existingAttributes)) {
+                $attributes[] = 'class="js-external-link-target"';
+            }
+
+            // Traitement des liens externes
+            if ($isExternal) {
+                $attributes[] = 'target="_blank"';
+                $relValues = ['noopener', 'noreferrer'];
+
+                if ($shouldAddNofollow) {
+                    $relValues[] = 'nofollow';
+                }
+
+                $attributes[] = 'rel="' . implode(' ', $relValues) . '"';
+            }
+
+            // Construire le lien final
+            $attributeString = empty($attributes) ? '' : ' ' . implode(' ', $attributes);
+            return '<a href="' . $href . '"' . $existingAttributes . $attributeString . '>';
+        }, $html);
     }
 
     public function getMediaIds(string $markdown): array
@@ -650,5 +686,96 @@ class MarkdownParser implements MarkdownParserInterface
             htmlspecialchars($title),
             $descriptionHtml
         );
+    }
+
+    /**
+     * Determine if a link is external
+     *
+     * @param string $href
+     * @return bool
+     */
+    private function isExternalLink(string $href): bool
+    {
+        // Liens relatifs et ancres = internes
+        if (empty($href) || $href[0] === '/' || $href[0] === '#') {
+            return false;
+        }
+
+        // Liens mailto, tel, etc. = pas externes au sens web
+        if (preg_match('/^(mailto|tel|sms|ftp):/i', $href)) {
+            return false;
+        }
+
+        // Si pas de domaine du site configuré, considérer tous les liens absolus comme externes
+        if (!$this->siteDomain) {
+            return preg_match('/^https?:\/\//i', $href);
+        }
+
+        // Parser l'URL pour extraire le domaine
+        $parsedUrl = parse_url($href);
+        if (!isset($parsedUrl['host'])) {
+            return false; // URL relative ou malformée
+        }
+
+        $linkDomain = strtolower($parsedUrl['host']);
+        $siteDomain = strtolower($this->siteDomain);
+
+        // Supprimer "www." pour la comparaison
+        $linkDomain = preg_replace('/^www\./', '', $linkDomain);
+        $siteDomain = preg_replace('/^www\./', '', $siteDomain);
+
+        return $linkDomain !== $siteDomain;
+    }
+
+// 5. Ajouter cette nouvelle fonction
+    /**
+     * Determine if a link should have nofollow attribute
+     *
+     * @param string $href
+     * @return bool
+     */
+    private function shouldAddNofollow(string $href): bool
+    {
+        $nofollowDomains = [
+            'youtube.com',
+            'youtu.be',
+            'facebook.com',
+            'fb.com',
+            'instagram.com',
+            'twitter.com',
+            'x.com',
+            'linkedin.com',
+            'tiktok.com',
+            'pinterest.com',
+            'reddit.com',
+            'discord.com',
+            'telegram.org',
+            'whatsapp.com',
+            'snapchat.com',
+            'amazon.com',
+            'amazon.fr',
+            'ebay.com',
+            'aliexpress.com',
+            'booking.com',
+            'airbnb.com',
+            'spotify.com',
+            'netflix.com',
+            'twitch.tv'
+        ];
+
+        $parsedUrl = parse_url(strtolower($href));
+        if (!isset($parsedUrl['host'])) {
+            return false;
+        }
+
+        $domain = preg_replace('/^www\./', '', $parsedUrl['host']);
+
+        foreach ($nofollowDomains as $nofollowDomain) {
+            if ($domain === $nofollowDomain || str_ends_with($domain, '.' . $nofollowDomain)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
