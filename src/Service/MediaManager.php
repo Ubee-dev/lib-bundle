@@ -64,9 +64,9 @@ class MediaManager
      * @throws Exception
      */
     public function upload(
-        File $uploadedFile, 
-        string $context, 
-        bool $private = false, 
+        File $uploadedFile,
+        string $context,
+        bool $private = false,
         bool $andFlush = true
     ): Media
     {
@@ -81,13 +81,16 @@ class MediaManager
             contentType: $mimeType,
             isPrivate: $private,
         );
-       
+
         $uploadDirectory = $this->getUploadDirectoryForContext($context, $private).'/'.$media->getCreatedAt()->format('Ym');
         $this->fileSystem->mkdir($uploadDirectory);
         $uploadedFile->move(
             $uploadDirectory,
             $newFilename
         );
+
+        // Extraire les dimensions si c'est une image
+        $this->extractImageDimensions($media, $uploadDirectory.'/'.$newFilename);
 
         if($andFlush) {
             $this->entityManager->persist($media);
@@ -102,6 +105,47 @@ class MediaManager
         }
 
         return $media;
+    }
+
+    /**
+     * Met à jour les dimensions d'un média existant
+     */
+    public function updateImageDimensions(Media $media): bool
+    {
+        if (!$media->isImage()) {
+            return false;
+        }
+
+        $filePath = $this->getRelativePath($media);
+        if (!file_exists($filePath)) {
+            return false;
+        }
+
+        return $this->extractImageDimensions($media, $filePath);
+    }
+
+    /**
+     * Extrait et définit les dimensions d'une image
+     */
+    private function extractImageDimensions(Media $media, string $filePath): bool
+    {
+        if (!$media->isImage() || !file_exists($filePath)) {
+            return false;
+        }
+
+        try {
+            $imageInfo = getimagesize($filePath);
+            if ($imageInfo !== false && isset($imageInfo[0], $imageInfo[1])) {
+                $media->setWidth($imageInfo[0]);
+                $media->setHeight($imageInfo[1]);
+                return true;
+            }
+        } catch (\Exception $e) {
+            // Log l'erreur si nécessaire, mais ne pas faire échouer l'upload
+            error_log("Failed to extract image dimensions for {$filePath}: " . $e->getMessage());
+        }
+
+        return false;
     }
 
     /**

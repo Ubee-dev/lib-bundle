@@ -11,4 +11,9 @@ when@test: &framework_test
   framework:
     test: true
     
-when@dev: *framework_test
+when@dev:
+  framework:
+    session:
+      cookie_secure: false
+
+  

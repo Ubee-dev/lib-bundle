@@ -29,12 +29,19 @@ abstract class Media extends AbstractEntity
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $private = false;
 
-    // Nouveaux champs pour l'accessibilité et le référencement
+    // Champs pour l'accessibilité et le référencement
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $alt = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $title = null;
+
+    // Nouveaux champs pour les dimensions d'image
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $width = null;
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $height = null;
 
     public function __construct()
     {
@@ -99,7 +106,7 @@ abstract class Media extends AbstractEntity
         return $this;
     }
 
-    // Nouveaux getters et setters pour les métadonnées
+    // Getters et setters pour les métadonnées
     public function getAlt(): ?string
     {
         return $this->alt;
@@ -120,6 +127,48 @@ abstract class Media extends AbstractEntity
     {
         $this->title = $title;
         return $this;
+    }
+
+    // Nouveaux getters et setters pour les dimensions
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+    public function setWidth(?int $width): self
+    {
+        $this->width = $width;
+        return $this;
+    }
+
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+    public function setHeight(?int $height): self
+    {
+        $this->height = $height;
+        return $this;
+    }
+
+    /**
+     * Retourne les dimensions sous forme de chaîne "largeur x hauteur"
+     */
+    public function getDimensionsString(): ?string
+    {
+        if ($this->width && $this->height) {
+            return $this->width . ' x ' . $this->height;
+        }
+        return null;
+    }
+
+    /**
+     * Vérifie si les dimensions sont disponibles
+     */
+    public function hasDimensions(): bool
+    {
+        return $this->width !== null && $this->height !== null;
     }
 
     /**

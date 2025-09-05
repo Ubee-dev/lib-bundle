@@ -8,6 +8,8 @@ use cebe\markdown\Markdown;
 use cebe\markdown\MarkdownExtra;
 use Exception;
 use ParsedownExtra;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
  * Markdown Parser
@@ -17,12 +19,18 @@ use ParsedownExtra;
 class MarkdownParser implements MarkdownParserInterface
 {
     private ParsedownExtra $parser;
+    private EntityManagerInterface $entityManager;
+    private ?string $mediaClassName;
 
     use VideoTrait;
 
-    public function __construct()
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        ParameterBagInterface $parameterBag
+    ) {
         $this->parser = new ParsedownExtra();
+        $this->entityManager = $entityManager;
+        $this->mediaClassName = $parameterBag->get('mediaClassName');
     }
 
     /**
@@ -47,6 +55,7 @@ class MarkdownParser implements MarkdownParserInterface
             $markdown = $this->parseCustomMarkdown($markdown);
             $html = $this->parser->text($markdown);
             $html = $this->removeMediaIdsFromImages($html);
+            $html = $this->addImageDimensions($html);
             $html = $this->addBSTableClass($html);
             $html = $this->addBSBlockquoteClass($html);
             $html = $this->addBSResponsiveTables($html);
@@ -54,9 +63,114 @@ class MarkdownParser implements MarkdownParserInterface
         } else {
             $html = $this->parser->text($this->parseSuperscriptMarkdown($markdown));
             $html = $this->removeMediaIdsFromImages($html);
+            $html = $this->addImageDimensions($html);
         }
 
         return $html;
+    }
+
+    /**
+     * Ajoute les dimensions (width/height) aux images en cherchant les médias correspondants
+     *
+     * @param string $html
+     * @return string Html avec dimensions ajoutées
+     */
+    public function addImageDimensions(string $html): string
+    {
+        if (!$this->mediaClassName) {
+            return $html;
+        }
+
+        $pattern = '/<img\s+src="([^"]+)"(\s+alt="([^"]*)")?([^>]*)\s*\/?>/i';
+
+        return preg_replace_callback($pattern, function ($matches) {
+            $src = $matches[1];
+            $alt = $matches[3] ?? '';
+            $otherAttributes = $matches[4] ?? '';
+
+            // Extraire le nom du fichier de l'URL
+            $filename = $this->extractFilenameFromUrl($src);
+
+            if (!$filename) {
+                return $matches[0]; // Retourner l'image originale si pas de filename
+            }
+
+            // Chercher le média correspondant
+            $media = $this->findMediaByFilename($filename);
+
+            if (!$media || !$media->isImage() || !$media->hasDimensions()) {
+                return $matches[0]; // Retourner l'image originale si pas trouvé ou pas de dimensions
+            }
+
+            // Vérifier si width/height sont déjà présents
+            if (preg_match('/\b(width|height)\s*=/', $otherAttributes)) {
+                return $matches[0]; // Ne pas écraser les dimensions existantes
+            }
+
+            // Construire la nouvelle balise img avec dimensions
+            $newImg = '<img src="' . $src . '"';
+
+            if (!empty($alt)) {
+                $newImg .= ' alt="' . $alt . '"';
+            }
+
+            $newImg .= ' width="' . $media->getWidth() . '"';
+            $newImg .= ' height="' . $media->getHeight() . '"';
+
+            if (!empty($otherAttributes)) {
+                $newImg .= $otherAttributes;
+            }
+
+            $newImg .= ' />';
+
+            return $newImg;
+        }, $html);
+    }
+
+    /**
+     * Extrait le nom du fichier à partir d'une URL
+     *
+     * @param string $url
+     * @return string|null
+     */
+    private function extractFilenameFromUrl(string $url): ?string
+    {
+        // Gérer les URLs relatives et absolues
+        $parsedUrl = parse_url($url);
+        $path = $parsedUrl['path'] ?? '';
+
+        if (empty($path)) {
+            return null;
+        }
+
+        // Extraire le nom du fichier
+        $filename = basename($path);
+
+        // Vérifier que c'est bien un fichier avec extension
+        if (empty($filename) || !preg_match('/\.[a-zA-Z0-9]+$/', $filename)) {
+            return null;
+        }
+
+        return $filename;
+    }
+
+    /**
+     * Trouve un média par son nom de fichier
+     *
+     * @param string $filename
+     * @return object|null
+     */
+    private function findMediaByFilename(string $filename): ?object
+    {
+        try {
+            return $this->entityManager
+                ->getRepository($this->mediaClassName)
+                ->findOneBy(['filename' => $filename]);
+        } catch (\Exception $e) {
+            // Log l'erreur mais ne pas faire planter le parsing
+            error_log("Error finding media by filename '$filename': " . $e->getMessage());
+            return null;
+        }
     }
 
     /**
@@ -174,7 +288,7 @@ class MarkdownParser implements MarkdownParserInterface
             $url = preg_replace('/\|\d+$/', '', $url);
 
             // Reconstitue la balise <img> avec l'URL modifiée et l'attribut alt
-            return '<img src="' . $url . '" alt="' . $alt . '" />';
+            return '<img src="' . $url . '" alt="' . $alt . '"  />';
         }, $html);
     }
 
