@@ -272,7 +272,7 @@ class MarkdownParser implements MarkdownParserInterface
                 $html .= '<div class="step-card">' . "\n";
                 $html .= '  <div class="step-header">' . "\n";
                 $html .= '    <div class="step-number-compact">' . $stepNumber . '</div>' . "\n";
-                $html .= '    <h4 class="step-title-compact">' . htmlspecialchars($stepTitle) . '</h4>' . "\n";
+                $html .= '    <span class="step-title-compact">' . htmlspecialchars($stepTitle) . '</span>' . "\n";
                 $html .= '  </div>' . "\n";
                 $html .= '  <div class="step-content-compact">' . "\n";
                 $html .= $stepContent;
@@ -366,7 +366,7 @@ class MarkdownParser implements MarkdownParserInterface
                 $html .= '<div class="feature-card">' . "\n";
                 $html .= '  <div class="feature-header">' . "\n";
                 $html .= '    <i class="' . htmlspecialchars($featureClasses) . ' feature-icon"></i>' . "\n";
-                $html .= '    <h4 class="feature-title">' . htmlspecialchars($featureTitle) . '</h4>' . "\n";
+                $html .= '    <span class="feature-title">' . htmlspecialchars($featureTitle) . '</span>' . "\n";
                 $html .= '  </div>' . "\n";
                 $html .= '  <p class="feature-description">' . htmlspecialchars($featureDescription) . '</p>' . "\n";
                 $html .= '</div>' . "\n";
