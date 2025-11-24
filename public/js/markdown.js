@@ -808,25 +808,39 @@ const Markdown = {
                 const button1URL = prompt("URL du premier bouton :");
                 if (!button1URL) return;
 
-                const button2Text = prompt("Texte du deuxième bouton :");
-                if (!button2Text) return;
+                const button2Text = prompt("Texte du deuxième bouton (laisser vide pour un seul bouton) :");
 
-                const button2URL = prompt("URL du deuxième bouton :");
-                if (!button2URL) return;
+                // Le deuxième bouton est maintenant optionnel
+                let button2URL = "";
+                if (button2Text) {
+                    button2URL = prompt("URL du deuxième bouton :");
+                    if (!button2URL) {
+                        // Si l'utilisateur a entré un texte mais pas d'URL, on annule
+                        alert("Veuillez entrer une URL pour le deuxième bouton ou laisser le texte vide");
+                        return;
+                    }
+                }
 
                 // Traiter les retours à la ligne dans la description
                 const processedDescription = description.replace(/\\n/g, '\n');
 
                 // Générer le markdown pour le CTA banner avec la nouvelle syntaxe
-                const ctaBannerMarkdown = `{cta-banner-start}
+                let ctaBannerMarkdown = `{cta-banner-start}
 {title}
 ${title}
 {description}
 ${processedDescription}
 {button1}
-${button1Text}|${button1URL}
+${button1Text}|${button1URL}`;
+
+                // Ajouter le deuxième bouton seulement s'il existe
+                if (button2Text && button2URL) {
+                    ctaBannerMarkdown += `
 {button2}
-${button2Text}|${button2URL}
+${button2Text}|${button2URL}`;
+                }
+
+                ctaBannerMarkdown += `
 {cta-banner-end}`;
 
                 // Insérer le markdown dans l'éditeur
@@ -842,7 +856,7 @@ ${button2Text}|${button2URL}
                 cm.focus();
             },
             className: "fa fa-bullhorn",
-            title: "Insérer un CTA Banner (nouvelle syntaxe multi-lignes)"
+            title: "Insérer un CTA Banner (1 ou 2 boutons)"
         };
     },
     calloutBlockTool: function () {

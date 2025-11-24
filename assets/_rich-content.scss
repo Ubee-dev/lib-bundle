@@ -658,6 +658,14 @@ $dark-gray: #333 !default;
     justify-content: center;
     flex-wrap: wrap;
 
+    // Lorsqu'il n'y a qu'un seul bouton, le centrer parfaitement
+    &:has(.cta-banner-btn:only-child) {
+      .cta-banner-btn {
+        min-width: 250px;
+        max-width: 350px;
+      }
+    }
+
     @media (max-width: $breakpoint-sm) {
       flex-direction: column;
       align-items: center;

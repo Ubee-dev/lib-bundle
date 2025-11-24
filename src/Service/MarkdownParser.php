@@ -529,16 +529,14 @@ class MarkdownParser implements MarkdownParserInterface
     }
 
     /**
-     * Parse CTA banner markdown syntax to HTML (version améliorée)
-     * Nouvelle syntaxe: {cta-banner-start} ... {cta-banner-end}
-     * Avec sections: {title}, {description}, {button1}, {button2}
+     * Parse CTA banner markdown with new multiline syntax
      *
      * @param string $markdown
-     * @return string Markdown with Html elements for CTA banner
+     * @return string
      */
     public function parseCtaBannerMarkdown(string $markdown): string
     {
-        // Nouvelle syntaxe pour supporter le contenu multi-lignes
+        // Pattern pour capturer tout le contenu entre {cta-banner-start} et {cta-banner-end}
         $pattern = '/\{cta-banner-start\}(.*?)\{cta-banner-end\}/s';
 
         return preg_replace_callback($pattern, function ($matches) {
@@ -550,7 +548,7 @@ class MarkdownParser implements MarkdownParserInterface
             $button1 = $this->extractCtaBannerSection($content, 'button1');
             $button2 = $this->extractCtaBannerSection($content, 'button2');
 
-            if (!$title || !$description || !$button1 || !$button2) {
+            if (!$title || !$description || !$button1) {
                 // Fallback vers l'ancienne syntaxe si la nouvelle échoue
                 return $this->parseCtaBannerMarkdownLegacy($matches[0]);
             }
@@ -564,17 +562,22 @@ class MarkdownParser implements MarkdownParserInterface
             $html .= '    <div class="cta-banner-description">' . $descriptionHtml . '</div>' . "\n";
             $html .= '    <div class="cta-banner-buttons">' . "\n";
 
-            // Parser les boutons
+            // Parser le bouton 1 (obligatoire)
             $button1Data = $this->parseCtaButton($button1);
-            $button2Data = $this->parseCtaButton($button2);
 
             $html .= '      <a href="' . htmlspecialchars($button1Data['url']) . '" class="cta-banner-btn primary">' . "\n";
             $html .= '        ' . htmlspecialchars($button1Data['text']) . "\n";
             $html .= '      </a>' . "\n";
-            $html .= '      <a href="' . htmlspecialchars($button2Data['url']) . '" class="cta-banner-btn secondary">' . "\n";
-            $html .= '        <i class="fas fa-package"></i>' . "\n";
-            $html .= '        ' . htmlspecialchars($button2Data['text']) . "\n";
-            $html .= '      </a>' . "\n";
+
+            // Parser le bouton 2 uniquement s'il existe
+            if ($button2) {
+                $button2Data = $this->parseCtaButton($button2);
+                $html .= '      <a href="' . htmlspecialchars($button2Data['url']) . '" class="cta-banner-btn secondary">' . "\n";
+                $html .= '        <i class="fas fa-package"></i>' . "\n";
+                $html .= '        ' . htmlspecialchars($button2Data['text']) . "\n";
+                $html .= '      </a>' . "\n";
+            }
+
             $html .= '    </div>' . "\n";
             $html .= '  </div>' . "\n";
             $html .= '</div>' . "\n";
