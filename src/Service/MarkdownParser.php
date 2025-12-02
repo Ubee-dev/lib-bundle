@@ -486,7 +486,7 @@ class MarkdownParser implements MarkdownParserInterface
     }
 
     /**
-     * Parse features markdown syntax to HTML
+     * Parse features markdown syntax to HTML with full markdown support in descriptions
      * Syntax: {features-start} ... {feature:full-fa-classes:Title:Description} ... {features-end}
      *
      * @param string $markdown
@@ -502,7 +502,8 @@ class MarkdownParser implements MarkdownParserInterface
 
             // Pattern pour capturer chaque feature individuelle
             // Format: {feature:full-fa-classes:Title:Description}
-            $featurePattern = '/\{feature:([^:]+):([^:]+):([^}]+)\}/';
+            // Le modificateur 's' permet de capturer les retours à la ligne dans la description
+            $featurePattern = '/\{feature:([^:]+):([^:]+):([^}]+)\}/s';
 
             $html = '<div class="features-grid">' . "\n";
 
@@ -513,12 +514,15 @@ class MarkdownParser implements MarkdownParserInterface
                 $featureTitle = trim($featureMatch[2]);
                 $featureDescription = trim($featureMatch[3]);
 
+                // Parser le markdown dans la description
+                $featureDescriptionHtml = $this->parse($featureDescription, false);
+
                 $html .= '<div class="feature-card">' . "\n";
                 $html .= '  <div class="feature-header">' . "\n";
                 $html .= '    <i class="' . htmlspecialchars($featureClasses) . ' feature-icon"></i>' . "\n";
                 $html .= '    <span class="feature-title">' . htmlspecialchars($featureTitle) . '</span>' . "\n";
                 $html .= '  </div>' . "\n";
-                $html .= '  <p class="feature-description">' . htmlspecialchars($featureDescription) . '</p>' . "\n";
+                $html .= '  <div class="feature-description rich-content">' . $featureDescriptionHtml . '</div>' . "\n";
                 $html .= '</div>' . "\n";
             }
 
@@ -559,7 +563,7 @@ class MarkdownParser implements MarkdownParserInterface
             $html = '<div class="cta-banner">' . "\n";
             $html .= '  <div class="cta-banner-content">' . "\n";
             $html .= '    <h3 class="cta-banner-title">' . htmlspecialchars(trim($title)) . '</h3>' . "\n";
-            $html .= '    <div class="cta-banner-description">' . $descriptionHtml . '</div>' . "\n";
+            $html .= '    <div class="cta-banner-description rich-content">' . $descriptionHtml . '</div>' . "\n";
             $html .= '    <div class="cta-banner-buttons">' . "\n";
 
             // Parser le bouton 1 (obligatoire)

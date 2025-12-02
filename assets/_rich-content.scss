@@ -400,25 +400,22 @@ $accent-red: #cc3333 !default;
         margin: ($spacer * 0.5) 0;
         position: relative;
 
-        &:last-child {
-          margin-bottom: 0;
-        }
-
-        // Override default bullet for steps
         &:before {
-          content: '✓';
+          content: '•';
+          display: block;
           color: $primary-color;
           font-weight: $font-weight-bold;
           position: absolute;
           left: 0;
           top: 0;
-          transform: translateX(calc(-100% - #{$spacer * 0.5}));
-        }
-
-        strong {
-          color: $secondary-color;
+          transform: translateX(calc(-100% - #{$spacer} * 0.5));
         }
       }
+    }
+
+    strong {
+      color: $black;
+      font-weight: 600;
     }
 
     em {
@@ -536,9 +533,69 @@ $accent-red: #cc3333 !default;
   .feature-description {
     font-size: 0.85rem;
     color: $gray-medium;
-    line-height: 1.4;
+    line-height: 1.6;
     margin: 0;
     flex-grow: 1;
+    text-align: left;
+
+    p {
+      margin-bottom: 0.5rem;
+      text-align: left;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    strong, b {
+      color: $black;
+      font-weight: 600;
+    }
+
+    em, i {
+      font-style: italic;
+    }
+
+    a {
+      color: $primary-color;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    ul, ol {
+      margin: 0.5rem 0;
+      padding-left: 1.5rem;
+      text-align: left;
+      list-style-position: outside;
+
+      li {
+        margin-bottom: 0.25rem;
+        text-align: left;
+
+        &::before {
+          color: $primary-color;
+        }
+      }
+    }
+
+    ul {
+      list-style-type: disc;
+
+      li::before {
+        content: none;
+      }
+    }
+
+    code {
+      background-color: rgba(0, 0, 0, 0.05);
+      padding: 0.125rem 0.25rem;
+      border-radius: 3px;
+      font-size: 0.9em;
+      font-family: monospace;
+    }
   }
 
   // Features Process Header (optionnel)
@@ -639,9 +696,66 @@ $accent-red: #cc3333 !default;
     max-width: 700px;
     margin-left: auto;
     margin-right: auto;
-    line-height: 1.5;
+    line-height: 1.6;
+    text-align: left;
 
-    strong {
+    p {
+      margin-bottom: 0.75rem;
+      text-align: left;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    strong, b {
+      color: $white;
+      font-weight: 600;
+    }
+
+    em, i {
+      font-style: italic;
+    }
+
+    a {
+      color: $white;
+      text-decoration: underline;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+
+    ul, ol {
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+      text-align: left;
+      list-style-position: outside;
+
+      li {
+        margin-bottom: 0.5rem;
+        text-align: left;
+
+        &::before {
+          color: $white;
+        }
+      }
+    }
+
+    ul {
+      list-style-type: disc;
+
+      li::before {
+        content: none;
+      }
+    }
+
+    code {
+      background-color: rgba(0, 0, 0, 0.2);
+      padding: 0.125rem 0.25rem;
+      border-radius: 3px;
+      font-size: 0.9em;
+      font-family: monospace;
       color: $white;
     }
 

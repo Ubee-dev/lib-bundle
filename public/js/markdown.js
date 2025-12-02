@@ -770,7 +770,7 @@ const Markdown = {
 
                 for (let i = 1; i <= num; i++) {
                     const iconClass = defaultIcons[i - 1] || 'fas fa-star';
-                    featuresMarkdown += `{feature:${iconClass}:Feature Title ${i}:Description de la feature ${i} avec tous les détails importants}\n`;
+                    featuresMarkdown += `{feature:${iconClass}:Feature Title ${i}:Description de la feature ${i} avec **markdown** supporté.\n\nVous pouvez utiliser :\n- Des listes\n- Du *texte en italique*\n- Des [liens](https://example.com)}\n`;
                 }
 
                 featuresMarkdown += "{features-end}";
@@ -787,9 +787,10 @@ const Markdown = {
                 cm.focus();
             },
             className: "fa fa-star",
-            title: "Insérer des features (Font Awesome classes complètes)"
+            title: "Insérer des features (avec support markdown dans les descriptions)"
         };
     },
+
     ctaBannerTool: function () {
         const self = this;
         return {
@@ -799,7 +800,7 @@ const Markdown = {
                 const title = prompt("Titre du CTA banner :");
                 if (!title) return;
 
-                const description = prompt("Description du CTA banner (markdown autorisé, utilisez \\n pour les retours à la ligne) :");
+                const description = prompt("Description du CTA banner (markdown supporté, utilisez \\n pour les retours à la ligne) :");
                 if (!description) return;
 
                 const button1Text = prompt("Texte du premier bouton :");
@@ -856,7 +857,7 @@ ${button2Text}|${button2URL}`;
                 cm.focus();
             },
             className: "fa fa-bullhorn",
-            title: "Insérer un CTA Banner (1 ou 2 boutons)"
+            title: "Insérer un CTA Banner (1 ou 2 boutons, markdown supporté dans la description)"
         };
     },
     calloutBlockTool: function () {
