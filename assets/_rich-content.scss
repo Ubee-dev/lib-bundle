@@ -36,7 +36,7 @@ $primary-color: #669999 !default;
 $secondary-color: #cc3333 !default;
 $white: #ffffff !default;
 $black: #000000 !default;
-$gray-light: #f8f9fa !default;
+$gray-light: #D6D6D6 !default;
 $gray-medium: #6c757d !default;
 $text-color: #333333 !default;
 $border-radius: 8px !default;
@@ -168,15 +168,30 @@ $accent-red: #cc3333 !default;
     overflow-x: auto;
   }
 
+  table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    font-size: inherit;
+    margin-bottom: $spacer;
+  }
+
+  th,
+  td {
+    padding: $spacer;
+    border: 1px solid $gray-light;
+  }
+
+  th {
+    background-color: $primary-color;
+    color: $white;
+    border-bottom: 0;
+    font-weight: $font-weight-bold;
+  }
+
   .table-responsive {
     table {
       margin-bottom: 0;
-
-      th{
-        background-color: $table-head-background;
-        color: functions.contrasting-color($table-head-background, white, $color);
-        border-bottom: 0;
-      }
     }
   }
 
