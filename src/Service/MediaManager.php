@@ -89,8 +89,24 @@ class MediaManager
             $newFilename
         );
 
+        $filePath = $uploadDirectory.'/'.$newFilename;
+
+        // Convertir en WebP si c'est une image convertible (JPEG/PNG)
+        if ($this->isConvertibleToWebp($mimeType)) {
+            $webpPath = $this->convertToWebp($filePath);
+            if ($webpPath !== null) {
+                // Supprimer l'original et mettre à jour le média
+                $this->fileSystem->remove($filePath);
+                $newFilename = pathinfo($newFilename, PATHINFO_FILENAME) . '.webp';
+                $media->setFilename($newFilename);
+                $media->setContentType('image/webp');
+                $media->setContentSize(filesize($webpPath));
+                $filePath = $webpPath;
+            }
+        }
+
         // Extraire les dimensions si c'est une image
-        $this->extractImageDimensions($media, $uploadDirectory.'/'.$newFilename);
+        $this->extractImageDimensions($media, $filePath);
 
         if($andFlush) {
             $this->entityManager->persist($media);
@@ -146,6 +162,78 @@ class MediaManager
         }
 
         return false;
+    }
+
+    /**
+     * Vérifie si le type MIME peut être converti en WebP
+     */
+    private function isConvertibleToWebp(string $mimeType): bool
+    {
+        return in_array($mimeType, ['image/jpeg', 'image/png', 'image/jpg'], true);
+    }
+
+    /**
+     * Convertit une image en WebP avec Imagick
+     * @return string|null Le chemin du fichier WebP ou null si échec
+     */
+    private function convertToWebp(string $sourcePath, int $quality = 85): ?string
+    {
+        if (!class_exists(\Imagick::class)) {
+            error_log('Imagick extension not available for WebP conversion');
+            return null;
+        }
+
+        try {
+            $webpPath = preg_replace('/\.(jpe?g|png)$/i', '.webp', $sourcePath);
+
+            $imagick = new \Imagick($sourcePath);
+            $imagick->setImageFormat('webp');
+            $imagick->setImageCompressionQuality($quality);
+
+            // Optimisations WebP
+            $imagick->setOption('webp:lossless', 'false');
+            $imagick->setOption('webp:method', '6');
+
+            $imagick->writeImage($webpPath);
+            $imagick->destroy();
+
+            return $webpPath;
+        } catch (\Exception $e) {
+            error_log("Failed to convert image to WebP: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Convertit un média existant en WebP (pour migration)
+     * @return bool True si la conversion a réussi
+     */
+    public function convertMediaToWebp(Media $media): bool
+    {
+        if (!$this->isConvertibleToWebp($media->getContentType())) {
+            return false;
+        }
+
+        $originalPath = $this->getRelativePath($media);
+        if (!file_exists($originalPath)) {
+            return false;
+        }
+
+        $webpPath = $this->convertToWebp($originalPath);
+        if ($webpPath === null) {
+            return false;
+        }
+
+        // Supprimer l'original
+        $this->fileSystem->remove($originalPath);
+
+        // Mettre à jour le média
+        $newFilename = preg_replace('/\.(jpe?g|png)$/i', '.webp', $media->getFilename());
+        $media->setFilename($newFilename);
+        $media->setContentType('image/webp');
+        $media->setContentSize(filesize($webpPath));
+
+        return true;
     }
 
     /**
