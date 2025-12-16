@@ -915,24 +915,26 @@ class MarkdownParser implements MarkdownParserInterface
 
     /**
      * Parse callout block markdown with support for markdown in description
+     * Supports optional {type} parameter: "warning" for amber style, default is "info" (gray)
      *
      * @param string $markdown
      * @return string
      */
     public function parseCalloutBlockMarkdown(string $markdown): string
     {
-        // Pattern pour la syntaxe multi-lignes
-        $pattern = '/\{callout-block-start\}\s*\{title\}\s*(.*?)\s*\{description\}\s*(.*?)\s*\{callout-block-end\}/s';
+        // Pattern pour la syntaxe multi-lignes avec type optionnel
+        $pattern = '/\{callout-block-start\}\s*(?:\{type\}\s*(warning|info)\s*)?\{title\}\s*(.*?)\s*\{description\}\s*(.*?)\s*\{callout-block-end\}/s';
 
         return preg_replace_callback($pattern, function($matches) {
-            $title = trim($matches[1]);
-            $description = trim($matches[2]);
+            $type = !empty($matches[1]) ? trim($matches[1]) : 'info'; // Par défaut: info (gris)
+            $title = trim($matches[2]);
+            $description = trim($matches[3]);
 
             // Convertir le markdown de la description en HTML
             $descriptionHtml = $this->parse($description);
 
             // Retourner le HTML du callout block avec les classes CSS existantes
-            return $this->renderCalloutBlock($title, $descriptionHtml);
+            return $this->renderCalloutBlock($title, $descriptionHtml, $type);
         }, $markdown);
     }
 
@@ -941,15 +943,19 @@ class MarkdownParser implements MarkdownParserInterface
      *
      * @param string $title
      * @param string $descriptionHtml
+     * @param string $type 'info' (default, gray) or 'warning' (amber with icon)
      * @return string
      */
-    private function renderCalloutBlock(string $title, string $descriptionHtml): string
+    private function renderCalloutBlock(string $title, string $descriptionHtml, string $type = 'info'): string
     {
+        $typeClass = $type === 'warning' ? 'callout-block--warning' : 'callout-block--info';
+
         return sprintf(
-            '<div class="callout-block">
+            '<div class="callout-block %s">
             <h3 class="callout-block-title">%s</h3>
             <div class="callout-block-description">%s</div>
         </div>',
+            $typeClass,
             htmlspecialchars($title),
             $descriptionHtml
         );

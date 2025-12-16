@@ -69,11 +69,17 @@ $font-headings: inherit !default;
 $font-weight-semibold: 600 !default;
 $breakpoint-lg: 1024px !default;
 
-// Amber colors for callout blocks
+// Amber colors for callout blocks (warning mode)
 $amber-50: hsl(48, 100%, 96%);
 $amber-500: hsl(38, 92%, 50%);
 $amber-600: hsl(32, 95%, 44%);
 $amber-900: hsl(22, 78%, 26%);
+
+// Gray colors for callout blocks (info mode - default)
+$callout-gray-50: hsl(210, 20%, 98%);
+$callout-gray-200: hsl(210, 15%, 85%);
+$callout-gray-600: hsl(210, 10%, 40%);
+$callout-gray-900: hsl(210, 15%, 25%);
 
 .rich-content {
   font-size: $font-size * $size-coeff;
@@ -911,32 +917,87 @@ $amber-900: hsl(22, 78%, 26%);
   }
 
   // ============================================
-  // Callout Block - Lovable Warning Style (Amber)
+  // Callout Block - Two modes: info (default, gray) and warning (amber)
   // ============================================
 
   .callout-block {
-    background: $amber-50;
     border-radius: 0 0.5rem 0.5rem 0;
     padding: 1rem;
     margin: 1.5rem 0;
-    border-left: 4px solid $amber-500;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
-    gap: 0.25rem 0.75rem;
-    align-items: start;
+    display: block;
 
-    // Icon via ::before - Lucide triangle-alert SVG (outline style)
-    &::before {
-      content: '';
-      width: 1.25rem;
-      height: 1.25rem;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
-      background-size: contain;
-      background-repeat: no-repeat;
-      flex-shrink: 0;
-      grid-row: 1 / -1;
-      margin-top: 0.125rem;
+    // Info mode (default) - Gray background, teal border, no icon
+    &--info {
+      background: $callout-gray-50;
+      border-left: 4px solid $teal-dark;
+
+      .callout-block-title {
+        color: $callout-gray-900;
+      }
+
+      .callout-block-description {
+        color: $callout-gray-600;
+
+        p {
+          color: $callout-gray-600;
+        }
+
+        a {
+          color: $teal-dark;
+
+          &:hover {
+            color: $teal-light;
+          }
+        }
+      }
+    }
+
+    // Warning mode - Amber with icon
+    &--warning {
+      background: $amber-50;
+      border-left: 4px solid $amber-500;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: auto auto;
+      gap: 0.25rem 0.75rem;
+      align-items: start;
+
+      // Icon via ::before - Lucide triangle-alert SVG (outline style)
+      &::before {
+        content: '';
+        width: 1.25rem;
+        height: 1.25rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+        background-size: contain;
+        background-repeat: no-repeat;
+        flex-shrink: 0;
+        grid-row: 1 / -1;
+        margin-top: 0.125rem;
+      }
+
+      .callout-block-title {
+        color: $amber-900;
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .callout-block-description {
+        color: $amber-900;
+        grid-column: 2;
+        grid-row: 2;
+
+        p {
+          color: $amber-900;
+        }
+
+        a {
+          color: $amber-600;
+
+          &:hover {
+            color: $amber-900;
+          }
+        }
+      }
     }
   }
 
@@ -944,22 +1005,15 @@ $amber-900: hsl(22, 78%, 26%);
     font-family: $font-headings;
     font-size: 1rem;
     font-weight: $font-weight-semibold;
-    color: $amber-900;
-    margin: 0;
-    grid-column: 2;
-    grid-row: 1;
+    margin: 0 0 0.25rem 0;
   }
 
   .callout-block-description {
     font-size: 1rem;
-    color: $amber-900;
     line-height: 1.6;
     margin: 0;
-    grid-column: 2;
-    grid-row: 2;
 
     p {
-      color: $amber-900;
       margin-bottom: 0.5rem;
 
       &:last-child {
@@ -968,12 +1022,7 @@ $amber-900: hsl(22, 78%, 26%);
     }
 
     a {
-      color: $amber-600;
       text-decoration: underline;
-
-      &:hover {
-        color: $amber-900;
-      }
     }
   }
 }

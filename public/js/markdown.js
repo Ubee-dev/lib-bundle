@@ -966,6 +966,9 @@ ${feature.icon}|${feature.title}|${feature.description}`;
         return {
             name: "callout-block",
             action: function (editor) {
+                // Demander le type de callout
+                const isWarning = confirm("Voulez-vous un bloc d'avertissement (jaune avec icône) ?\n\nOK = Avertissement (jaune)\nAnnuler = Information (gris, par défaut)");
+
                 // Demander les informations du bloc callout
                 const title = prompt("Titre du bloc callout :");
                 if (!title) return;
@@ -977,12 +980,24 @@ ${feature.icon}|${feature.title}|${feature.description}`;
                 const processedDescription = description.replace(/\\n/g, '\n');
 
                 // Générer le markdown pour le bloc callout avec la nouvelle syntaxe multi-lignes
-                const calloutBlockMarkdown = `{callout-block-start}
+                let calloutBlockMarkdown;
+                if (isWarning) {
+                    calloutBlockMarkdown = `{callout-block-start}
+{type}warning
 {title}
 ${title}
 {description}
 ${processedDescription}
 {callout-block-end}`;
+                } else {
+                    // Mode info par défaut - pas besoin de spécifier le type
+                    calloutBlockMarkdown = `{callout-block-start}
+{title}
+${title}
+{description}
+${processedDescription}
+{callout-block-end}`;
+                }
 
                 // Insérer le markdown dans l'éditeur
                 const cm = editor.codemirror;
@@ -997,7 +1012,7 @@ ${processedDescription}
                 cm.focus();
             },
             className: "fa fa-info-circle",
-            title: "Insérer un bloc callout (avec support markdown)"
+            title: "Insérer un bloc callout (info gris par défaut, ou warning jaune)"
         };
     },
 
