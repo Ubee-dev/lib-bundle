@@ -266,7 +266,7 @@ class VideoTraitTest extends AbstractWebTestCase
         $youtubeThumbUrl = $this->getYoutubeThumbUrlFromYoutubeUrl($youtubeVideoUrl, 'high');
         $html = $this->getLazyIframeHtml("https://www.youtube.com/watch?v=firstVideo");
 
-        $this->assertStringContainsString("<div class=\"ratio ratio-16x9\"><div class=\"js-lazyframe\" data-vendor=\"youtube\" data-video-id=\"firstVideo\" data-src=\"$youtubeEmbedUrl\" data-thumbnail=\"$youtubeThumbUrl\"></div></div>", $html);
+        $this->assertStringContainsString("<div class=\"video-embed\"><div class=\"ratio ratio-16x9\"><div class=\"js-lazyframe\" data-vendor=\"youtube\" data-video-id=\"firstVideo\" data-src=\"$youtubeEmbedUrl\" data-thumbnail=\"$youtubeThumbUrl\"></div></div></div>", $html);
     }
 
     /**
@@ -279,6 +279,6 @@ class VideoTraitTest extends AbstractWebTestCase
         $vimeoThumbUrl = null;
         $html = $this->getLazyIframeHtml("https://vimeo.com/12345678");
 
-        $this->assertStringContainsString("<div class=\"ratio ratio-16x9\"><div class=\"js-lazyframe\" data-vendor=\"vimeo\" data-video-id=\"12345678\" data-src=\"$vimeoEmbedUrl\" data-thumbnail=\"$vimeoThumbUrl\"></div></div>", $html);
+        $this->assertStringContainsString("<div class=\"video-embed\"><div class=\"ratio ratio-16x9\"><div class=\"js-lazyframe\" data-vendor=\"vimeo\" data-video-id=\"12345678\" data-src=\"$vimeoEmbedUrl\" data-thumbnail=\"$vimeoThumbUrl\"></div></div></div>", $html);
     }
 }

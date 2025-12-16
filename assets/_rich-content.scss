@@ -50,16 +50,33 @@ $accent-black: #000000 !default;
 $neutral-white: #ffffff !default;
 $accent-red: #cc3333 !default;
 
+// Lovable Theme Variables (HSL from template)
+// --teal-dark: 180 30% 30% = hsl(180, 30%, 30%)
+// --primary: 180 30% 55% = hsl(180, 30%, 55%)
+$lovable-teal-dark: hsl(180, 30%, 30%) !default;
+$lovable-primary: hsl(180, 30%, 55%) !default;
+
+// Legacy teal variables (for other components)
+$teal-dark: #0d9488 !default;
+$teal-light: #14b8a6 !default;
+$text-foreground: #0f172a !default;
+$text-muted: #64748b !default;
+$border-color: #e2e8f0 !default;
+$background-muted: #f1f5f9 !default;
+$accent-red-lovable: #ef4444 !default;
+$accent-red-dark: #dc2626 !default;
+$font-headings: inherit !default;
+$font-weight-semibold: 600 !default;
+$breakpoint-lg: 1024px !default;
+
+// Amber colors for callout blocks
+$amber-50: hsl(48, 100%, 96%);
+$amber-500: hsl(38, 92%, 50%);
+$amber-600: hsl(32, 95%, 44%);
+$amber-900: hsl(22, 78%, 26%);
+
 .rich-content {
   font-size: $font-size * $size-coeff;
-
-  hr{
-    border-width: 0;
-    border-bottom-width: 0px;
-    border-bottom-width: 1px;
-    border-color: $primary-color;
-    border-style: solid;
-  }
 
   .ratio {
     position: relative;
@@ -97,31 +114,36 @@ $accent-red: #cc3333 !default;
     }
   }
 
-  @include mixins.headings() {
-    text-transform: none;
-    color: inherit;
-    margin-bottom: $spacer;
-  }
+  // ============================================
+  // Prose Typography - Lovable Style
+  // ============================================
 
-  h1, h2 {
-    text-transform: $headings-transform;
-  }
-
+  // h2: text-2xl font-display font-bold mt-8 mb-4 text-teal-dark
   h2 {
-    @include mixins.underlined($ui-color, $spacer);
-    margin-top: $spacer * 3.5;
+    font-family: $font-headings;
+    font-size: 1.5rem; // text-2xl
+    font-weight: $font-weight-bold;
+    color: $teal-dark;
+    margin-top: 2rem; // mt-8
+    margin-bottom: 1rem; // mb-4
   }
 
+  // h3: text-xl font-display font-semibold mt-6 mb-3
   h3 {
-    font-weight: $h3-font-weight;
+    font-family: $font-headings;
+    font-size: 1.25rem; // text-xl
+    font-weight: $font-weight-semibold;
+    color: $text-foreground;
+    margin-top: 1.5rem; // mt-6
+    margin-bottom: 0.75rem; // mb-3
   }
 
-  h3:not(.callout-block-title), h4 {
-    margin-top: map-get($spacers, 5);
-  }
-
-  hr {
-    margin: $spacer 0;
+  h4 {
+    font-family: $font-headings;
+    font-size: 1.125rem;
+    font-weight: $font-weight-semibold;
+    color: $text-foreground;
+    margin-bottom: 0.5rem;
   }
 
   %last-child {
@@ -130,102 +152,79 @@ $accent-red: #cc3333 !default;
     }
   }
 
-  strong {
-    font-weight: $font-weight-bold;
-  }
-
   p {
-    @include mixins.font-spacing($font-size, $line-height);
+    color: $text-muted;
+    line-height: 1.7;
+    margin-bottom: 1rem;
     @extend %last-child;
   }
 
+  strong {
+    color: $text-foreground;
+    font-weight: $font-weight-semibold;
+  }
+
   code {
+    background: $background-muted;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+    color: $text-foreground;
     text-wrap: wrap;
+  }
+
+  pre {
+    background: $background-muted;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+
+    code {
+      background: transparent;
+      padding: 0;
+    }
   }
 
   p, ul, ol{
     strong {
-      color: $bold-color;
+      color: $text-foreground;
     }
   }
 
-  ul {
-    padding-bottom: $spacer;
-  }
-
-  a:not(.btn):not(.footnote-ref):not(.cta-banner-btn) {
-    @extend .link !optional;
-    text-decoration: underline;
-
-    &:hover {
-      color: $hover-color;
-    }
-  }
-
-  .table-responsive,
-  .ratio {
-    margin: ($spacer*1.5) 0;
-    overflow-x: auto;
-  }
-
-  table {
-    width: 100%;
-    border-spacing: 0;
-    border-collapse: collapse;
-    font-size: inherit;
-    margin-bottom: $spacer;
-  }
-
-  th,
-  td {
-    padding: $spacer;
-    border: 1px solid $gray-light;
-  }
-
-  th {
-    background-color: $primary-color;
-    color: $white;
-    border-bottom: 0;
-    font-weight: $font-weight-bold;
-  }
-
-  .table-responsive {
-    table {
-      margin-bottom: 0;
-    }
-  }
-
+  // Lists - Lovable Style
   ul, ol {
+    color: $text-muted;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
     list-style: none;
-    padding-left: $spacer;
 
     p {
       margin: 0;
     }
 
     li {
-      margin: $spacer/4 0;
+      margin: 0.5rem 0;
+      padding-left: 0.5rem;
       position: relative;
 
-      &:before {
+      &::before {
         content: '—';
         display: block;
-        color: $ui-color;
+        color: $teal-dark;
         font-weight: $font-weight-bold;
         position: absolute;
         left: 0;
         top: 0;
-        transform: translateX(calc(-100% - #{$spacer}/2));
+        transform: translateX(calc(-100% - 0.5rem));
       }
     }
   }
 
-  > ul {
-    > li {
-      &:before {
-        content: '•';
-      }
-    }
+  > ul > li::before {
+    content: '•';
+    color: $teal-dark;
   }
 
   ol {
@@ -246,26 +245,178 @@ $accent-red: #cc3333 !default;
     }
   }
 
-  img {
-    display: block;
-    margin: $spacer auto;
+  // Links - Lovable Style
+  a:not(.btn):not(.footnote-ref):not(.cta-banner-btn):not(.cta-banner-extended-btn) {
+    color: $teal-dark;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $teal-light;
+    }
   }
 
+  .table-responsive,
+  .ratio {
+    margin: ($spacer*1.5) 0;
+    overflow-x: auto;
+  }
+
+  // Tables - Lovable Style
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  th,
+  td {
+    padding: 0.75rem 1rem;
+    border: 1px solid $border-color;
+  }
+
+  th {
+    background: $teal-dark;
+    color: $neutral-white;
+    font-weight: $font-weight-semibold;
+    text-align: left;
+    border-bottom: 0;
+  }
+
+  td {
+    border-bottom: 1px solid $border-color;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .table-responsive {
+    table {
+      margin-bottom: 0;
+    }
+  }
+
+  // Images - Lovable Style with figure support
+  figure {
+    margin: 1.5rem auto;
+    max-width: 42rem; // max-w-2xl
+
+    .figure-image-wrapper {
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+      img {
+        width: 100%;
+        height: auto;
+        max-height: 400px;
+        object-fit: cover;
+        margin: 0;
+        border-radius: 0;
+      }
+    }
+
+    figcaption {
+      text-align: center;
+      font-size: 0.875rem;
+      color: $text-muted;
+      margin-top: 0.75rem;
+      font-style: italic;
+    }
+  }
+
+  // Standalone images (not in figure)
+  > p > img,
+  > img {
+    display: block;
+    margin: 1.5rem auto;
+    border-radius: 0.75rem;
+    max-width: 42rem;
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  // Video embed - Same style as images
+  .video-embed {
+    display: block;
+    margin: 1.5rem auto;
+    max-width: 42rem;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  // Legacy img selector for backwards compatibility
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  // Button Container
   .btn-container {
     text-align: center;
-    margin: $spacer*2 0 $spacer*3;
+    margin: 2rem 0 2.5rem;
 
-    a{
+    a {
       text-decoration: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.875rem 2rem;
+      background: $teal-dark;
+      color: $neutral-white;
+      border-radius: 0.75rem;
+      font-family: $font-headings;
+      font-weight: $font-weight-semibold;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: 2px solid $teal-dark;
+      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+      &:hover {
+        background: transparent;
+        color: $teal-dark;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
     }
   }
 
+  // Blockquote - Lovable Style
   .blockquote {
+    border-left: 4px solid $teal-dark;
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+
     p {
-      @extend .quote !optional;
+      font-size: 1.125rem;
+      font-style: italic;
+      color: $text-muted;
+      line-height: 1.7;
       @extend %last-child;
-      line-height: $spacer*3;
+
+      &::before,
+      &::after {
+        display: none;
+      }
     }
+  }
+
+  // Horizontal rule
+  hr {
+    border: none;
+    border-top: 1px solid $border-color;
+    margin: 2rem 0;
   }
 
   .info__video-time{
@@ -295,7 +446,7 @@ $accent-red: #cc3333 !default;
 
   .link {
     border: none;
-    color: $color;
+    color: $teal-dark;
     text-decoration: underline;
     transition: $transition;
     cursor: pointer;
@@ -306,7 +457,7 @@ $accent-red: #cc3333 !default;
     &:active,
     &:focus {
       text-decoration: underline;
-      color: $hover-color;
+      color: $teal-light;
     }
 
     &_white {
@@ -320,124 +471,110 @@ $accent-red: #cc3333 !default;
     }
   }
 
-  // ==================== STEPS COMPONENT ====================
+  // ============================================
+  // Steps Component - Card Style with Lovable colors
+  // ============================================
 
-  // Steps Container
   .steps-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: map-get($spacers, 6);
-    margin: map-get($spacers, 7) 0;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 2rem 0;
 
-    @media (max-width: $breakpoint-sm) {
-      grid-template-columns: 1fr;
-      gap: map-get($spacers, 6);
+    @media (min-width: $breakpoint-md) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: $breakpoint-lg) {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     }
   }
 
   .step-card {
-    background: $white;
-    border-radius: $border-radius;
-    padding: $spacer * 1.5;
-    box-shadow: $shadow-medium;
-    border-top: 4px solid $primary-color;
-    transition: $transition;
+    background: $neutral-white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid $border-color;
+    border-top: 4px solid $teal-dark;
+    transition: all 0.2s ease;
     position: relative;
-    overflow: hidden;
-
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: $shadow-large;
-    }
 
     &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: linear-gradient(90deg, $primary-color, $secondary-color);
+      display: none;
+    }
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
   }
 
   .step-header {
     display: flex;
     align-items: center;
-    margin-bottom: $spacer;
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
 
   .step-number-compact {
-    width: 40px;
-    height: 40px;
-    background: $primary-color;
-    color: $white;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: $teal-dark;
+    color: $neutral-white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: $headings-font-family;
+    font-family: $font-headings;
     font-weight: $font-weight-bold;
-    margin-right: $spacer;
+    font-size: 1.125rem;
     flex-shrink: 0;
-    font-size: 1.1rem;
   }
 
   .step-title-compact {
-    font-family: $headings-font-family;
-    font-size: 1.2rem;
-    color: $black;
+    font-family: $font-headings;
+    font-size: 1.125rem;
+    font-weight: $font-weight-semibold;
+    color: $text-foreground;
     margin: 0;
-    font-weight: 600;
     line-height: 1.3;
   }
 
   .step-content-compact {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: $text-color;
-
     p {
-      margin-bottom: $spacer * 0.75;
+      color: $text-muted;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      margin-bottom: 0.5rem;
 
       &:last-child {
         margin-bottom: 0;
       }
     }
 
-    // Override default ul styles specifically for steps
     ul {
-      margin: ($spacer * 0.75) 0 0;
-      padding-left: $spacer * 1.5;
-      list-style: none;
+      margin: 0.75rem 0 0;
+      padding-left: 1.25rem;
 
       li {
-        margin: ($spacer * 0.5) 0;
-        position: relative;
+        font-size: 0.875rem;
+        color: $text-muted;
+        margin: 0.25rem 0;
 
-        &:before {
-          content: '•';
-          display: block;
-          color: $primary-color;
-          font-weight: $font-weight-bold;
-          position: absolute;
-          left: 0;
-          top: 0;
-          transform: translateX(calc(-100% - #{$spacer} * 0.5));
+        &::before {
+          color: $teal-dark;
         }
       }
     }
 
     strong {
-      color: $black;
-      font-weight: 600;
+      color: $text-foreground;
     }
 
     em {
-      color: $gray-medium;
+      color: $text-muted;
       font-style: italic;
-      display: block;
-      margin-bottom: $spacer * 0.75;
     }
   }
 
@@ -447,25 +584,25 @@ $accent-red: #cc3333 !default;
     margin-bottom: $spacer * 3;
 
     .process-title {
-      font-family: $headings-font-family;
+      font-family: $font-headings;
       font-size: 2rem;
-      color: $primary-color;
+      color: $teal-dark;
       margin-bottom: $spacer;
       font-weight: $font-weight-bold;
     }
 
     .process-description {
       font-size: 1.1rem;
-      color: $gray-medium;
+      color: $text-muted;
       max-width: 700px;
       margin: 0 auto $spacer * 1.5;
     }
 
     .process-tagline {
       font-size: 1rem;
-      color: $secondary-color;
+      color: $accent-red-lovable;
       font-weight: 600;
-      font-family: $headings-font-family;
+      font-family: $font-headings;
     }
   }
 
@@ -483,7 +620,6 @@ $accent-red: #cc3333 !default;
       width: 35px;
       height: 35px;
       font-size: 1rem;
-      margin-right: $spacer * 0.75;
     }
 
     .step-title-compact {
@@ -491,126 +627,90 @@ $accent-red: #cc3333 !default;
     }
   }
 
-  // ==================== FEATURES COMPONENT ====================
-  // Features Container
+  // ============================================
+  // Features Component - Lovable Style
+  // ============================================
+
   .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: map-get($spacers, 4);
-    margin: map-get($spacers, 7) 0;
-    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin: 2rem 0;
 
-    @media (max-width: $breakpoint-sm) {
-      grid-template-columns: 1fr;
-      gap: map-get($spacers, 4);
+    @media (min-width: $breakpoint-md) {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
   .feature-card {
-    background: $gray-light;
-    border-radius: $border-radius;
-    padding: map-get($spacers, 4);
-    border-left: 4px solid $primary-color;
-    transition: $transition;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    background: $neutral-white;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid $border-color;
+    transition: box-shadow 0.2s ease;
 
     &:hover {
-      background: $white;
-      box-shadow: $shadow-small;
-      transform: translateX(3px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
   }
 
+  .feature-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .feature-icon-wrapper {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    background: rgba($teal-light, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+      font-size: 1.5rem;
+      color: $teal-dark;
+    }
+  }
+
+  .feature-text {
+    flex: 1;
+  }
+
+  .feature-title {
+    font-family: $font-headings;
+    font-size: 1.125rem;
+    font-weight: $font-weight-semibold;
+    color: $text-foreground;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .feature-description {
+    color: $text-muted;
+    font-size: 0.875rem;
+    line-height: 1.625;
+    margin: 0;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  // Legacy feature styles (for backwards compatibility)
   .feature-header {
     display: flex;
     align-items: center;
-    gap: map-get($spacers, 3);
-    margin-bottom: map-get($spacers, 3);
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
 
   .feature-icon {
     font-size: 1.5rem;
     flex-shrink: 0;
-    color: $primary-color;
-  }
-
-  .feature-title {
-    font-family: $headings-font-family;
-    font-size: 1rem;
-    color: $black;
-    margin: 0;
-    font-weight: 600;
-    line-height: 1.3;
-  }
-
-  .feature-description {
-    font-size: 0.85rem;
-    color: $gray-medium;
-    line-height: 1.6;
-    margin: 0;
-    flex-grow: 1;
-    text-align: left;
-
-    p {
-      margin-bottom: 0.5rem;
-      text-align: left;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
-
-    strong, b {
-      color: $black;
-      font-weight: 600;
-    }
-
-    em, i {
-      font-style: italic;
-    }
-
-    a {
-      color: $primary-color;
-      text-decoration: none;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-
-    ul, ol {
-      margin: 0.5rem 0;
-      padding-left: 1.5rem;
-      text-align: left;
-      list-style-position: outside;
-
-      li {
-        margin-bottom: 0.25rem;
-        text-align: left;
-
-        &::before {
-          color: $primary-color;
-        }
-      }
-    }
-
-    ul {
-      list-style-type: disc;
-
-      li::before {
-        content: none;
-      }
-    }
-
-    code {
-      background-color: rgba(0, 0, 0, 0.05);
-      padding: 0.125rem 0.25rem;
-      border-radius: 3px;
-      font-size: 0.9em;
-      font-family: monospace;
-    }
+    color: $teal-dark;
   }
 
   // Features Process Header (optionnel)
@@ -619,16 +719,16 @@ $accent-red: #cc3333 !default;
     margin-bottom: map-get($spacers, 5);
 
     .process-title {
-      font-family: $headings-font-family;
+      font-family: $font-headings;
       font-size: 1.5rem;
-      color: $black;
+      color: $text-foreground;
       margin-bottom: map-get($spacers, 3);
       font-weight: 600;
     }
 
     .process-description {
       font-size: 1rem;
-      color: $gray-medium;
+      color: $text-muted;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -653,155 +753,115 @@ $accent-red: #cc3333 !default;
     }
   }
 
-  // ==================== CTA BANNER COMPONENT ====================
+  // ============================================
+  // CTA Banner - Lovable Style
+  // ============================================
 
   .cta-banner {
-    background: linear-gradient(135deg, $primary-color, lighten($primary-color, 10%));
-    color: $white;
-    padding: map-get($spacers, 7);
-    border-radius: $border-radius;
+    background: linear-gradient(to right, $lovable-teal-dark, $lovable-primary);
+    color: $neutral-white;
+    padding: 2rem;
+    border-radius: 1rem;
     text-align: center;
-    margin: map-get($spacers, 7) 0;
+    margin: 2rem 0;
     position: relative;
     overflow: hidden;
 
-    // Animation subtile d'arrière-plan
+    @media (min-width: $breakpoint-md) {
+      padding: 3rem;
+    }
+
+    // Radial gradient overlay
     &::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: shimmer 4s ease-in-out infinite;
-    }
-
-    @keyframes shimmer {
-      0%, 100% { transform: rotate(0deg); }
-      50% { transform: rotate(180deg); }
+      inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1), transparent 50%);
+      pointer-events: none;
     }
   }
 
   .cta-banner-content {
+    max-width: 42rem;
+    margin: 0 auto;
     position: relative;
     z-index: 1;
   }
 
   .cta-banner-title {
-    font-family: $headings-font-family;
-    font-size: 1.8rem;
-    margin-bottom: map-get($spacers, 4);
+    font-family: $font-headings;
+    font-size: 1.5rem;
     font-weight: $font-weight-bold;
+    margin-bottom: 1rem;
     line-height: 1.3;
+    color: $neutral-white;
 
-    @media (max-width: $breakpoint-md) {
-      font-size: 1.5rem;
-    }
-
-    @media (max-width: $breakpoint-sm) {
-      font-size: 1.3rem;
+    @media (min-width: $breakpoint-md) {
+      font-size: 1.875rem;
     }
   }
 
   .cta-banner-description {
-    font-size: 1.1rem;
-    margin-bottom: map-get($spacers, 6);
-    opacity: 0.95;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 1rem;
+    margin-bottom: 1rem;
     line-height: 1.6;
-    text-align: left;
+    color: rgba($neutral-white, 0.9);
 
     p {
-      margin-bottom: 0.75rem;
-      text-align: left;
+      color: rgba($neutral-white, 0.9);
+      margin-bottom: 1rem;
 
       &:last-child {
         margin-bottom: 0;
       }
     }
 
-    strong, b {
-      color: $white;
-      font-weight: 600;
-    }
-
-    em, i {
-      font-style: italic;
-    }
-
-    a {
-      color: $white;
-      text-decoration: underline;
-
-      &:hover {
-        text-decoration: none;
-      }
-    }
-
     ul, ol {
-      margin: 0.75rem 0;
-      padding-left: 1.5rem;
       text-align: left;
-      list-style-position: outside;
+      max-width: 28rem;
+      margin: 0 auto 2rem;
+      list-style: none;
+      padding: 0;
 
       li {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        color: rgba($neutral-white, 0.9);
         margin-bottom: 0.5rem;
-        text-align: left;
+        padding-left: 0;
 
+        // Red check icon
         &::before {
-          color: $white;
+          content: '';
+          width: 1.25rem;
+          height: 1.25rem;
+          flex-shrink: 0;
+          margin-top: 0.125rem;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ef4444' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+          background-size: contain;
+          background-repeat: no-repeat;
+          filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+          transform: none;
+          position: static;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
         }
       }
-    }
-
-    ul {
-      list-style-type: disc;
-
-      li::before {
-        content: none;
-      }
-    }
-
-    code {
-      background-color: rgba(0, 0, 0, 0.2);
-      padding: 0.125rem 0.25rem;
-      border-radius: 3px;
-      font-size: 0.9em;
-      font-family: monospace;
-      color: $white;
-    }
-
-    @media (max-width: $breakpoint-md) {
-      font-size: 1rem;
-      margin-bottom: map-get($spacers, 5);
-    }
-
-    @media (max-width: $breakpoint-sm) {
-      font-size: 0.95rem;
     }
   }
 
   .cta-banner-buttons {
     display: flex;
-    gap: map-get($spacers, 4);
+    gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
-
-    // Lorsqu'il n'y a qu'un seul bouton, le centrer parfaitement
-    &:has(.cta-banner-btn:only-child) {
-      .cta-banner-btn {
-        min-width: 250px;
-        max-width: 350px;
-      }
-    }
 
     @media (max-width: $breakpoint-sm) {
       flex-direction: column;
       align-items: center;
-      gap: map-get($spacers, 3);
     }
   }
 
@@ -809,108 +869,111 @@ $accent-red: #cc3333 !default;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: map-get($spacers, 3);
-    padding: map-get($spacers, 4) map-get($spacers, 6);
-    border-radius: $border-radius;
-    font-family: $headings-font-family;
-    font-weight: 600;
+    gap: 0.5rem;
+    height: 3.5rem;
+    padding: 0 2.5rem;
+    border-radius: 0.75rem;
+    font-weight: $font-weight-semibold;
     font-size: 1rem;
     text-decoration: none !important;
-    transition: $transition;
-    min-width: 200px;
-    border: 2px solid transparent;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    white-space: nowrap;
 
     @media (max-width: $breakpoint-sm) {
       width: 100%;
       max-width: 280px;
-      min-width: auto;
     }
 
-    // Bouton primaire (noir)
+    // Primary button - Red accent
     &.primary {
-      background: $accent-black;
+      background: $accent-red-lovable;
       color: $neutral-white;
-      border-color: $accent-black;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      border: none;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
       &:hover {
-        background: rgba(255, 255, 255, 0.9);
-        color: $accent-black !important;
-        border-color: rgba(255, 255, 255, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
-        text-decoration: none !important;
+        background: $accent-red-dark;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
       }
     }
 
-    // Bouton secondaire (rouge)
+    // Secondary button - Border with semi-transparent bg
     &.secondary {
-      background: $accent-red;
+      background: transparent;
       color: $neutral-white;
-      border-color: $accent-red;
-      box-shadow: 0 4px 15px rgba(204, 51, 51, 0.3);
+      border: 2px solid rgba($neutral-white, 0.4);
 
       &:hover {
-        background: rgba(255, 255, 255, 0.9);
-        color: $accent-red !important;
-        border-color: rgba(255, 255, 255, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
-        text-decoration: none !important;
+        background: rgba($neutral-white, 0.1);
+        border-color: rgba($neutral-white, 0.6);
       }
     }
   }
 
-  // ==================== CALLOUT BLOCK COMPONENT ====================
+  // ============================================
+  // Callout Block - Lovable Warning Style (Amber)
+  // ============================================
 
   .callout-block {
-    background: $gray-light;
-    border-radius: $border-radius;
-    padding: map-get($spacers, 6);
-    margin: map-get($spacers, 7) 0;
-    border-left: 4px solid $primary-color;
-    position: relative;
+    background: $amber-50;
+    border-radius: 0 0.5rem 0.5rem 0;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    border-left: 4px solid $amber-500;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    gap: 0.25rem 0.75rem;
+    align-items: start;
 
-    @media (max-width: $breakpoint-md) {
-      padding: map-get($spacers, 5);
-      margin: map-get($spacers, 6) 0 map-get($spacers, 4);
-    }
-
-    @media (max-width: $breakpoint-sm) {
-      padding: map-get($spacers, 4);
+    // Icon via ::before - Lucide triangle-alert SVG (outline style)
+    &::before {
+      content: '';
+      width: 1.25rem;
+      height: 1.25rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23d97706' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+      background-size: contain;
+      background-repeat: no-repeat;
+      flex-shrink: 0;
+      grid-row: 1 / -1;
+      margin-top: 0.125rem;
     }
   }
 
   .callout-block-title {
-    font-family: $headings-font-family;
-    font-size: 1.6rem;
-    color: $black;
-    margin-bottom: map-get($spacers, 3);
-    font-weight: $font-weight-bold;
-    line-height: 1.3;
-
-    @media (max-width: $breakpoint-md) {
-      font-size: 1.4rem;
-    }
-
-    @media (max-width: $breakpoint-sm) {
-      font-size: 1.2rem;
-    }
+    font-family: $font-headings;
+    font-size: 1rem;
+    font-weight: $font-weight-semibold;
+    color: $amber-900;
+    margin: 0;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .callout-block-description {
     font-size: 1rem;
-    color: $dark-gray;
+    color: $amber-900;
     line-height: 1.6;
     margin: 0;
+    grid-column: 2;
+    grid-row: 2;
 
-    @media (max-width: $breakpoint-md) {
-      font-size: 0.95rem;
+    p {
+      color: $amber-900;
+      margin-bottom: 0.5rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
 
-    @media (max-width: $breakpoint-sm) {
-      font-size: 0.9rem;
+    a {
+      color: $amber-600;
+      text-decoration: underline;
+
+      &:hover {
+        color: $amber-900;
+      }
     }
   }
 }
@@ -923,7 +986,7 @@ $accent-red: #cc3333 !default;
   &:before, &:after {
     position: absolute;
     font-size: 2rem;
-    color: $ui-color;
+    color: $teal-dark;
   }
 
   &:before {
@@ -939,6 +1002,421 @@ $accent-red: #cc3333 !default;
     right: 0;
     font-family: $headings-font-family;
   }
+}
+
+// ============================================
+// CTA Banner Extended - Two Column with Features
+// (Outside .rich-content for better specificity)
+// ============================================
+
+.cta-banner-extended {
+  background: linear-gradient(to right, $lovable-teal-dark, $lovable-primary);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  margin: 2rem 0;
+  position: relative;
+  overflow: hidden;
+
+  @media (min-width: $breakpoint-md) {
+    padding: 3.5rem;
+  }
+
+  // Decorative blur circles
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+  }
+
+  &::before {
+    top: 0;
+    right: 0;
+    width: 18rem;
+    height: 18rem;
+    background: rgba($accent-red-lovable, 0.1);
+  }
+
+  &::after {
+    bottom: 0;
+    left: 0;
+    width: 14rem;
+    height: 14rem;
+    background: rgba($neutral-white, 0.05);
+  }
+}
+
+.cta-banner-extended-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.cta-banner-extended-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+
+  @media (min-width: $breakpoint-lg) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.cta-banner-extended-content {
+  h3 {
+    font-family: $font-headings;
+    font-size: 1.875rem;
+    font-weight: $font-weight-bold;
+    color: $neutral-white !important;
+    margin-bottom: 1.25rem;
+    line-height: 1.2;
+
+    @media (min-width: $breakpoint-md) {
+      font-size: 2.25rem;
+    }
+  }
+
+  p {
+    color: $neutral-white !important;
+    margin-bottom: 2rem;
+    line-height: 1.7;
+  }
+}
+
+.cta-banner-extended-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  @media (min-width: $breakpoint-sm) {
+    flex-direction: row;
+  }
+}
+
+.cta-banner-extended-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem;
+  height: 3.5rem;
+  padding: 0 2.5rem !important;
+  border-radius: 0.75rem !important;
+  font-weight: $font-weight-semibold;
+  font-size: 1rem;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  &.primary {
+    background: $accent-red-lovable !important;
+    color: $neutral-white !important;
+    border: none !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: $accent-red-dark !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &.secondary {
+    background: transparent !important;
+    color: $neutral-white !important;
+    border: 2px solid rgba($neutral-white, 0.4) !important;
+
+    &:hover {
+      background: rgba($neutral-white, 0.1) !important;
+      border-color: rgba($neutral-white, 0.6) !important;
+    }
+  }
+}
+
+.cta-banner-extended-features {
+  display: grid;
+  gap: 1rem;
+}
+
+.cta-banner-extended-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: rgba($neutral-white, 0.05);
+  backdrop-filter: blur(8px);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid rgba($neutral-white, 0.1);
+}
+
+.cta-banner-extended-feature-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.5rem;
+  background: $accent-red-lovable;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1.25rem;
+    color: $neutral-white !important;
+  }
+}
+
+.cta-banner-extended-feature-text {
+  h4 {
+    font-family: $font-headings;
+    font-weight: $font-weight-semibold;
+    color: $neutral-white !important;
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+  }
+
+  p {
+    color: $neutral-white !important;
+    font-size: 1rem;
+    margin: 0 !important;
+    line-height: 1.5;
+  }
+}
+
+// ============================================
+// Events Grid Component - Timeline cards
+// ============================================
+
+.events-grid-wrapper {
+  background: linear-gradient(to bottom right, rgba($background-muted, 0.5), $background-muted);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+
+  @media (min-width: $breakpoint-md) {
+    padding: 2rem;
+  }
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+
+  @media (min-width: $breakpoint-sm) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $breakpoint-lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.event-card {
+  background: $neutral-white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid $border-color;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: rgba($lovable-primary, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.event-card-year {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+
+  .event-icon,
+  i, svg {
+    width: 1rem;
+    height: 1rem;
+    color: $lovable-primary;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  span {
+    font-weight: $font-weight-bold;
+    color: $lovable-primary;
+    font-size: 1.125rem;
+  }
+}
+
+.event-card-location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: hsl(210, 15%, 20%); // --foreground from template
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+
+  .event-icon,
+  i, svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: hsl(210, 10%, 45%); // --muted-foreground from template
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+}
+
+.event-card-info {
+  font-size: 0.875rem;
+  color: hsl(210, 10%, 45%); // --muted-foreground from template
+}
+
+.events-grid-note {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba($lovable-primary, 0.1);
+  border-radius: 0.5rem;
+  border: 1px solid rgba($lovable-primary, 0.2);
+
+  p {
+    color: $text-foreground;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+
+    .note-icon {
+      color: $lovable-primary;
+    }
+  }
+}
+
+// ============================================
+// Timeline Component - Chronological Tree
+// ============================================
+
+.timeline-wrapper {
+  max-width: 48rem; // max-w-3xl
+  margin: 2rem auto;
+}
+
+h3.timeline-title {
+  font-family: $font-headings;
+  font-size: 1.4rem;
+  font-weight: $font-weight-bold;
+  color: $text-foreground;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.timeline {
+  position: relative;
+
+  // Vertical line - left on mobile, center on desktop
+  &::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: $border-color;
+
+    @media (min-width: $breakpoint-md) {
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  }
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-direction: row;
+
+  // Dot on the timeline
+  &::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: $lovable-primary;
+    transform: translateX(-50%);
+    z-index: 1;
+
+    @media (min-width: $breakpoint-md) {
+      left: 50%;
+    }
+  }
+
+  // Alternating layout on desktop
+  @media (min-width: $breakpoint-md) {
+    &:nth-child(odd) {
+      flex-direction: row;
+
+      .timeline-content {
+        text-align: right;
+        margin-right: calc(50% + 1.5rem);
+        margin-left: 0;
+      }
+    }
+
+    &:nth-child(even) {
+      flex-direction: row-reverse;
+
+      .timeline-content {
+        text-align: left;
+        margin-left: calc(50% + 1.5rem);
+        margin-right: 0;
+      }
+    }
+  }
+}
+
+.timeline-content {
+  flex: 1;
+  padding-left: 3rem;
+
+  @media (min-width: $breakpoint-md) {
+    padding-left: 0;
+  }
+}
+
+.timeline-card {
+  display: inline-block;
+  background: $neutral-white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid $border-color;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border-color: rgba($lovable-primary, 0.3);
+  }
+}
+
+.timeline-year {
+  font-family: $font-headings;
+  font-weight: $font-weight-bold;
+  font-size: 1.25rem;
+  color: $lovable-primary;
+}
+
+.timeline-description {
+  color: $text-foreground;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  line-height: 1.5;
 }
 
 @mixin md() {

@@ -327,7 +327,10 @@ const Markdown = {
         toolbar.push(this.stepsTool());
         toolbar.push(this.featuresTool());
         toolbar.push(this.ctaBannerTool());
+        toolbar.push(this.ctaBannerExtendedTool());
         toolbar.push(this.calloutBlockTool());
+        toolbar.push(this.eventsGridTool());
+        toolbar.push(this.timelineTool());
         return toolbar;
     },
 
@@ -860,6 +863,104 @@ ${button2Text}|${button2URL}`;
             title: "Insérer un CTA Banner (1 ou 2 boutons, markdown supporté dans la description)"
         };
     },
+
+    ctaBannerExtendedTool: function () {
+        const self = this;
+        return {
+            name: "cta-banner-extended",
+            action: function (editor) {
+                // Demander les informations du CTA banner étendu
+                const title = prompt("Titre du CTA banner étendu :");
+                if (!title) return;
+
+                const description = prompt("Description du CTA banner :");
+                if (!description) return;
+
+                const button1Text = prompt("Texte du premier bouton (principal) :");
+                if (!button1Text) return;
+
+                const button1URL = prompt("URL du premier bouton :");
+                if (!button1URL) return;
+
+                const button2Text = prompt("Texte du deuxième bouton (secondaire, laisser vide pour ignorer) :");
+                let button2URL = "";
+                if (button2Text) {
+                    button2URL = prompt("URL du deuxième bouton :");
+                    if (!button2URL) {
+                        alert("Veuillez entrer une URL pour le deuxième bouton ou laisser le texte vide");
+                        return;
+                    }
+                }
+
+                // Demander le nombre de features
+                const featuresNumber = prompt("Combien de features voulez-vous ajouter ? (1-4, laisser vide pour aucune)");
+
+                let features = [];
+                if (featuresNumber && !isNaN(featuresNumber) && featuresNumber >= 1 && featuresNumber <= 4) {
+                    const num = parseInt(featuresNumber);
+                    const defaultIcons = ['fas fa-shield-alt', 'fas fa-clock', 'fas fa-users', 'fas fa-star'];
+
+                    for (let i = 1; i <= num; i++) {
+                        const featureTitle = prompt(`Titre de la feature ${i} :`);
+                        if (!featureTitle) continue;
+
+                        const featureDesc = prompt(`Description courte de la feature ${i} :`);
+                        if (!featureDesc) continue;
+
+                        const featureIcon = prompt(`Icône Font Awesome de la feature ${i} (ex: fas fa-shield-alt) :`, defaultIcons[i - 1]);
+
+                        features.push({
+                            icon: featureIcon || defaultIcons[i - 1],
+                            title: featureTitle,
+                            description: featureDesc
+                        });
+                    }
+                }
+
+                // Générer le markdown pour le CTA banner étendu
+                let ctaBannerMarkdown = `{cta-banner-extended-start}
+{title}
+${title}
+{description}
+${description}
+{button1}
+${button1Text}|${button1URL}`;
+
+                if (button2Text && button2URL) {
+                    ctaBannerMarkdown += `
+{button2}
+${button2Text}|${button2URL}`;
+                }
+
+                if (features.length > 0) {
+                    ctaBannerMarkdown += `
+{features}`;
+                    features.forEach(feature => {
+                        ctaBannerMarkdown += `
+${feature.icon}|${feature.title}|${feature.description}`;
+                    });
+                    ctaBannerMarkdown += `
+{/features}`;
+                }
+
+                ctaBannerMarkdown += `
+{cta-banner-extended-end}`;
+
+                // Insérer le markdown dans l'éditeur
+                const cm = editor.codemirror;
+                const cursor = cm.getCursor();
+
+                cm.replaceRange(ctaBannerMarkdown, cursor);
+
+                const lines = ctaBannerMarkdown.split('\n');
+                cm.setCursor(cursor.line + lines.length, 0);
+                cm.focus();
+            },
+            className: "fa fa-columns",
+            title: "Insérer un CTA Banner Étendu (2 colonnes avec features)"
+        };
+    },
+
     calloutBlockTool: function () {
         const self = this;
         return {
@@ -897,6 +998,104 @@ ${processedDescription}
             },
             className: "fa fa-info-circle",
             title: "Insérer un bloc callout (avec support markdown)"
+        };
+    },
+
+    eventsGridTool: function () {
+        const self = this;
+        return {
+            name: "events-grid",
+            action: function (editor) {
+                // Demander le nombre d'événements
+                const eventsNumber = prompt("Combien d'événements voulez-vous créer ? (2-20)");
+
+                if (!eventsNumber || isNaN(eventsNumber) || eventsNumber < 2 || eventsNumber > 20) {
+                    alert("Veuillez entrer un nombre valide entre 2 et 20");
+                    return;
+                }
+
+                const num = parseInt(eventsNumber);
+
+                // Demander si une note est souhaitée
+                const addNote = confirm("Voulez-vous ajouter une note en bas de la grille ?");
+                let noteText = '';
+                if (addNote) {
+                    noteText = prompt("Texte de la note :");
+                }
+
+                // Générer le markdown pour les événements
+                let eventsMarkdown = "{events-grid-start}\n";
+
+                for (let i = 1; i <= num; i++) {
+                    const year = 2020 + i;
+                    eventsMarkdown += `${year}|Lieu ${i}|Info ${i}\n`;
+                }
+
+                if (noteText) {
+                    eventsMarkdown += `{note}${noteText}\n`;
+                }
+
+                eventsMarkdown += "{events-grid-end}";
+
+                // Insérer le markdown dans l'éditeur
+                const cm = editor.codemirror;
+                const cursor = cm.getCursor();
+
+                cm.replaceRange(eventsMarkdown, cursor);
+
+                // Positionner le curseur pour faciliter l'édition
+                cm.setCursor(cursor.line + 1, 0);
+                cm.focus();
+            },
+            className: "fa fa-calendar",
+            title: "Insérer une grille d'événements (timeline)"
+        };
+    },
+
+    timelineTool: function () {
+        const self = this;
+        return {
+            name: "timeline",
+            action: function (editor) {
+                // Demander le titre
+                const title = prompt("Titre de la timeline (laisser vide pour aucun titre) :");
+
+                // Demander le nombre d'éléments de la timeline
+                const itemsNumber = prompt("Combien d'éléments voulez-vous créer ? (2-10)");
+
+                if (!itemsNumber || isNaN(itemsNumber) || itemsNumber < 2 || itemsNumber > 10) {
+                    alert("Veuillez entrer un nombre valide entre 2 et 10");
+                    return;
+                }
+
+                const num = parseInt(itemsNumber);
+
+                // Générer le markdown pour la timeline
+                let timelineMarkdown = "{timeline-start}\n";
+
+                if (title && title.trim()) {
+                    timelineMarkdown += `{title}${title.trim()}\n`;
+                }
+
+                for (let i = 1; i <= num; i++) {
+                    const year = 2014 + (i * 2);
+                    timelineMarkdown += `${year}|Description de l'événement ${i}\n`;
+                }
+
+                timelineMarkdown += "{timeline-end}";
+
+                // Insérer le markdown dans l'éditeur
+                const cm = editor.codemirror;
+                const cursor = cm.getCursor();
+
+                cm.replaceRange(timelineMarkdown, cursor);
+
+                // Positionner le curseur pour faciliter l'édition
+                cm.setCursor(cursor.line + 1, 0);
+                cm.focus();
+            },
+            className: "fa fa-stream",
+            title: "Insérer une timeline chronologique"
         };
     }
 };

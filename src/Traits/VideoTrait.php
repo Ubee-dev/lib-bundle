@@ -182,6 +182,6 @@ trait VideoTrait
             $provider = 'youtube';
         }
 
-        return "<div class=\"ratio ratio-16x9\"><div class=\"js-lazyframe\" data-vendor=\"$provider\" data-video-id=\"$videoId\" data-src=\"$videoEmbedUrl\" data-thumbnail=\"$thumbUrl\"></div></div>";
+        return "<div class=\"video-embed\"><div class=\"ratio ratio-16x9\"><div class=\"js-lazyframe\" data-vendor=\"$provider\" data-video-id=\"$videoId\" data-src=\"$videoEmbedUrl\" data-thumbnail=\"$thumbUrl\"></div></div></div>";
     }
 }

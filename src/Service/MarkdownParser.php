@@ -183,7 +183,10 @@ class MarkdownParser implements MarkdownParserInterface
         $markdown = strip_tags($markdown,'<br>');
         $markdown = $this->parseStepsMarkdown($markdown);
         $markdown = $this->parseFeaturesMarkdown($markdown);
+        $markdown = $this->parseEventsGridMarkdown($markdown);
+        $markdown = $this->parseTimelineMarkdown($markdown);
         $markdown = $this->parseCtaBannerMarkdown($markdown);
+        $markdown = $this->parseCtaBannerExtendedMarkdown($markdown);
         $markdown = $this->parseCalloutBlockMarkdown($markdown);
         $markdown = $this->parseYoutubeMarkdown($markdown);
         $markdown = $this->parseVimeoMarkdown($markdown);
@@ -490,7 +493,7 @@ class MarkdownParser implements MarkdownParserInterface
      * Syntax: {features-start} ... {feature:full-fa-classes:Title:Description} ... {features-end}
      *
      * @param string $markdown
-     * @return string Markdown with Html elements for features
+     * @return string Markdown with Html elements for features (Lovable style)
      */
     public function parseFeaturesMarkdown(string $markdown): string
     {
@@ -517,15 +520,165 @@ class MarkdownParser implements MarkdownParserInterface
                 // Parser le markdown dans la description
                 $featureDescriptionHtml = $this->parse($featureDescription, false);
 
+                // Lovable style structure
                 $html .= '<div class="feature-card">' . "\n";
-                $html .= '  <div class="feature-header">' . "\n";
-                $html .= '    <i class="' . htmlspecialchars($featureClasses) . ' feature-icon"></i>' . "\n";
-                $html .= '    <span class="feature-title">' . htmlspecialchars($featureTitle) . '</span>' . "\n";
+                $html .= '  <div class="feature-content">' . "\n";
+                $html .= '    <div class="feature-icon-wrapper">' . "\n";
+                $html .= '      <i class="' . htmlspecialchars($featureClasses) . '"></i>' . "\n";
+                $html .= '    </div>' . "\n";
+                $html .= '    <div class="feature-text">' . "\n";
+                $html .= '      <h4 class="feature-title">' . htmlspecialchars($featureTitle) . '</h4>' . "\n";
+                $html .= '      <div class="feature-description">' . $featureDescriptionHtml . '</div>' . "\n";
+                $html .= '    </div>' . "\n";
                 $html .= '  </div>' . "\n";
-                $html .= '  <div class="feature-description rich-content">' . $featureDescriptionHtml . '</div>' . "\n";
                 $html .= '</div>' . "\n";
             }
 
+            $html .= '</div>' . "\n";
+
+            return $html;
+        }, $markdown);
+    }
+
+    /**
+     * Parse events grid markdown syntax to HTML
+     * Syntax:
+     * {events-grid-start}
+     * 1959|Thailand|6 nations
+     * 1961|Myanmar|7 nations
+     * {note}Optional note text here
+     * {events-grid-end}
+     *
+     * @param string $markdown
+     * @return string Markdown with Html elements for events grid
+     */
+    public function parseEventsGridMarkdown(string $markdown): string
+    {
+        $pattern = '/\{events-grid-start\}(.*?)\{events-grid-end\}/s';
+
+        return preg_replace_callback($pattern, function ($matches) {
+            $content = $matches[1];
+
+            // Extract note if present
+            $note = '';
+            if (preg_match('/\{note\}(.*?)(?=\{events-grid-end\}|\z)/s', $content, $noteMatch)) {
+                $note = trim($noteMatch[1]);
+                $content = preg_replace('/\{note\}.*$/s', '', $content);
+            }
+
+            $html = '<div class="events-grid-wrapper">' . "\n";
+            $html .= '  <div class="events-grid">' . "\n";
+
+            // Parse each event line
+            $lines = array_filter(array_map('trim', explode("\n", trim($content))));
+
+            foreach ($lines as $line) {
+                // Skip empty lines or lines that don't match the pattern
+                if (empty($line) || strpos($line, '|') === false) {
+                    continue;
+                }
+
+                $parts = explode('|', $line, 3);
+                if (count($parts) >= 2) {
+                    $year = trim($parts[0]);
+                    $location = trim($parts[1]);
+                    $info = isset($parts[2]) ? trim($parts[2]) : '';
+
+                    $html .= '    <div class="event-card">' . "\n";
+                    $html .= '      <div class="event-card-year">' . "\n";
+                    $html .= '        <i class="far fa-calendar"></i>' . "\n";
+                    $html .= '        <span>' . htmlspecialchars($year) . '</span>' . "\n";
+                    $html .= '      </div>' . "\n";
+                    $html .= '      <div class="event-card-location">' . "\n";
+                    $html .= '        <i class="fas fa-map-marker-alt"></i>' . "\n";
+                    $html .= '        <span>' . htmlspecialchars($location) . '</span>' . "\n";
+                    $html .= '      </div>' . "\n";
+
+                    if (!empty($info)) {
+                        $html .= '      <div class="event-card-info">' . htmlspecialchars($info) . '</div>' . "\n";
+                    }
+
+                    $html .= '    </div>' . "\n";
+                }
+            }
+
+            $html .= '  </div>' . "\n";
+
+            // Add note if present
+            if (!empty($note)) {
+                $html .= '  <div class="events-grid-note">' . "\n";
+                $html .= '    <p><span class="note-icon">📅</span> ' . htmlspecialchars($note) . '</p>' . "\n";
+                $html .= '  </div>' . "\n";
+            }
+
+            $html .= '</div>' . "\n";
+
+            return $html;
+        }, $markdown);
+    }
+
+    /**
+     * Parse timeline markdown syntax to HTML (chronological tree)
+     * Syntax:
+     * {timeline-start}
+     * {title}Notre Histoire
+     * 1977|Philippines, Indonesia, Brunei joined; renamed Southeast Asian Games Federation.
+     * 2003|Timor-Leste joined.
+     * 2021|31st SEA Games in Vietnam postponed to 2022 due to COVID-19.
+     * {timeline-end}
+     *
+     * @param string $markdown
+     * @return string Markdown with Html elements for timeline
+     */
+    public function parseTimelineMarkdown(string $markdown): string
+    {
+        $pattern = '/\{timeline-start\}(.*?)\{timeline-end\}/s';
+
+        return preg_replace_callback($pattern, function ($matches) {
+            $content = $matches[1];
+
+            // Extract title if present
+            $title = '';
+            if (preg_match('/\{title\}(.+?)(?=\n|$)/s', $content, $titleMatch)) {
+                $title = trim($titleMatch[1]);
+                $content = preg_replace('/\{title\}.+?(?=\n|$)/s', '', $content);
+            }
+
+            $html = '<div class="timeline-wrapper">' . "\n";
+
+            // Add title if present
+            if (!empty($title)) {
+                $html .= '  <h3 class="timeline-title">' . htmlspecialchars($title) . '</h3>' . "\n";
+            }
+
+            $html .= '  <div class="timeline">' . "\n";
+
+            // Parse each timeline item
+            $lines = array_filter(array_map('trim', explode("\n", trim($content))));
+
+            foreach ($lines as $line) {
+                // Skip empty lines or lines that don't match the pattern
+                if (empty($line) || strpos($line, '|') === false) {
+                    continue;
+                }
+
+                $parts = explode('|', $line, 2);
+                if (count($parts) >= 2) {
+                    $year = trim($parts[0]);
+                    $description = trim($parts[1]);
+
+                    $html .= '    <div class="timeline-item">' . "\n";
+                    $html .= '      <div class="timeline-content">' . "\n";
+                    $html .= '        <div class="timeline-card">' . "\n";
+                    $html .= '          <span class="timeline-year">' . htmlspecialchars($year) . '</span>' . "\n";
+                    $html .= '          <p class="timeline-description">' . htmlspecialchars($description) . '</p>' . "\n";
+                    $html .= '        </div>' . "\n";
+                    $html .= '      </div>' . "\n";
+                    $html .= '    </div>' . "\n";
+                }
+            }
+
+            $html .= '  </div>' . "\n";
             $html .= '</div>' . "\n";
 
             return $html;
@@ -645,6 +798,113 @@ class MarkdownParser implements MarkdownParserInterface
             $html .= '        <i class="fas fa-package"></i>' . "\n";
             $html .= '        ' . htmlspecialchars($button2Text) . "\n";
             $html .= '      </a>' . "\n";
+            $html .= '    </div>' . "\n";
+            $html .= '  </div>' . "\n";
+            $html .= '</div>' . "\n";
+
+            return $html;
+        }, $markdown);
+    }
+
+    /**
+     * Parse CTA Banner Extended markdown with two-column layout and features
+     * Syntax:
+     * {cta-banner-extended-start}
+     * {title}Your title here
+     * {description}Your description here
+     * {button1}Button Text|/url
+     * {button2}Button Text|/url
+     * {features}
+     * fas fa-icon|Feature Title|Feature description
+     * fas fa-icon|Feature Title|Feature description
+     * {/features}
+     * {cta-banner-extended-end}
+     *
+     * @param string $markdown
+     * @return string
+     */
+    public function parseCtaBannerExtendedMarkdown(string $markdown): string
+    {
+        $pattern = '/\{cta-banner-extended-start\}(.*?)\{cta-banner-extended-end\}/s';
+
+        return preg_replace_callback($pattern, function ($matches) {
+            $content = $matches[1];
+
+            // Extract sections
+            $title = $this->extractCtaBannerSection($content, 'title');
+            $description = $this->extractCtaBannerSection($content, 'description');
+            $button1 = $this->extractCtaBannerSection($content, 'button1');
+            $button2 = $this->extractCtaBannerSection($content, 'button2');
+
+            // Extract features block
+            $featuresContent = '';
+            if (preg_match('/\{features\}(.*?)\{\/features\}/s', $content, $featuresMatch)) {
+                $featuresContent = trim($featuresMatch[1]);
+            }
+
+            if (!$title || !$description) {
+                return $matches[0]; // Return original if invalid
+            }
+
+            $html = '<div class="cta-banner-extended">' . "\n";
+            $html .= '  <div class="cta-banner-extended-inner">' . "\n";
+            $html .= '    <div class="cta-banner-extended-grid">' . "\n";
+
+            // Left column - Content
+            $html .= '      <div class="cta-banner-extended-content">' . "\n";
+            $html .= '        <h3>' . htmlspecialchars(trim($title)) . '</h3>' . "\n";
+            $html .= '        <p>' . htmlspecialchars(trim($description)) . '</p>' . "\n";
+
+            // Buttons
+            if ($button1 || $button2) {
+                $html .= '        <div class="cta-banner-extended-buttons">' . "\n";
+
+                if ($button1) {
+                    $button1Data = $this->parseCtaButton($button1);
+                    $html .= '          <a href="' . htmlspecialchars($button1Data['url']) . '" class="cta-banner-extended-btn primary">' . "\n";
+                    $html .= '            ' . htmlspecialchars($button1Data['text']) . "\n";
+                    $html .= '          </a>' . "\n";
+                }
+
+                if ($button2) {
+                    $button2Data = $this->parseCtaButton($button2);
+                    $html .= '          <a href="' . htmlspecialchars($button2Data['url']) . '" class="cta-banner-extended-btn secondary">' . "\n";
+                    $html .= '            ' . htmlspecialchars($button2Data['text']) . "\n";
+                    $html .= '          </a>' . "\n";
+                }
+
+                $html .= '        </div>' . "\n";
+            }
+
+            $html .= '      </div>' . "\n";
+
+            // Right column - Features
+            if ($featuresContent) {
+                $html .= '      <div class="cta-banner-extended-features">' . "\n";
+
+                $featureLines = array_filter(array_map('trim', explode("\n", $featuresContent)));
+                foreach ($featureLines as $featureLine) {
+                    $parts = explode('|', $featureLine, 3);
+                    if (count($parts) >= 3) {
+                        $icon = trim($parts[0]);
+                        $featureTitle = trim($parts[1]);
+                        $featureDesc = trim($parts[2]);
+
+                        $html .= '        <div class="cta-banner-extended-feature">' . "\n";
+                        $html .= '          <div class="cta-banner-extended-feature-icon">' . "\n";
+                        $html .= '            <i class="' . htmlspecialchars($icon) . '"></i>' . "\n";
+                        $html .= '          </div>' . "\n";
+                        $html .= '          <div class="cta-banner-extended-feature-text">' . "\n";
+                        $html .= '            <h4>' . htmlspecialchars($featureTitle) . '</h4>' . "\n";
+                        $html .= '            <p>' . htmlspecialchars($featureDesc) . '</p>' . "\n";
+                        $html .= '          </div>' . "\n";
+                        $html .= '        </div>' . "\n";
+                    }
+                }
+
+                $html .= '      </div>' . "\n";
+            }
+
             $html .= '    </div>' . "\n";
             $html .= '  </div>' . "\n";
             $html .= '</div>' . "\n";
