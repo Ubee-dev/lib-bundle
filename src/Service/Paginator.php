@@ -17,7 +17,7 @@ class Paginator
     public function getPaginatedQueryResult(
         QueryBuilder $queryBuilder,
         Request $request,
-        string $dtoClass = null,
+        ?string $dtoClass = null,
         array $params = []
     ): PaginatedResult
     {

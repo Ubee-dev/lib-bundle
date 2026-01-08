@@ -22,7 +22,7 @@ class BackupDatabaseListCommand extends AbstractMonitoredCommand
         private readonly S3Client               $s3Client,
         private readonly Mailer                 $mailer,
         private readonly EntityManagerInterface $entityManager,
-        string                                  $name = null
+        ?string                                 $name = null
     )
     {
         parent::__construct($name);

@@ -15,11 +15,11 @@ class ConstraintVideoProviderUrl extends Constraint
     public array $providers = ['youtube', 'vimeo', 'facebook'];
 
     public function __construct(
-        array $providers = null,
-        string $message = null,
-        array $options = null,
-        array $groups = null,
-        $payload = null
+        ?array $providers = null,
+        ?string $message = null,
+        ?array $options = null,
+        ?array $groups = null,
+        mixed $payload = null
     ) {
         $options = $options ?? [];
 

@@ -13,7 +13,7 @@ abstract class AbstractProducer
     protected $producer;
     protected ?string $currentEnv;
     
-    public function __construct(RabbitProducer $producer, string $currentEnv = null)
+    public function __construct(RabbitProducer $producer, ?string $currentEnv = null)
     {
         $this->producer = $currentEnv === 'test' ? new RabbitMQStub() : $producer;
         $this->currentEnv = $currentEnv;

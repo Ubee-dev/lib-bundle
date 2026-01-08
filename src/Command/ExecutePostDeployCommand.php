@@ -38,7 +38,7 @@ class ExecutePostDeployCommand extends Command
         private readonly ContainerInterface            $container,
         private readonly SlackNotificationProducer     $slackNotificationProducer,
         private readonly KernelInterface               $kernel,
-        string                                         $name = null
+        ?string                                        $name = null
     )
     {
         parent::__construct($name);

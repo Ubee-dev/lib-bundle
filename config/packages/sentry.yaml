@@ -8,19 +8,17 @@ when@prod:
         - "%kernel.build_dir%"
         - "%kernel.cache_dir%"
         - "%kernel.project_dir%/vendor"
-      integrations:
-        - 'Sentry\Integration\IgnoreErrorsIntegration'
+      ignore_exceptions:
+        - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
 
-  services:
-    Sentry\Integration\IgnoreErrorsIntegration:
-      arguments:
-        $options:
-          ignore_exceptions:
-            - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-  
   monolog:
     handlers:
       sentry:
-        type: sentry
+        type: service
+        id: Sentry\Monolog\Handler
         level: !php/const Monolog\Logger::CRITICAL
-        hub_id: Sentry\State\HubInterface
+
+  services:
+    Sentry\Monolog\Handler:
+      arguments:
+        - '@Sentry\State\HubInterface'
