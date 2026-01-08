@@ -82,7 +82,7 @@ abstract class AbstractJob
      * @param \Exception $e
      * @throws \Exception If report was not sent
      */
-    protected function sendErrorReport($error_message, \Exception $e = null)
+    protected function sendErrorReport($error_message, ?\Exception $e = null)
     {
         $error_body = $this->projectName . ' ' . $this->getCommandName() . "\n\n";
         $error_body .= $error_message;

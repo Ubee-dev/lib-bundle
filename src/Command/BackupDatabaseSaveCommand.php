@@ -26,7 +26,7 @@ class BackupDatabaseSaveCommand extends AbstractMonitoredCommand
         private readonly Mailer                 $mailer,
         private readonly ParameterBagInterface  $parameterBag,
         private readonly string                 $s3BackupBucket,
-        string                                  $name = null
+        ?string                                 $name = null
     )
     {
         parent::__construct($name);

@@ -25,7 +25,7 @@ class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
         private readonly EntityManagerInterface $entityManager,
         private readonly Mailer                 $mailer,
         private readonly ParameterBagInterface  $parameterBag,
-        string                                  $name = null
+        ?string                                 $name = null
     )
     {
         parent::__construct($name);

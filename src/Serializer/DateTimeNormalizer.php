@@ -16,12 +16,12 @@ class DateTimeNormalizer implements NormalizerInterface
      * @param array $context
      * @return string
      */
-    public function normalize($object, string $format = null, array $context = []): string
+    public function normalize($object, ?string $format = null, array $context = []): string
     {
         return $object->jsonSerialize();
     }
 
-    public function supportsNormalization($data, string $format = null, array $context = []): bool
+    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
     {
         return $data instanceof Date || $data instanceof DateTime;
     }

@@ -253,7 +253,7 @@ trait DateTimeTrait
      * @return DateTimeInterface
      * @throws Exception
      */
-    public function convertLocalDateTimeToDefaultTimezone(DateTimeInterface $date, string $timeZone, string $time = null): DateTimeInterface
+    public function convertLocalDateTimeToDefaultTimezone(DateTimeInterface $date, string $timeZone, ?string $time = null): DateTimeInterface
     {
         if($time) {
             $time = explode(':', $time);

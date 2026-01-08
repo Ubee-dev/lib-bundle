@@ -19,7 +19,7 @@ class PurgeTablesCommand extends Command
 {
     public function __construct(
         private readonly CleanerInterface $cleaner,
-        string                            $name = null
+        ?string                           $name = null
     )
     {
         parent::__construct($name);

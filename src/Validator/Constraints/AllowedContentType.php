@@ -12,7 +12,7 @@ class AllowedContentType extends Constraint
     public function __construct(
         public array $allowedMimeTypes = [],
         public string $message = 'media.content_type.invalid_mime_type',
-        array $groups = null,
+        ?array $groups = null,
         mixed $payload = null
     ) {
         parent::__construct([], $groups, $payload);

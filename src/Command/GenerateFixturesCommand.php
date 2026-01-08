@@ -24,7 +24,7 @@ class GenerateFixturesCommand extends Command
     public function __construct(
         protected readonly CleanerInterface $cleaner,
         protected readonly KernelInterface  $kernel,
-        string                              $name = null
+        ?string                             $name = null
     )
     {
         parent::__construct($name);

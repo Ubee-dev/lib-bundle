@@ -184,9 +184,9 @@ class ApiManager
     public function paginatedApiResponse(
         QueryBuilder $queryBuilder,
         Request      $request,
-        string       $dtoClass = null,
+        ?string      $dtoClass = null,
         array        $params = [],
-        string       $timezone = null,
+        ?string      $timezone = null,
         array        $orderBy = []
     ): JsonResponse
     {
