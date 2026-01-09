@@ -2,7 +2,7 @@
     "name": "khalil1608/lib-bundle",
     "description": "Lib bundle",
     "type": "symfony-bundle",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "autoload": {
         "psr-4": {
             "Khalil1608\\LibBundle\\": "src/",
@@ -20,7 +20,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-mbstring": "*",
-        "doctrine/doctrine-bundle": "^3.2.2",
+        "doctrine/doctrine-bundle": "^4.0",
         "doctrine/doctrine-migrations-bundle": "^3.4",
         "doctrine/orm": "^3.6.0",
         "dompdf/dompdf": "^3.0",
