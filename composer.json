@@ -2,7 +2,7 @@
     "name": "khalil1608/lib-bundle",
     "description": "Lib bundle",
     "type": "symfony-bundle",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "autoload": {
         "psr-4": {
             "Khalil1608\\LibBundle\\": "src/",
