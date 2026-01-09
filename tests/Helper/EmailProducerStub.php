@@ -11,7 +11,7 @@ class EmailProducerStub extends EmailProducer
     public function __construct(
         private readonly FakeEmailProvider $fakeEmailProvider,
         RabbitProducer $producer,
-        string $currentEnv = null,
+        ?string $currentEnv = null,
     )
     {
         parent::__construct($producer, $currentEnv);
