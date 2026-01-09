@@ -16,4 +16,3 @@ when@test:
         default:
           # "TEST_TOKEN" is typically set by ParaTest
           dbname_suffix: '_test%env(TEST_TOKEN)%'
-          use_savepoints: true
