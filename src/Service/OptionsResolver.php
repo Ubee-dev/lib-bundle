@@ -3,9 +3,13 @@
 namespace Khalil1608\LibBundle\Service;
 
 use BackedEnum;
+use Khalil1608\LibBundle\Builder\ExpectationBuilder;
+use Khalil1608\LibBundle\Config\CustomEnumInterface;
+use Khalil1608\LibBundle\Config\ParameterType;
 use Khalil1608\LibBundle\Entity\AbstractDateTime;
 use Khalil1608\LibBundle\Entity\Date;
 use Khalil1608\LibBundle\Entity\DateTime;
+use Khalil1608\LibBundle\Exception\FileValidationException;
 use Khalil1608\LibBundle\Exception\InvalidArgumentException;
 use Khalil1608\LibBundle\Model\Type\Email;
 use Khalil1608\LibBundle\Model\Type\Name;
@@ -40,7 +44,8 @@ class OptionsResolver
 
     public function setSanitizingExpectations(array $sanitizingExpectations): self
     {
-        $this->sanitizingExpectations = $sanitizingExpectations;
+        // Normalize expectations to handle ParameterType enums
+        $this->sanitizingExpectations = $this->normalizeExpectations($sanitizingExpectations);
         return $this;
     }
 
@@ -70,7 +75,7 @@ class OptionsResolver
         $sanitizedParameters = $this->strictMode
             ? $this->removeExtraFields($this->parameters, $this->sanitizingExpectations)
             : $this->parameters;
-        
+
         $errors = $this->processSanitizingExpectations($sanitizedParameters, $this->sanitizingExpectations);
 
         if (!empty($errors)) {
@@ -84,6 +89,48 @@ class OptionsResolver
         $this->checkAllowedValuesParameters($sanitizedParameters);
 
         return $sanitizedParameters;
+    }
+
+    private function normalizeExpectations(array $expectations): array
+    {
+        $normalized = [];
+        foreach ($expectations as $key => $expectation) {
+            $normalized[$key] = $this->normalizeExpectation($expectation);
+        }
+        return $normalized;
+    }
+
+    private function normalizeExpectation(mixed $expectation): array|string
+    {
+        if ($expectation instanceof ParameterType) {
+            return ['type' => $expectation->value];
+        }
+
+        if ($expectation instanceof ExpectationBuilder) {
+            // Convert ExpectationBuilder objects to array format
+            return $this->normalizeExpectationArray($expectation->toArray());
+        }
+
+        if (is_array($expectation)) {
+            return $this->normalizeExpectationArray($expectation);
+        }
+
+        return $expectation;
+    }
+
+    private function normalizeExpectationArray(array $expectation): array
+    {
+        // Normalize the type if it's a ParameterType enum
+        if (isset($expectation['type']) && $expectation['type'] instanceof ParameterType) {
+            $expectation['type'] = $expectation['type']->value;
+        }
+
+        // Recursively normalize items if they exist
+        if (isset($expectation['items']) && is_array($expectation['items'])) {
+            $expectation['items'] = $this->normalizeExpectations($expectation['items']);
+        }
+
+        return $expectation;
     }
 
     private function removeExtraFields(array $parameters, array $expectations): array
@@ -116,6 +163,7 @@ class OptionsResolver
         $errors = [];
 
         foreach ($expectations as $key => $expectation) {
+
             $value = $parameters[$key] ?? null;
 
             if (is_string($value)) {
@@ -170,6 +218,8 @@ class OptionsResolver
                     $parameters[$key] = $this->sanitizeParameter($key, $value, $expectation);
                 }
 
+            } catch (FileValidationException $e) {
+                $errors[$key] = $e->getMessage();
             } catch (Exception|\ValueError) {
                 $errors[$key] = $this->translator->trans('Khalil1608_lib.field.invalid', [], 'validators');
             }
@@ -177,7 +227,6 @@ class OptionsResolver
 
         return $errors;
     }
-
 
     private function sanitizeParameter(string $key, mixed $value, array $expectation): mixed
     {
@@ -206,6 +255,8 @@ class OptionsResolver
                 return Money::EUR($value);
             case 'enum':
                 return $this->getEnumValue($value, $expectation['class'] ?? null);
+            case 'customEnum':
+                return $this->getCustomEnumValue($value, $expectation['class'] ?? null);
             case 'email':
                 return Email::from(trim($value));
             case 'name':
@@ -226,6 +277,8 @@ class OptionsResolver
                     throw new Exception("Invalid array format");
                 }
                 return $value;
+            case 'file':
+                return $this->validateFile($value, $expectation);
             case 'string':
                 return trim($value);
             default:
@@ -332,5 +385,59 @@ class OptionsResolver
     {
         $enumType = $class;
         return $enumType::tryFrom(trim($parameter));
+    }
+
+    private function getCustomEnumValue(mixed $parameter, string $class): ?CustomEnumInterface
+    {
+        $enumType = $class;
+        return $enumType::tryFrom(trim($parameter));
+    }
+
+    private function validateFile(mixed $value, array $expectation): UploadedFile
+    {
+        if (!$value instanceof UploadedFile) {
+            throw new Exception("Invalid file format");
+        }
+
+        $allowedExtensions = $expectation['extensions'] ?? null;
+        $allowedMimetypes = $expectation['mimetypes'] ?? null;
+
+        if ($allowedExtensions !== null) {
+            $extension = strtolower($value->getClientOriginalExtension());
+            // Normalize extensions by removing leading dots and lowercasing
+            $normalizedExtensions = array_map(fn($e) => strtolower(ltrim($e, '.')), $allowedExtensions);
+
+            if (!in_array($extension, $normalizedExtensions, true)) {
+                throw new FileValidationException(
+                    $this->translator->trans(
+                        'Khalil1608_lib.file.invalid_extension',
+                        [
+                            '{{ extension }}' => '.' . $extension,
+                            '{{ allowed_extensions }}' => implode(', ', $allowedExtensions),
+                        ],
+                        'validators'
+                    )
+                );
+            }
+        }
+
+        if ($allowedMimetypes !== null) {
+            $mimetype = $value->getMimeType();
+
+            if (!in_array($mimetype, $allowedMimetypes, true)) {
+                throw new FileValidationException(
+                    $this->translator->trans(
+                        'Khalil1608_lib.file.invalid_mimetype',
+                        [
+                            '{{ mimetype }}' => $mimetype,
+                            '{{ allowed_mimetypes }}' => implode(', ', $allowedMimetypes),
+                        ],
+                        'validators'
+                    )
+                );
+            }
+        }
+
+        return $value;
     }
 }

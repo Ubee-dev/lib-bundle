@@ -1,5 +1,6 @@
 parameters:
   env(PAGE_SIZE): 30
+  env(APP_TOKEN): ~
   upload_dir: /uploads
   mediaClassName: null
   #todo tester si on peut l'écraser en lancant les tests parallèles
@@ -21,6 +22,7 @@ services:
       $s3BackupBucket: '%env(resolve:S3_BACKUP_BUCKET)%'
       $listPageSize: '%env(resolve:PAGE_SIZE)%'
       $currentEnv: '%env(resolve:APP_ENV)%'
+      $appToken: '%env(resolve:APP_TOKEN)%'
   
   # auto-register Service
   Khalil1608\LibBundle\:
