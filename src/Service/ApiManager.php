@@ -2,10 +2,9 @@
 
 namespace Khalil1608\LibBundle\Service;
 
+use Khalil1608\LibBundle\Config\ParameterType;
 use Khalil1608\LibBundle\Entity\DateTime;
 use Khalil1608\LibBundle\Model\JsonSerializable;
-use Khalil1608\LibBundle\Service\OptionsResolver;
-use Khalil1608\LibBundle\Service\Paginator;
 use Khalil1608\LibBundle\Traits\DateTimeTrait;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
@@ -135,19 +134,22 @@ class ApiManager
             $serializedValue = $output[$key];
 
             if ($serializedValue) {
-                if ($type === 'date') {
+                // Handle both enum and string types
+                $typeValue = $type instanceof ParameterType ? $type->value : $type;
+
+                if ($typeValue === 'date') {
                     /** @var DateTime $serializedValue */
                     $serializedValue = $serializedValue->format('Y-m-d');
-                } elseif ($type === 'datetime') {
+                } elseif ($typeValue === 'datetime') {
                     /** @var DateTime $serializedValue */
                     $serializedValue = $serializedValue->format('c');
-                } elseif ($type === 'money') {
+                } elseif ($typeValue === 'money') {
                     /** @var Money $serializedValue */
                     $serializedValue = (int)$serializedValue->getAmount();
-                } elseif ($type === 'int') {
+                } elseif ($typeValue === 'int') {
                     $serializedValue = (int)$serializedValue;
-                } elseif ($type === 'entity') {
-                    /** @var Money $serializedValue */
+                } elseif ($typeValue === 'entity') {
+                    /** @var object $serializedValue */
                     $serializedValue = $serializedValue->getId();
                 }
             }
@@ -262,13 +264,11 @@ class ApiManager
         return new JsonResponse($this->convertDataWithTimezone($data, $timezone));
     }
 
-    public function checkHeadersParameters(?string $token, ?int $brandId = null): ?Brand
+    public function checkHeadersParameters(?string $token): void
     {
         if ($token !== $this->appToken) {
             throw new HttpException(401, 'Wrong Token');
         }
-
-        return null;
     }
 
     private function convertDataWithTimezone(array $data, string $timezone): array
