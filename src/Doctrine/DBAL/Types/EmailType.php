@@ -12,6 +12,8 @@ use Doctrine\DBAL\Types\ConversionException;
  */
 class EmailType extends Type
 {
+    private const DEFAULT_LENGTH = 255;
+
     /**
      * {@inheritdoc}
      */
@@ -25,6 +27,7 @@ class EmailType extends Type
      */
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
+        $column['length'] ??= self::DEFAULT_LENGTH;
         return $platform->getStringTypeDeclarationSQL($column);
     }
 
