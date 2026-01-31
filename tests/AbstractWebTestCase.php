@@ -65,7 +65,6 @@ abstract class AbstractWebTestCase extends WebTestCase
 
     protected ConsoleOutput $output;
     protected EntityManagerInterface $entityManager;
-    protected Mailer|MockObject $mailerMock;
     /** @var Factory */
     protected FactoryInterface $factory;
     /** @var Cleaner */
@@ -96,7 +95,6 @@ abstract class AbstractWebTestCase extends WebTestCase
         }
         $this->output = new ConsoleOutput();
         $this->container = static::getContainer();
-        $this->mailerMock = $this->getMockedClass(Mailer::class);
         $this->factory = $this->container->get(FactoryInterface::class);
         $this->cleaner = $this->container->get(CleanerInterface::class);
         // Use stub by default - mock created when assertValidatorShouldBeCalledWith is called
