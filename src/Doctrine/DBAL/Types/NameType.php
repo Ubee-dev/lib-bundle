@@ -13,6 +13,7 @@ use Doctrine\DBAL\Types\StringType;
 class NameType extends StringType
 {
     public const NAME = 'name';
+    private const DEFAULT_LENGTH = 255;
 
     /**
      * {@inheritdoc}
@@ -20,6 +21,12 @@ class NameType extends StringType
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        $column['length'] ??= self::DEFAULT_LENGTH;
+        return parent::getSQLDeclaration($column, $platform);
     }
 
     /**

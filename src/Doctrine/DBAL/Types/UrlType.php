@@ -13,10 +13,17 @@ use Doctrine\DBAL\Types\StringType;
 class UrlType extends StringType
 {
     public const URL = 'url';
+    private const DEFAULT_LENGTH = 255;
 
     public function getUrl(): string
     {
         return self::URL;
+    }
+
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        $column['length'] ??= self::DEFAULT_LENGTH;
+        return parent::getSQLDeclaration($column, $platform);
     }
 
     /**
