@@ -146,10 +146,14 @@ class OptionsResolver
 
             if (is_array($value) && isset($expectation['items'])) {
                 // Handle nested arrays by filtering their content recursively
-                $filteredParameters[$key] = array_map(
-                    fn($item) => is_array($item) ? $this->removeExtraFields($item, $expectation['items']) : $item,
-                    $value
-                );
+                if (array_is_list($value)) {
+                    $filteredParameters[$key] = array_map(
+                        fn($item) => is_array($item) ? $this->removeExtraFields($item, $expectation['items']) : $item,
+                        $value
+                    );
+                } else {
+                    $filteredParameters[$key] = $this->removeExtraFields($value, $expectation['items']);
+                }
             } else {
                 $filteredParameters[$key] = $value;
             }
@@ -202,18 +206,28 @@ class OptionsResolver
             try {
                 // Handle nested arrays with items
                 if ($expectation['type'] === 'array' && isset($expectation['items']) && is_array($value)) {
-                    $nestedErrors = [];
-                    foreach ($value as $index => $item) {
-                        $itemErrors = $this->processSanitizingExpectations($item, $expectation['items']);
-                        if (!empty($itemErrors)) {
-                            $nestedErrors[$index] = $itemErrors;
+                    if (array_is_list($value)) {
+                        // List of objects: process each item
+                        $nestedErrors = [];
+                        foreach ($value as $index => $item) {
+                            $itemErrors = $this->processSanitizingExpectations($item, $expectation['items']);
+                            if (!empty($itemErrors)) {
+                                $nestedErrors[$index] = $itemErrors;
+                            }
+                            $value[$index] = $item;
                         }
-                        $value[$index] = $item; // Update the item after sanitization
+                        if (!empty($nestedErrors)) {
+                            $errors[$key] = $nestedErrors;
+                        }
+                        $parameters[$key] = $value;
+                    } else {
+                        // Single associative object: process directly
+                        $itemErrors = $this->processSanitizingExpectations($value, $expectation['items']);
+                        if (!empty($itemErrors)) {
+                            $errors[$key] = $itemErrors;
+                        }
+                        $parameters[$key] = $value;
                     }
-                    if (!empty($nestedErrors)) {
-                        $errors[$key] = $nestedErrors;
-                    }
-                    $parameters[$key] = $value; // Update the array after sanitization
                 } else {
                     $parameters[$key] = $this->sanitizeParameter($key, $value, $expectation);
                 }
