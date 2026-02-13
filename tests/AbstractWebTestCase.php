@@ -28,6 +28,7 @@ use JetBrains\PhpStorm\ArrayShape;
 use phpmock\MockBuilder;
 use phpmock\MockEnabledException;
 use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
+use PHPUnit\Framework\MockObject\InvocationStubberImplementation;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use Psr\Http\Message\StreamInterface;
@@ -245,7 +246,7 @@ abstract class AbstractWebTestCase extends WebTestCase
         $this->assertEquals((new Response($data, $status))->getContent(), $response->getContent());
     }
 
-    protected function assertValidatorShouldBeCalledWith(string $message, string $className, array $entityData): InvocationMocker
+    protected function assertValidatorShouldBeCalledWith(string $message, string $className, array $entityData): InvocationMocker|InvocationStubberImplementation
     {
         // Ensure we have a mock (not a stub) for expectations
         if (!$this->validatorMock instanceof MockObject) {
