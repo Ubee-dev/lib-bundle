@@ -73,10 +73,6 @@ services:
   Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface: '@Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\EmailProvider'
   Khalil1608\LibBundle\Service\EmailProvider\BulkEmailProviderInterface: '@Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider'
   
-  Khalil1608\LibBundle\Service\EmailProvider\Brevo\EmailProvider:
-    arguments:
-      $brevoApiKey: '%env(BREVO_API_KEY)%'
-  
   Khalil1608\LibBundle\Serializer\DateTimeNormalizer:
     tags:
       - { name: serializer.normalizer }
