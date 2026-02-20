@@ -69,6 +69,9 @@ jobs:
           extensions: intl, mbstring, ctype, iconv, pdo_mysql, uopz
           coverage: none
 
+      - name: Create test databases
+        run: mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE IF NOT EXISTS lib_bundle_test;"
+
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
 
