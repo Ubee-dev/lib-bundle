@@ -14,23 +14,15 @@ class MysqlDumperTest extends TestCase
             $this->markTestSkipped('mysqldump is not available');
         }
 
+        $params = $this->getConnectionParams();
         $connection = $this->createMock(Connection::class);
-        $connection->method('getParams')->willReturn([
-            'host' => 'localhost',
-            'user' => 'root',
-            'password' => '',
-        ]);
-        $connection->method('getDatabase')->willReturn('test_db');
+        $connection->method('getParams')->willReturn($params);
+        $connection->method('getDatabase')->willReturn($params['dbname']);
 
         $outputFile = sys_get_temp_dir() . '/mysql_dump_test_' . uniqid() . '.sql';
 
         $dumper = new MysqlDumper();
-
-        try {
-            $dumper->dump($connection, $outputFile);
-        } catch (\RuntimeException) {
-            $this->markTestSkipped('mysqldump cannot connect to MySQL server');
-        }
+        $dumper->dump($connection, $outputFile);
 
         $this->assertFileExists($outputFile);
         @unlink($outputFile);
@@ -42,7 +34,41 @@ class MysqlDumperTest extends TestCase
             $this->markTestSkipped('mysql client is not available');
         }
 
-        $this->assertTrue(true, 'Restore requires a running MySQL server, tested via integration');
+        $params = $this->getConnectionParams();
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getParams')->willReturn($params);
+        $connection->method('getDatabase')->willReturn($params['dbname']);
+
+        $dumpFile = sys_get_temp_dir() . '/mysql_restore_test_' . uniqid() . '.sql';
+        file_put_contents($dumpFile, "SELECT 1;\n");
+
+        $dumper = new MysqlDumper();
+        $dumper->restore($connection, $dumpFile);
+
+        @unlink($dumpFile);
+        $this->assertTrue(true);
+    }
+
+    private function getConnectionParams(): array
+    {
+        $databaseUrl = $_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'] ?? null;
+
+        if ($databaseUrl) {
+            $parsed = parse_url($databaseUrl);
+            return [
+                'host' => $parsed['host'] ?? '127.0.0.1',
+                'user' => $parsed['user'] ?? 'root',
+                'password' => $parsed['pass'] ?? '',
+                'dbname' => ltrim($parsed['path'] ?? '/test', '/'),
+            ];
+        }
+
+        return [
+            'host' => '127.0.0.1',
+            'user' => 'root',
+            'password' => '',
+            'dbname' => 'lib_bundle_test',
+        ];
     }
 
     private function isBinaryAvailable(string $binary): bool
