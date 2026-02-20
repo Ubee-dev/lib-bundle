@@ -8,11 +8,7 @@ use SplFileInfo;
 
 class OrphanFilesRemover
 {
-    /**
-     * @param array $mediaProviderReferences
-     * @param string $folder
-     */
-    public function removeOrphanFiles(array $mediaProviderReferences, string $folder)
+    public function removeOrphanFiles(array $mediaProviderReferences, string $folder): void
     {
         $directory = new \RecursiveDirectoryIterator($folder);
         $iterator = new \RecursiveIteratorIterator($directory);

@@ -4,13 +4,7 @@ namespace UbeeDev\LibBundle\Producer;
 
 class ErrorProducer extends AbstractProducer
 {
-    /**
-     * @param string $component
-     * @param string $function
-     * @param array $params
-     * @param string $exception
-     */
-    public function sendNotification($component, $function, $params = [], $exception = '')
+    public function sendNotification(string $component, string $function, array $params = [], string $exception = ''): void
     {
         $data = [
             'component' => $component,

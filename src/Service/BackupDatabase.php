@@ -2,37 +2,33 @@
 
 namespace UbeeDev\LibBundle\Service;
 
-
-use DateTime;
-use Exception;
-use UbeeDev\LibBundle\Traits\ProcessTrait;
+use Doctrine\DBAL\Connection;
+use UbeeDev\LibBundle\Entity\DateTime;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Process;
 
 class BackupDatabase
 {
-    use ProcessTrait;
-
-    /**
-     * @throws Exception
-     */
-    public function dump($backupFolder, $hostName, $databaseName, $databaseUser, $databasePassword): string
-    {
-        $fileSystem = new Filesystem();
-        $fileSystem->mkdir($backupFolder.'/'.$databaseName);
-        $tmpBackupFileName = $backupFolder.'/'.$databaseName.'/'.(new DateTime())->format('Y-m-d H:i:s').'.sql';
-        $this->executeCommand("mysqldump --user=".$databaseUser." --host=".$hostName." --password=".$databasePassword." --databases ".$databaseName." > '".$tmpBackupFileName."'");
-        
-        return $tmpBackupFileName;
+    public function __construct(
+        private readonly DatabaseDumperInterface $dumper,
+    ) {
     }
 
-    public function restore($dumpFile)
+    public function dump(Connection $connection, string $backupFolder): string
     {
-        $process = new Process(
-            ['bin/console doctrine:database:import '.$dumpFile]
-        );
+        $databaseName = $connection->getDatabase();
+        $backupDir = $backupFolder . '/' . $databaseName;
 
-        return $process->run();
+        (new Filesystem())->mkdir($backupDir);
 
+        $outputFile = $backupDir . '/' . (new DateTime())->format('Y-m-d H:i:s') . '.sql';
+
+        $this->dumper->dump($connection, $outputFile);
+
+        return $outputFile;
+    }
+
+    public function restore(Connection $connection, string $dumpFile): void
+    {
+        $this->dumper->restore($connection, $dumpFile);
     }
 }

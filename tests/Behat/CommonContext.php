@@ -49,7 +49,6 @@ class CommonContext extends MinkContext implements Context
     private array $currentEmailData = [];
     protected Filesystem $fileSystem;
     protected string $screenshotDir;
-    protected string $nsysPath;
 
     /**
      * BootstrapContext constructor.
@@ -71,11 +70,11 @@ class CommonContext extends MinkContext implements Context
         protected readonly string                $isCI,
         protected readonly string                $slackNotificationTs,
         protected readonly ?string               $slackChannel = null,
+        ?string                                  $screenshotDir = null,
     )
     {
-        $this->screenshotDir = '/var/www/behat/' . basename($this->parameterBag->get('kernel.project_dir'));
+        $this->screenshotDir = $screenshotDir ?? basename($this->parameterBag->get('kernel.project_dir').'/var/behat');
         $this->fileSystem = new Filesystem();
-        $this->nsysPath = '/var/www/business-center-nsys';
     }
 
     /**
@@ -137,29 +136,9 @@ class CommonContext extends MinkContext implements Context
     /**
      * We need to purge the spool between each scenario
      *
-     * @BeforeScenario @clearNsysEmails
-     */
-    public function clearNsysEmail()
-    {
-        $this->purgeFakeEmails('nsys');
-    }
-
-    /**
-     * We need to purge the spool between each scenario
-     *
-     * @BeforeScenario @clearSignatureEmails
-     */
-    public function clearSignatureEmails()
-    {
-        $this->purgeFakeEmails('signature-platform');
-    }
-
-    /**
-     * We need to purge the spool between each scenario
-     *
      * @BeforeScenario @clearEmails
      */
-    public function clearEmail()
+    public function clearEmail(): void
     {
         $this->purgeFakeEmails();
     }
@@ -803,20 +782,6 @@ class CommonContext extends MinkContext implements Context
     public function iHoverOnTextStep($text, $parent = null)
     {
         $this->iHoverOnText($text, $parent);
-    }
-
-    /**
-     * @Given the following nsys fixtures exist:
-     * @throws Exception
-     */
-    public function loadNsysDataExists(TableNode $tableNode): void
-    {
-        $fixturesFilePath = $this->nsysPath . '/var/fixtures/fixtures'.$this->testToken.'.json';
-        if ($this->fileSystem->exists($fixturesFilePath)) {
-            $this->fileSystem->remove($fixturesFilePath);
-        }
-        $this->fileSystem->appendToFile($fixturesFilePath, json_encode(['data' => $tableNode->getRows()]));
-        $this->executeCommand('TEST_TOKEN='.$this->testToken.' php ' . $this->nsysPath . '/bin/console nsys:behat:create_data --env=' . $this->currentEnv);
     }
 
     /**

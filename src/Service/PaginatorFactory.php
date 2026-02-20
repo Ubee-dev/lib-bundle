@@ -9,7 +9,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class PaginatorFactory
 {
-    public function initPaginator(QueryBuilder $queryBuilder)
+    public function initPaginator(QueryBuilder $queryBuilder): Paginator
     {
         return new Paginator($queryBuilder);
     }

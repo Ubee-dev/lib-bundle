@@ -297,7 +297,7 @@ class MediaManagerTest extends AbstractWebTestCase
 
     private function createAndGetUploadedFile(string $fileName): UploadedFile
     {
-        $folder = '/tmp/nsys/tests';
+        $folder = '/tmp/ubee-dev/tests';
         $filePath = $folder . '/' . $fileName;
         $this->fileSystem->remove($folder . '/' . $fileName);
         $this->fileSystem->copy($this->getAsset($fileName), $filePath);

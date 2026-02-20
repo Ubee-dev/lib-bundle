@@ -9,7 +9,7 @@ trait VideoTrait
     /**
      * @throws Exception
      */
-    public function extractYoutubeVideoIdFromUrl($url): string
+    public function extractYoutubeVideoIdFromUrl(string $url): string
     {
         if (!preg_match($this->getYoutubeRegex(), urldecode(trim($url)), $matches)) {
             throw new Exception("Failed to extract YouTube video id. YouTube URL is not valid.");
@@ -68,12 +68,7 @@ trait VideoTrait
         return $embedUrl . '?' . http_build_query($mergedOptions);
     }
 
-    /**
-     * @param string $youtubeVideoId
-     * @param string $quality "high"|"medium"|"default"
-     * @return string
-     */
-    public function getYoutubeThumbUrl(string $youtubeVideoId, $quality): string
+    public function getYoutubeThumbUrl(string $youtubeVideoId, string $quality): string
     {
         if ($quality == 'high') {
             return '//img.youtube.com/vi/' . $youtubeVideoId . '/hqdefault.jpg';
@@ -89,7 +84,7 @@ trait VideoTrait
     /**
      * @throws Exception
      */
-    public function getYoutubeThumbUrlFromYoutubeUrl($url, $quality): string
+    public function getYoutubeThumbUrlFromYoutubeUrl(string $url, string $quality): string
     {
         return $this->getYoutubeThumbUrl($this->extractYoutubeVideoIdFromUrl($url), $quality);
     }
@@ -97,7 +92,7 @@ trait VideoTrait
     /**
      * @throws Exception
      */
-    public function extractFacebookVideoIdFromEmbedCode($facebookEmbedHtml): string
+    public function extractFacebookVideoIdFromEmbedCode(string $facebookEmbedHtml): string
     {
         if (!preg_match($this->getFacebookEmbedRegex(), urldecode($facebookEmbedHtml), $matches)) {
             throw new Exception("Failed to extract Facebook video id. HTML of embedded Facebook content is not valid.");
@@ -134,7 +129,7 @@ trait VideoTrait
     /**
      * @throws Exception
      */
-    public function getVimeoEmbedUrl($url, $options = []): string
+    public function getVimeoEmbedUrl(string $url, array $options = []): string
     {
         if($this->isVimeoLiveEventUrl($url)) {
             $embedUrl = 'https://vimeo.com/event/' . $this->extractVimeoVideoIdFromUrl($url);

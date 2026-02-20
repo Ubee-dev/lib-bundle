@@ -30,7 +30,7 @@ class EmailProviderTest extends TestCase
             ->expects($this->once())
             ->method('send')
             ->with($this->callback(function (Email $email): bool {
-                $this->assertEquals([new Address('noreply@games-on.com')], $email->getFrom());
+                $this->assertEquals([new Address('noreply@example.com')], $email->getFrom());
                 $this->assertEquals([new Address('player@test.com')], $email->getTo());
                 $this->assertSame('Welcome!', $email->getSubject());
                 $this->assertSame('<h1>Hello</h1>', $email->getHtmlBody());
@@ -40,7 +40,7 @@ class EmailProviderTest extends TestCase
             }));
 
         $result = $this->provider->sendMail(
-            from: 'noreply@games-on.com',
+            from: 'noreply@example.com',
             to: ['player@test.com'],
             body: '<h1>Hello</h1>',
             subject: 'Welcome!',
@@ -62,7 +62,7 @@ class EmailProviderTest extends TestCase
             }));
 
         $this->provider->sendMail(
-            from: 'noreply@games-on.com',
+            from: 'noreply@example.com',
             to: ['player@test.com'],
             body: 'Plain text body',
             subject: 'Test',
@@ -78,14 +78,14 @@ class EmailProviderTest extends TestCase
             ->with($this->callback(function (Email $email): bool {
                 $from = $email->getFrom();
                 $this->assertCount(1, $from);
-                $this->assertSame('noreply@games-on.com', $from[0]->getAddress());
-                $this->assertSame('Games On', $from[0]->getName());
+                $this->assertSame('noreply@example.com', $from[0]->getAddress());
+                $this->assertSame('Test App', $from[0]->getName());
 
                 return true;
             }));
 
         $this->provider->sendMail(
-            from: ['email' => 'noreply@games-on.com', 'name' => 'Games On'],
+            from: ['email' => 'noreply@example.com', 'name' => 'Test App'],
             to: ['player@test.com'],
             body: '<p>Hi</p>',
             subject: 'Test',
@@ -107,7 +107,7 @@ class EmailProviderTest extends TestCase
             }));
 
         $this->provider->sendMail(
-            from: 'noreply@games-on.com',
+            from: 'noreply@example.com',
             to: ['alice@test.com', 'bob@test.com'],
             body: '<p>Hi</p>',
             subject: 'Test',
@@ -122,17 +122,17 @@ class EmailProviderTest extends TestCase
             ->with($this->callback(function (Email $email): bool {
                 $replyTo = $email->getReplyTo();
                 $this->assertCount(1, $replyTo);
-                $this->assertSame('reply@games-on.com', $replyTo[0]->getAddress());
+                $this->assertSame('reply@example.com', $replyTo[0]->getAddress());
 
                 return true;
             }));
 
         $this->provider->sendMail(
-            from: 'noreply@games-on.com',
+            from: 'noreply@example.com',
             to: ['player@test.com'],
             body: '<p>Hi</p>',
             subject: 'Test',
-            replyTo: 'reply@games-on.com',
+            replyTo: 'reply@example.com',
         );
     }
 
@@ -148,7 +148,7 @@ class EmailProviderTest extends TestCase
             }));
 
         $this->provider->sendMail(
-            from: 'noreply@games-on.com',
+            from: 'noreply@example.com',
             to: ['player@test.com'],
             body: '<p>Hi</p>',
             subject: 'Test',
@@ -169,7 +169,7 @@ class EmailProviderTest extends TestCase
             }));
 
         $this->provider->sendMail(
-            from: 'noreply@games-on.com',
+            from: 'noreply@example.com',
             to: ['player@test.com'],
             body: '<p>See attached</p>',
             subject: 'Report',
@@ -187,7 +187,7 @@ class EmailProviderTest extends TestCase
             ->willThrowException(new TransportException('Connection refused'));
 
         $result = $this->provider->sendMail(
-            from: 'noreply@games-on.com',
+            from: 'noreply@example.com',
             to: ['player@test.com'],
             body: '<p>Hi</p>',
             subject: 'Test',

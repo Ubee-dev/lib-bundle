@@ -63,7 +63,7 @@ class EmailType extends Type
         return ParameterType::STRING;
     }
 
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
     }

@@ -8,11 +8,7 @@ use UbeeDev\LibBundle\Entity\DateTime;
 
 trait StringTrait
 {
-    /**
-     * @param $string
-     * @return mixed|string
-     */
-    public function slugify($string)
+    public function slugify(string $string): string
     {
 
         $transliterator = ['UbeeDev\LibBundle\Transliterator\Transliterator', 'transliterate'];
@@ -35,21 +31,12 @@ trait StringTrait
         return $slug;
     }
 
-    /**
-     * @param $value
-     * @param $replace
-     * @return int
-     */
-    public function replaceEmptyValue($value, $replace)
+    public function replaceEmptyValue(mixed $value, mixed $replace): mixed
     {
         return !!$value || $value === 0 ? $value : $replace;
     }
 
-    /**
-     * @param $string
-     * @return mixed|null
-     */
-    public function convertMatchedDateToFormattedDate($string)
+    public function convertMatchedDateToFormattedDate(string $string): ?string
     {
         // 15-{+5 month(s)} || 15-{-5 month(s)} || 15-{+2 year(s)} || 15-{-2 year(s)}
         if (preg_match('/(\d{1,2})[.\-]\{(\+{0,1}|\-{0,1})(\d*) (month|year)s{0,1}\}/', $string, $outputArray)) {
@@ -75,11 +62,7 @@ trait StringTrait
         }
     }
 
-    /**
-     * @param $string
-     * @return null|array
-     */
-    public function extractStringDateFromString($string)
+    public function extractStringDateFromString(string $string): ?string
     {
         if (
             preg_match('/(\d{1,2}([.\-])(\{((\+{0,1}|\-{0,1})\d* (month|year)s{0,1}\})))/', $string, $outputArray)
@@ -93,13 +76,7 @@ trait StringTrait
         return null;
     }
 
-    /**
-     * @param $result
-     * @param null $timezone
-     * @return DateTime
-     * @throws \Exception
-     */
-    private function convertCustomDateRegexResultToDate($result, $timezone = null): DateTime
+    private function convertCustomDateRegexResultToDate(array $result, ?string $timezone = null): DateTime
     {
         $day = $result[1];
         $sign = $result[2];

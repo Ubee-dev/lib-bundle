@@ -1,27 +1,25 @@
 <?php
 
-
 namespace UbeeDev\LibBundle\Exception;
-
 
 class InvalidArgumentException extends \Exception implements \JsonSerializable
 {
-    private $errors = [];
-    private $data = null;
+    private array $errors;
+    private mixed $data;
 
-    public function __construct($message, $errors = [], $data = null)
+    public function __construct(string $message, array $errors = [], mixed $data = null)
     {
         $this->errors = $errors;
         $this->data = $data;
         parent::__construct($message);
     }
 
-    public function getErrors()
+    public function getErrors(): array
     {
         return $this->errors;
     }
 
-    public function getData()
+    public function getData(): mixed
     {
         return $this->data;
     }

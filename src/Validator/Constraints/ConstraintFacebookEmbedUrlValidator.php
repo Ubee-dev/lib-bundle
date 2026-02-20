@@ -12,7 +12,7 @@ class ConstraintFacebookEmbedUrlValidator extends ConstraintValidator
 {
     use VideoTrait;
 
-    public function validate($value, Constraint $constraint)
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ConstraintFacebookEmbedUrl) {
             throw new UnexpectedTypeException($constraint, ConstraintFacebookEmbedUrl::class);

@@ -31,7 +31,7 @@ class BulkEmailConsumer implements ConsumerInterface
         return ConsumerInterface::MSG_ACK;
     }
 
-    private function retryOrNotify($options, $exception): void
+    private function retryOrNotify(array $options, \Exception $exception): void
     {
         if($options['retryNumber'] >= 2) {
             ConsumerInterface::MSG_ACK;

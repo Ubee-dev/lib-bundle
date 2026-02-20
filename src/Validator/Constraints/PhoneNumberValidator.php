@@ -20,11 +20,7 @@ class PhoneNumberValidator extends ConstraintValidator
 {
     private string $errorPath = 'phoneNumber';
 
-    /**
-     * @param PhoneNumberInterface|string|null $value
-     * @param Constraint $constraint
-     */
-    public function validate($value, Constraint $constraint)
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if(!$value) {
             return;
@@ -92,13 +88,7 @@ class PhoneNumberValidator extends ConstraintValidator
             }
         }
     }
-    /**
-     * Add a violation.
-     *
-     * @param mixed      $value      The value that should be validated.
-     * @param Constraint $constraint The constraint for the validation.
-     */
-    private function addViolation($value, Constraint $constraint)
+    private function addViolation(mixed $value, Constraint $constraint): void
     {
         /** @var PhoneNumber $constraint */
         if ($this->context instanceof ExecutionContextInterface) {

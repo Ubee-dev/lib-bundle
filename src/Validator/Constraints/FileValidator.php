@@ -2,7 +2,7 @@
 
 namespace UbeeDev\LibBundle\Validator\Constraints;
 
-use App\Entity\Media;
+use UbeeDev\LibBundle\Entity\Media;
 use Exception;
 use LogicException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;

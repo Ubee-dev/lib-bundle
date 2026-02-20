@@ -8,14 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class DuplicateResponse extends JsonResponse
 {
 
-    /**
-     * DuplicateResponse constructor.
-     * @param Itemizable|array $data
-     * @param $matchType
-     * @param null $primaryLabel
-     * @param null $secondaryLabel
-     */
-    public function __construct($data, $matchType, $primaryLabel = null, $secondaryLabel = null)
+    public function __construct(Itemizable|array|null $data, string $matchType, ?string $primaryLabel = null, ?string $secondaryLabel = null)
     {
         $match = [];
         if($data) {

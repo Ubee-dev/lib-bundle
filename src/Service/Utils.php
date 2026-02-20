@@ -5,11 +5,8 @@ namespace UbeeDev\LibBundle\Service;
 
 class Utils
 {
-    /**
-     * @param $text
-     * @return string
-     */
-    function removeAccentsFromString($text) {
+    public function removeAccentsFromString(string $text): string
+    {
 
         $alphabet = [
             'Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A',

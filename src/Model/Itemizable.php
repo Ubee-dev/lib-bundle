@@ -6,5 +6,5 @@ namespace UbeeDev\LibBundle\Model;
 
 interface Itemizable
 {
-    public function getItem();
+    public function getItem(): mixed;
 }

@@ -23,10 +23,7 @@ class MockTimeListener
     {
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function onKernelRequest(RequestEvent $event)
+    public function onKernelRequest(RequestEvent $event): void
     {
         if (!$event->isMainRequest()) {
             // don't do anything if it's not the main request

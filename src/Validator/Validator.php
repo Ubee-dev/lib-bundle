@@ -1,6 +1,5 @@
 <?php
 
-
 namespace UbeeDev\LibBundle\Validator;
 
 use UbeeDev\LibBundle\Exception\InvalidArgumentException;
@@ -8,27 +7,16 @@ use Symfony\Component\Validator\{ConstraintViolation, Validator\ValidatorInterfa
 
 class Validator
 {
-
-    /** @var ValidatorInterface  */
-    private $validator;
-
-    /** @var string */
-    private $message;
-
-    /** @var array */
-    private $validations = [];
+    private ValidatorInterface $validator;
+    private string $message = '';
+    private array $validations = [];
 
     public function __construct(ValidatorInterface $validator)
     {
         $this->validator = $validator;
     }
 
-    /**
-     * @param $entity
-     * @param string|null $prefix
-     * @return $this
-     */
-    public function addValidation($entity, $prefix = null)
+    public function addValidation(object $entity, ?string $prefix = null): self
     {
         $this->validations[] = [$entity, $prefix];
         return $this;
@@ -37,7 +25,7 @@ class Validator
     /**
      * @throws InvalidArgumentException
      */
-    public function validate()
+    public function validate(): void
     {
         $errorResponse = [];
         foreach ($this->validations as $validation) {
@@ -65,17 +53,13 @@ class Validator
         }
     }
 
-    /**
-     * @param $message
-     * @return $this
-     */
-    public function setMessage($message)
+    public function setMessage(string $message): self
     {
         $this->message = $message;
         return $this;
     }
 
-    private function clearValidations()
+    private function clearValidations(): void
     {
         $this->validations = [];
     }

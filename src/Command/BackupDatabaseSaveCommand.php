@@ -29,20 +29,13 @@ class BackupDatabaseSaveCommand extends AbstractMonitoredCommand
 
     public function perform(InputInterface $input, OutputInterface $output): void
     {
-        $connexion = $this->entityManager->getConnection();
-        $params = $connexion->getParams();
-        $databaseName = $connexion->getDatabase();
+        $connection = $this->entityManager->getConnection();
+        $databaseName = $connection->getDatabase();
         $tmpBackupFolder = $this->parameterBag->get('tmp_backup_folder');
 
         $output->writeln("<info>Start dumping $databaseName...</info>");
 
-        $tmpDatabaseFileName = $this->backupDatabase->dump(
-            $tmpBackupFolder,
-            $params['host'],
-            $databaseName,
-            $params['user'],
-            $params['password']
-        );
+        $tmpDatabaseFileName = $this->backupDatabase->dump($connection, $tmpBackupFolder);
 
         $output->writeln("<fg=green;>$databaseName dumped</>");
 

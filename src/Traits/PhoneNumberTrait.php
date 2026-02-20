@@ -9,39 +9,30 @@ use libphonenumber\PhoneNumberUtil;
 trait PhoneNumberTrait
 {
 
-    /**
-     * @param string $phoneNumber
-     * @param int $countryCallingCode
-     * @return |null
-     */
-    public function getFormattedPhoneNumber($countryCallingCode, $phoneNumber)
+    public function getFormattedPhoneNumber(int|string|null $countryCallingCode, ?string $phoneNumber): ?string
     {
         if (!$phoneNumber) {
             return null;
         }
         $value = '+' . $countryCallingCode . $phoneNumber;
         $phoneUtil = PhoneNumberUtil::getInstance();
-        $phoneNumber = $phoneUtil->parse($value);
-        return str_replace('.',' ', $phoneUtil->format($phoneNumber,PhoneNumberFormat::INTERNATIONAL));
-
+        $parsed = $phoneUtil->parse($value);
+        return str_replace('.', ' ', $phoneUtil->format($parsed, PhoneNumberFormat::INTERNATIONAL));
     }
 
-    /**
-     * @param string $phoneNumber
-     * @param int $countryCallingCode
-     * @return string|null
-     */
-    public function getNationalFormattedNumber($phoneNumber, $countryCallingCode = 33) {
+    public function getNationalFormattedNumber(string $phoneNumber, int|string $countryCallingCode = 33): ?string
+    {
         if (!$phoneNumber) {
             return null;
         }
         $value = '+' . $countryCallingCode . $phoneNumber;
         $phoneUtil = PhoneNumberUtil::getInstance();
-        $phoneNumber = $phoneUtil->parse($value);
-        return $phoneUtil->format($phoneNumber,PhoneNumberFormat::NATIONAL);
+        $parsed = $phoneUtil->parse($value);
+        return $phoneUtil->format($parsed, PhoneNumberFormat::NATIONAL);
     }
-    
-    public function getCountryCodeFromFormattedNumber($formattedNumber) {
+
+    public function getCountryCodeFromFormattedNumber(string $formattedNumber): ?int
+    {
         if (!$formattedNumber) {
             return null;
         }
@@ -50,7 +41,8 @@ trait PhoneNumberTrait
         return $phoneNumber->getCountryCode();
     }
 
-    public function getLocalNumberFromFormattedNumber($formattedNumber) {
+    public function getLocalNumberFromFormattedNumber(string $formattedNumber): ?string
+    {
         if (!$formattedNumber) {
             return null;
         }

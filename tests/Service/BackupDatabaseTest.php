@@ -2,75 +2,75 @@
 
 namespace UbeeDev\LibBundle\Tests\Service;
 
-use UbeeDev\LibBundle\Service\BackupDatabase;
-use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
-use Exception;
+use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
+use UbeeDev\LibBundle\Service\BackupDatabase;
+use UbeeDev\LibBundle\Service\DatabaseDumperInterface;
 
-class BackupDatabaseTest extends AbstractWebTestCase
+class BackupDatabaseTest extends TestCase
 {
+    private DatabaseDumperInterface&MockObject $dumperMock;
+    private BackupDatabase $backupDatabase;
+    private string $backupFolder;
 
-    private string $backupFolderName;
-
-    public function setUp(): void
+    protected function setUp(): void
     {
-        parent::setUp();
-        $this->backupFolderName = '/tmp/test_backup_db';
+        $this->dumperMock = $this->createMock(DatabaseDumperInterface::class);
+        $this->backupDatabase = new BackupDatabase($this->dumperMock);
+        $this->backupFolder = sys_get_temp_dir() . '/test_backup_db_' . uniqid();
     }
 
-    public function testDbBackupCreatesBackupFolderAndCreatesProperlyNamedDbDump()
+    protected function tearDown(): void
     {
-        $fileSystem = new Filesystem();
-        $fileSystem->remove($this->backupFolderName);
-
-        $connection = $this->entityManager->getConnection();
-        $databaseParams = $connection->getParams();
-        $databaseName = $connection->getDatabase();
-        $backupDatabaseService = new BackupDatabase();
-        $backupDatabaseService->dump(
-            $this->backupFolderName,
-            $databaseParams['host'] ?? 'localhost',
-            $databaseName,
-            $databaseParams['user'] ?? '',
-            $databaseParams['password'] ?? ''
-        );
-        $tmpBackupFolder = $this->backupFolderName.'/'.$databaseName;
-
-        $this->assertTrue($fileSystem->exists($tmpBackupFolder));
-
-        $finder = new Finder();
-        $this->assertCount(1, $finder->files()->in($tmpBackupFolder)->name('*.sql'));
+        (new Filesystem())->remove($this->backupFolder);
     }
 
-    /**
-     * @throws Exception
-     */
-    public function testBackupCanDumpTheSameDbTwiceWithoutCrashing()
+    public function testDumpCreatesDirectoryAndDelegatesToDumper(): void
     {
-        $fileSystem = new Filesystem();
-        $fileSystem->remove($this->backupFolderName);
-        $connection = $this->entityManager->getConnection();
-        $databaseParams = $connection->getParams();
-        $databaseName = $connection->getDatabase();
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabase')->willReturn('test_db');
 
-        $backupDatabaseService = new BackupDatabase();
-        for($i=0; $i<=1; $i++) {
-            $backupDatabaseService->dump(
-                $this->backupFolderName,
-                $databaseParams['host'] ?? 'localhost',
-                $databaseName,
-                $databaseParams['user'] ?? '',
-                $databaseParams['password'] ?? ''
+        $this->dumperMock
+            ->expects($this->once())
+            ->method('dump')
+            ->with(
+                $connection,
+                $this->matchesRegularExpression('#^' . preg_quote($this->backupFolder) . '/test_db/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.sql$#')
             );
-            if($i === 0) { sleep(1); }
-        }
 
-        $tmpBackupFolder = $this->backupFolderName.'/'.$databaseName;
+        $result = $this->backupDatabase->dump($connection, $this->backupFolder);
 
-        $this->assertTrue($fileSystem->exists($tmpBackupFolder));
+        $this->assertStringStartsWith($this->backupFolder . '/test_db/', $result);
+        $this->assertStringEndsWith('.sql', $result);
+        $this->assertDirectoryExists($this->backupFolder . '/test_db');
+    }
 
-        $finder = new Finder();
-        $this->assertCount(2, $finder->files()->in($tmpBackupFolder)->name('*.sql'));
+    public function testDumpCanBeCalledTwice(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->method('getDatabase')->willReturn('test_db');
+
+        $this->dumperMock->expects($this->exactly(2))->method('dump');
+
+        $result1 = $this->backupDatabase->dump($connection, $this->backupFolder);
+        $result2 = $this->backupDatabase->dump($connection, $this->backupFolder);
+
+        $this->assertStringStartsWith($this->backupFolder . '/test_db/', $result1);
+        $this->assertStringStartsWith($this->backupFolder . '/test_db/', $result2);
+    }
+
+    public function testRestoreDelegatesToDumper(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $dumpFile = '/tmp/some_dump.sql';
+
+        $this->dumperMock
+            ->expects($this->once())
+            ->method('restore')
+            ->with($connection, $dumpFile);
+
+        $this->backupDatabase->restore($connection, $dumpFile);
     }
 }
