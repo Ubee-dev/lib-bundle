@@ -264,6 +264,97 @@ class ApiManager
         return new JsonResponse($this->convertDataWithTimezone($data, $timezone));
     }
 
+    /**
+     * @template T of object
+     *
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $sanitizingExpectations
+     * @param class-string<T>      $dtoClass
+     * @param array<string, mixed> $allowedValues
+     * @param array<string, mixed> $defaultValues
+     *
+     * @return T
+     *
+     * @throws Exception
+     */
+    public function sanitizeToDto(
+        array $data,
+        array $sanitizingExpectations,
+        string $dtoClass,
+        array $allowedValues = [],
+        array $defaultValues = [],
+        bool $strictMode = true,
+    ): object {
+        $sanitized = $this->sanitizeParameters(
+            data: $data,
+            sanitizingExpectations: $sanitizingExpectations,
+            allowedValues: $allowedValues,
+            defaultValues: $defaultValues,
+            strictMode: $strictMode,
+        );
+
+        return new $dtoClass(...$sanitized);
+    }
+
+    /**
+     * @param array<string, mixed> $sanitizingExpectations
+     * @param array<string, mixed> $allowedValues
+     * @param array<string, mixed> $defaultValues
+     *
+     * @return array<string, mixed>
+     *
+     * @throws Exception
+     */
+    public function sanitizeJsonParameters(
+        Request $request,
+        array $sanitizingExpectations,
+        array $allowedValues = [],
+        array $defaultValues = [],
+        bool $strictMode = true,
+    ): array {
+        /** @var array<string, mixed> $data */
+        $data = json_decode($request->getContent(), true) ?? [];
+
+        return $this->sanitizeParameters(
+            data: $data,
+            sanitizingExpectations: $sanitizingExpectations,
+            allowedValues: $allowedValues,
+            defaultValues: $defaultValues,
+            strictMode: $strictMode,
+        );
+    }
+
+    /**
+     * @template T of object
+     *
+     * @param array<string, mixed> $sanitizingExpectations
+     * @param class-string<T>      $dtoClass
+     * @param array<string, mixed> $allowedValues
+     * @param array<string, mixed> $defaultValues
+     *
+     * @return T
+     *
+     * @throws Exception
+     */
+    public function sanitizeJsonToDto(
+        Request $request,
+        array $sanitizingExpectations,
+        string $dtoClass,
+        array $allowedValues = [],
+        array $defaultValues = [],
+        bool $strictMode = true,
+    ): object {
+        $sanitized = $this->sanitizeJsonParameters(
+            request: $request,
+            sanitizingExpectations: $sanitizingExpectations,
+            allowedValues: $allowedValues,
+            defaultValues: $defaultValues,
+            strictMode: $strictMode,
+        );
+
+        return new $dtoClass(...$sanitized);
+    }
+
     public function checkHeadersParameters(?string $token): void
     {
         if ($token !== $this->appToken) {
