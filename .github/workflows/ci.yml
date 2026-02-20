@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: lib_bundle_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/lib_bundle_test
+      REDIS_HOST: 127.0.0.1
+      REDIS_PASSWORD: ""
+      RABBITMQ_HOST: 127.0.0.1
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      MAILER_PASSWORD: test
+      MAILER_DSN: "null://null"
+      S3_KEY: test
+      S3_SECRET: test
+      S3_BACKUP_BUCKET: test-backup
+      SENTRY_DSN: ""
+      SLACK_TOKEN: ""
+      MUTE_OPS_ALERTS: "true"
+      TURNSTILE_SECRET_KEY: ""
+      TURNSTILE_SITE_KEY: ""
+      APP_TOKEN: test
+      TEST_TOKEN: "1"
+      APP_ENV: test
+      APP_SECRET: test_secret_for_ci
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: intl, mbstring, ctype, iconv, pdo_mysql
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run tests
+        run: vendor/bin/phpunit
+
+      - name: Determine version bump
+        if: success()
+        id: bump
+        run: |
+          MSG=$(git log -1 --pretty=%B)
+          if echo "$MSG" | grep -qi '\[major\]'; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif echo "$MSG" | grep -qi '\[minor\]'; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create and push tag
+        if: success()
+        run: |
+          LATEST=$(git tag -l 'v*' --sort=-v:refname | head -1)
+          if [ -z "$LATEST" ]; then
+            LATEST="v0.0.0"
+          fi
+
+          VERSION=${LATEST#v}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+          BUMP="${{ steps.bump.outputs.type }}"
+          if [ "$BUMP" = "major" ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ "$BUMP" = "minor" ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+
+          NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "Creating tag $NEW_TAG"
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
