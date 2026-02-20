@@ -2,6 +2,8 @@
 
 This document covers all Twig filters, functions, globals, and template components provided by the UbeeDev LibBundle.
 
+The Twig layer provides filters and functions for common frontend needs -- asset versioning with cache-busting, video embed URL generation, UTM tracking propagation -- as well as reusable template components for modals, environment indicators, and anti-spam measures.
+
 ## Table of Contents
 
 - [LibExtension](#libextension)
@@ -176,7 +178,7 @@ Removes specified keys from an associative array. Useful for filtering form vari
 
 #### parameter
 
-Accesses any Symfony container parameter directly from a Twig template.
+Accesses any Symfony container parameter directly from a Twig template. Useful for global config values (app name, feature flags, public keys) that every template needs without cluttering every controller action with extra variable assignments.
 
 | Parameter | Type   | Description                     |
 |-----------|--------|---------------------------------|
@@ -269,7 +271,7 @@ Currently only the `dev` environment returns a value (`"local"`). All other envi
 
 #### has_cookie_consent
 
-A boolean indicating whether the user has a `hasCookieConsent` cookie set.
+A boolean indicating whether the user has a `hasCookieConsent` cookie set. This is part of a simple cookie consent flow: when the user accepts cookies (typically by clicking "Accept" on a consent banner), client-side JavaScript sets a `hasCookieConsent` cookie. This global exposes that state to all templates so they can conditionally load analytics or tracking scripts and hide the banner for users who have already consented.
 
 ```twig
 {% if has_cookie_consent %}
@@ -457,7 +459,7 @@ Features:
 
 **Template:** `@UbeeDevLib/Layout/_gallery_modal.html.twig`
 
-A full-screen image gallery modal. Content is injected dynamically via JavaScript into the `.js-modal__content` container.
+A full-screen image lightbox for galleries, triggered by clicking thumbnails. Content is injected dynamically via JavaScript into the `.js-modal__content` container.
 
 ```twig
 {# Include once in your base layout #}
@@ -474,7 +476,7 @@ The modal uses the `js-modal_gallery` ID and the `bh-gallery-modal` CSS class fo
 
 **Template:** `@UbeeDevLib/markdown-preview.html.twig`
 
-A standalone page that extends the markdown preview template. Used as the rendering target for live markdown preview (typically loaded in an iframe).
+A standalone page that extends the markdown preview template. Used as the rendering target for live markdown preview in an iframe, displayed alongside a markdown editor so users see formatted output as they type.
 
 ```twig
 {# Usually accessed via a route, not included directly #}
@@ -525,6 +527,8 @@ The button uses the `js-delete-btn` CSS class and sends the entity ID and class 
 ---
 
 ### SVG
+
+Reusable SVG illustration placeholders for empty states or onboarding screens, so pages without content feel intentional rather than broken.
 
 #### Collaborator
 

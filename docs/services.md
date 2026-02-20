@@ -1,5 +1,7 @@
 # Services Reference
 
+The services layer provides the main building blocks of the bundle -- autowirable Symfony services for media management, email sending, S3 storage, Slack notifications, PDF generation, markdown parsing, form protection, and more. Each service is registered in the container and pre-configured through the bundle's configuration, so consuming projects can inject them directly without boilerplate setup.
+
 ## Table of Contents
 
 - [Media & Files](#media--files)
@@ -156,7 +158,7 @@ return new Response($pdfContent, 200, [
 
 ### S3Client
 
-Wrapper around the AWS SDK S3 client for uploading, downloading, listing, and deleting objects in S3 buckets.
+Wrapper around the AWS SDK S3 client for uploading, downloading, listing, and deleting objects in S3 buckets. Using this wrapper instead of the raw AWS SDK directly gives you a client that is pre-configured with the bundle's environment variables (key, secret, region, version), a simplified API for common operations (single-call upload, download-to-local-file, list keys), and consistent method signatures so callers never need to build AWS option arrays.
 
 **Class:** `UbeeDev\LibBundle\Service\S3Client`
 
@@ -906,7 +908,7 @@ $result = $paginator->getPaginatedQueryResult($qb, $request, UserDto::class, [$m
 
 ### Utils
 
-General-purpose string utilities.
+General-purpose string utilities. Use this service when you need to transliterate user-supplied text into ASCII-safe strings -- for example, generating URL slugs or sanitizing filenames. It replaces accented and special characters with their closest ASCII equivalents and collapses non-word characters into hyphens.
 
 **Class:** `UbeeDev\LibBundle\Service\Utils`
 

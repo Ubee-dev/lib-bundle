@@ -2,6 +2,8 @@
 
 This document covers the API request handling tools provided by the bundle: parameter sanitization, typed expectations, pagination, and response formatting.
 
+The philosophy is declarative, type-safe parameter validation that replaces ad-hoc `$request->get()` calls with structured expectations. By defining what you expect up front, the sanitizer catches invalid input early and returns consistent error responses -- eliminating scattered validation logic from your controllers.
+
 ## Table of Contents
 
 - [ApiManager](#apimanager)

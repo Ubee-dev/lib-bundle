@@ -1,5 +1,7 @@
 # Database
 
+The database layer provides three things: custom Doctrine DBAL types that map database columns to domain value objects (Money, Email, Name, etc.), a pluggable backup/restore system for MySQL and PostgreSQL, and a migration factory decorator that gives Doctrine migrations access to Symfony services.
+
 ## Table of Contents
 
 - [Custom Doctrine DBAL Types](#custom-doctrine-dbal-types)
@@ -25,6 +27,8 @@
 ---
 
 ## Custom Doctrine DBAL Types
+
+These custom types bridge the database and the domain model by converting raw column values into validated value objects on hydration. This enforces type safety at the PHP level -- an `Email` property can never hold an invalid address, a `Money` property can never be a bare integer -- so invalid states are unrepresentable and validation happens automatically every time Doctrine reads a row.
 
 The bundle registers custom Doctrine DBAL types in `config/packages/doctrine.yaml`:
 
@@ -117,7 +121,7 @@ private HtmlName $htmlName;
 
 ### DateTimeType
 
-Overrides Doctrine's built-in `datetime` type to return `UbeeDev\LibBundle\Entity\DateTime` instead of PHP's native `\DateTime`. This replacement is transparent -- any entity using the standard `datetime` column type will automatically use this custom type.
+Overrides Doctrine's built-in `datetime` type to return `UbeeDev\LibBundle\Entity\DateTime` instead of PHP's native `\DateTime`. The custom `DateTime` class extends `\DateTime` with `DateTimeTrait`, which adds convenience methods for date arithmetic (`addDaysToDate`, `addMonthsToDate`), comparisons (`isLater`, `isBefore`, `isBetween`), formatting, and timezone conversion -- all with a consistent default timezone of `Europe/Paris`. This replacement is transparent -- any entity using the standard `datetime` column type will automatically use this custom type.
 
 - **SQL type**: `DATETIME` / `TIMESTAMP` (platform-dependent)
 - **PHP type**: `UbeeDev\LibBundle\Entity\DateTime`
@@ -267,7 +271,7 @@ services:
 
 ## Migration Factory Decorator
 
-`MigrationFactoryDecorator` wraps Doctrine's default `MigrationFactory` to inject services into migration classes. When a migration implements `MigrationInterface`, the decorator automatically injects the current environment, entity manager, and kernel.
+By default, Doctrine Migrations instantiates migration classes itself and only gives them a DBAL `Connection`. That means migrations cannot access Symfony services like the entity manager, the kernel, or the current environment. `MigrationFactoryDecorator` solves this by wrapping Doctrine's default `MigrationFactory` to inject services into migration classes. When a migration implements `MigrationInterface`, the decorator automatically injects the current environment, entity manager, and kernel.
 
 ### MigrationInterface
 

@@ -2,6 +2,8 @@
 
 This document covers all traits provided by `UbeeDev\LibBundle\Traits`. Each trait is documented with its methods, signatures, and practical PHP code examples.
 
+Traits in this bundle provide reusable behavior that can be mixed into your entities, services, or controllers via PHP's `use` statement. They encapsulate common operations (date manipulation, money formatting, phone parsing, etc.) so you don't have to rewrite the same logic across projects. Use a trait when you need its functionality in a class that already extends another base class and cannot use inheritance.
+
 ---
 
 ## Table of Contents
@@ -21,6 +23,8 @@ This document covers all traits provided by `UbeeDev\LibBundle\Traits`. Each tra
 **Namespace:** `UbeeDev\LibBundle\Traits\DateTimeTrait`
 
 Provides utility methods for creating, comparing, formatting, and manipulating dates and times. Uses `UbeeDev\LibBundle\Entity\DateTime` and `UbeeDev\LibBundle\Entity\Date` as its core date classes. Both extend `AbstractDateTime`, which defines the default timezone constant `Europe/Paris`.
+
+**Why use this over native PHP DateTime?** It bundles convenience methods for operations that are verbose with plain PHP -- age/period calculations, safe month addition (avoiding end-of-month overflow), French locale formatting, and custom relative date expressions like `15-{+2 months}` -- into a single reusable trait.
 
 This trait internally uses `StringTrait`.
 
@@ -500,6 +504,8 @@ $service->convertDateToString($date, 'MMMM');
 
 Provides formatting utilities for `Money\Money` objects from the [moneyphp/money](https://github.com/moneyphp/money) library. Amounts are stored in cents internally.
 
+**Why use this?** It gives you consistent, locale-aware formatting of `Money\Money` value objects into human-readable strings (e.g. `1250` cents becomes `"12,50 EUR"`) and handles the cents-to-euros float conversion, so you don't repeat `IntlMoneyFormatter` boilerplate everywhere.
+
 ```php
 use UbeeDev\LibBundle\Traits\MoneyTrait;
 use Money\Money;
@@ -557,6 +563,8 @@ $result = $service->formatMoneyToFloat($money);
 **Namespace:** `UbeeDev\LibBundle\Traits\PhoneNumberTrait`
 
 Provides phone number formatting and parsing methods using [giggsey/libphonenumber-for-php](https://github.com/giggsey/libphonenumber-for-php).
+
+**Why use this?** It wraps `libphonenumber` behind simple methods so you get consistent international and national phone formatting across the app without manually instantiating `PhoneNumberUtil`, parsing, and formatting each time.
 
 ```php
 use UbeeDev\LibBundle\Traits\PhoneNumberTrait;
@@ -644,6 +652,8 @@ $result = $service->getLocalNumberFromFormattedNumber('+1 202 555 1234');
 
 Provides string manipulation utilities including slugification, empty value replacement, and date extraction from text.
 
+**Why use this?** It offers unicode-safe slugification (via a custom transliterator that handles accents and special characters) and text normalization utilities used across entities, plus date-expression parsing that powers the custom `15-{+2 months}` syntax used throughout the bundle.
+
 ```php
 use UbeeDev\LibBundle\Traits\StringTrait;
 
@@ -657,7 +667,7 @@ $service = new TextService();
 
 ### slugify
 
-Converts a string into a URL-friendly slug. Uses a custom transliterator to handle special characters and accents, then lowercases the result.
+Converts a string into a URL-friendly slug. Uses a custom transliterator to handle special characters and accents, then lowercases the result. The separator is empty by default, so words are concatenated without hyphens.
 
 ```php
 slugify(string $text): string
@@ -665,13 +675,13 @@ slugify(string $text): string
 
 ```php
 $service->slugify('Hello World');
-// "hello-world"
+// "helloworld"
 
-$service->slugify('Les ecoles de Paris');
-// "les-ecoles-de-paris"
+$service->slugify('Les écoles de Paris');
+// "lesecolesdeparis"
 
 $service->slugify('  Spaces & Special! Characters  ');
-// "spaces-special-characters"
+// "spacesspecialcharacters"
 ```
 
 ### replaceEmptyValue
@@ -1089,6 +1099,8 @@ foreach ($records as $record) {
 **Namespace:** `UbeeDev\LibBundle\Traits\ProcessTrait`
 
 Provides a method to execute shell commands and capture their output.
+
+**When to use this?** Use it when you need a simple wrapper for running a shell command and capturing stdout as an array of lines, without pulling in the full Symfony Process component boilerplate. It calls `exec()` directly, so it is best suited for trusted, non-interactive commands.
 
 ```php
 use UbeeDev\LibBundle\Traits\ProcessTrait;

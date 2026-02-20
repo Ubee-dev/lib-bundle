@@ -2,6 +2,8 @@
 
 Asynchronous messaging layer built on [OldSoundRabbitMqBundle](https://github.com/php-amqplib/RabbitMqBundle). Handles transactional emails, bulk emails, error reporting, Slack notifications, and PDF compression through RabbitMQ producers and consumers.
 
+Async messaging offloads slow operations -- email sending, PDF compression, Slack API calls -- from the HTTP request cycle, so controllers return immediately and response times stay fast. Failed jobs are retried automatically with escalating delays, without affecting the user experience.
+
 ## Table of Contents
 
 - [RabbitMQ Setup](#rabbitmq-setup)
