@@ -253,6 +253,40 @@ $httpMock->clearData();
 
 `DateTimeMock` and `DateMock` extend the bundle's `DateTime` and `Date` classes with [slope-it/clock-mock](https://github.com/slope-it/clock-mock) support (requires the `ext-uopz` PHP extension). They allow you to freeze time in tests.
 
+### In PHPUnit (recommended)
+
+Tests extending `AbstractWebTestCase` can use the built-in `mockTime()` and `resetMockTime()` methods:
+
+```php
+class MyServiceTest extends AbstractWebTestCase
+{
+    public function testExpiredSubscription(): void
+    {
+        // Freeze time to a specific date
+        $this->mockTime('2024-06-15T10:30:00+02:00');
+
+        $now = new DateTime(); // 2024-06-15 10:30:00
+        $today = new Date();   // 2024-06-15 00:00:00
+
+        $this->assertTrue($subscription->isExpired());
+    }
+
+    public function testFutureDate(): void
+    {
+        $this->mockTime('2030-01-01T00:00:00+01:00');
+
+        $now = new DateTime();       // 2030-01-01 00:00:00
+        $tomorrow = new DateTime('+1 day'); // 2030-01-02 00:00:00
+
+        $this->resetMockTime(); // optional, also called automatically in tearDown
+    }
+}
+```
+
+`mockTime()` handles all the boilerplate: it freezes `ClockMock`, and registers `DateTimeMock`/`DateMock` via `uopz` so that any `new DateTime()` or `new Date()` in the tested code returns the frozen time.
+
+### Manual usage (without AbstractWebTestCase)
+
 ```php
 use UbeeDev\LibBundle\Tests\Helper\DateTimeMock;
 use UbeeDev\LibBundle\Tests\Helper\DateMock;
@@ -269,10 +303,6 @@ uopz_set_mock(Date::class, DateMock::class);
 
 // Now any `new DateTime()` or `new Date()` uses the frozen time
 $now = new DateTime(); // 2024-06-15 10:30:00
-$tomorrow = new DateTime('+1 day'); // 2024-06-16 10:30:00
-
-// DateMock always resets the time component to 00:00:00
-$today = new Date(); // 2024-06-15 00:00:00
 
 // Reset when done
 ClockMock::reset();
@@ -280,7 +310,9 @@ uopz_unset_mock(DateTime::class);
 uopz_unset_mock(Date::class);
 ```
 
-In Behat, time mocking is handled by the `CommonContext` step `the current time is "datetime"` which takes care of freezing and resetting automatically via `@BeforeScenario` hooks.
+### In Behat
+
+Time mocking is handled by the `CommonContext` step `the current time is "datetime"` which takes care of freezing and resetting automatically via `@BeforeScenario` hooks.
 
 ---
 
