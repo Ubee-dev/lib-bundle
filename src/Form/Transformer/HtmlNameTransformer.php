@@ -10,7 +10,7 @@ class HtmlNameTransformer implements DataTransformerInterface
     /**
      * Transform object HtmlName to string for display in form.
      */
-    public function transform($value): ?string
+    public function transform(mixed $value): ?string
     {
         if ($value instanceof HtmlName) {
             return $value->value;
@@ -22,7 +22,7 @@ class HtmlNameTransformer implements DataTransformerInterface
     /**
      * Transform string to HtmlName object when form is submitted.
      */
-    public function reverseTransform($value): ?HtmlName
+    public function reverseTransform(mixed $value): ?HtmlName
     {
         return HtmlName::tryFrom($value);
     }

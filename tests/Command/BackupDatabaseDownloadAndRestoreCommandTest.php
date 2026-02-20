@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use UbeeDev\LibBundle\Command\BackupDatabaseDownloadAndRestoreCommand;
+use UbeeDev\LibBundle\Service\BackupDatabase;
 use UbeeDev\LibBundle\Service\S3Client;
 
 class BackupDatabaseDownloadAndRestoreCommandTest extends TestCase
@@ -15,17 +16,13 @@ class BackupDatabaseDownloadAndRestoreCommandTest extends TestCase
     public function testDownloadLastDumpFromS3(): void
     {
         $s3Client = $this->createMock(S3Client::class);
+        $backupDatabase = $this->createMock(BackupDatabase::class);
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $parameterBag = $this->createMock(ParameterBagInterface::class);
 
         $connection = $this->createMock(Connection::class);
         $entityManager->method('getConnection')->willReturn($connection);
         $connection->method('getDatabase')->willReturn('test_db');
-        $connection->method('getParams')->willReturn([
-            'host' => 'localhost',
-            'user' => 'root',
-            'password' => 'root',
-        ]);
 
         $parameterBag->method('get')
             ->with('tmp_backup_folder')
@@ -45,11 +42,13 @@ class BackupDatabaseDownloadAndRestoreCommandTest extends TestCase
         $backupFile = $backupDir . '/Dump_test_db_du_2024-01-01.sql';
         file_put_contents($backupFile, "CREATE TABLE test (id INT);\n");
 
-        $command = new BackupDatabaseDownloadAndRestoreCommand($s3Client, $entityManager, $parameterBag, 'some-bucket');
-        $tester = new CommandTester($command);
+        $backupDatabase
+            ->expects($this->once())
+            ->method('restore')
+            ->with($connection, $backupFile);
 
-        // The command will try to run mysql to restore, which will fail in test env.
-        // We just verify it gets to the restore step without S3 errors.
+        $command = new BackupDatabaseDownloadAndRestoreCommand($s3Client, $backupDatabase, $entityManager, $parameterBag, 'some-bucket');
+        $tester = new CommandTester($command);
         $tester->execute([]);
 
         $output = $tester->getDisplay();
@@ -63,17 +62,13 @@ class BackupDatabaseDownloadAndRestoreCommandTest extends TestCase
     public function testDownloadWithSpecificKey(): void
     {
         $s3Client = $this->createMock(S3Client::class);
+        $backupDatabase = $this->createMock(BackupDatabase::class);
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $parameterBag = $this->createMock(ParameterBagInterface::class);
 
         $connection = $this->createMock(Connection::class);
         $entityManager->method('getConnection')->willReturn($connection);
         $connection->method('getDatabase')->willReturn('test_db');
-        $connection->method('getParams')->willReturn([
-            'host' => 'localhost',
-            'user' => 'root',
-            'password' => 'root',
-        ]);
 
         $parameterBag->method('get')
             ->with('tmp_backup_folder')
@@ -90,7 +85,12 @@ class BackupDatabaseDownloadAndRestoreCommandTest extends TestCase
         $backupFile = $backupDir . '/specific_dump.sql';
         file_put_contents($backupFile, "CREATE TABLE test (id INT);\n");
 
-        $command = new BackupDatabaseDownloadAndRestoreCommand($s3Client, $entityManager, $parameterBag, 'some-bucket');
+        $backupDatabase
+            ->expects($this->once())
+            ->method('restore')
+            ->with($connection, $backupFile);
+
+        $command = new BackupDatabaseDownloadAndRestoreCommand($s3Client, $backupDatabase, $entityManager, $parameterBag, 'some-bucket');
         $tester = new CommandTester($command);
         $tester->execute(['--key' => 'test_db/specific_dump.sql']);
 

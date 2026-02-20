@@ -12,7 +12,7 @@ class ConstraintYoutubeUrlValidator extends ConstraintValidator
 {
     use VideoTrait;
 
-    public function validate($value, Constraint $constraint)
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ConstraintYoutubeUrl) {
             throw new UnexpectedTypeException($constraint, ConstraintYoutubeUrl::class);

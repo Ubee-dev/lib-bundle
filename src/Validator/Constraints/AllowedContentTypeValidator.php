@@ -2,7 +2,7 @@
 
 namespace UbeeDev\LibBundle\Validator\Constraints;
 
-use App\Entity\Media;
+use UbeeDev\LibBundle\Entity\Media;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;

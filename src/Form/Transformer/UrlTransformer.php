@@ -10,7 +10,7 @@ class UrlTransformer implements DataTransformerInterface
     /**
      * Transform object Url to string for display in form.
      */
-    public function transform($value): ?string
+    public function transform(mixed $value): ?string
     {
         if ($value instanceof Url) {
             return $value->value;
@@ -22,7 +22,7 @@ class UrlTransformer implements DataTransformerInterface
     /**
      * Transform string to Url object when form is submitted.
      */
-    public function reverseTransform($value): ?Url
+    public function reverseTransform(mixed $value): ?Url
     {
         return Url::tryFrom($value);
     }

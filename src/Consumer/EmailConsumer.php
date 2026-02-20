@@ -46,7 +46,7 @@ class EmailConsumer implements ConsumerInterface
         return ConsumerInterface::MSG_ACK;
     }
 
-    private function retryOrNotify($mailData, $exception): void
+    private function retryOrNotify(array $mailData, \Exception $exception): void
     {
         if($mailData['retryNumber'] >= 2) {
             if(isset($mailData['text'])) {

@@ -2,6 +2,7 @@
 
 namespace UbeeDev\LibBundle\Command;
 
+use UbeeDev\LibBundle\Service\BackupDatabase;
 use UbeeDev\LibBundle\Service\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -19,6 +20,7 @@ class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
 {
     public function __construct(
         private readonly S3Client               $s3Client,
+        private readonly BackupDatabase         $backupDatabase,
         private readonly EntityManagerInterface $entityManager,
         private readonly ParameterBagInterface  $parameterBag,
         private readonly string                 $s3BackupBucket,
@@ -36,12 +38,14 @@ class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
 
     public function perform(InputInterface $input, OutputInterface $output): void
     {
-        $databaseName = $this->entityManager->getConnection()->getDatabase();
+        $connection = $this->entityManager->getConnection();
+        $databaseName = $connection->getDatabase();
         $tmpBackupFolder = $this->parameterBag->get('tmp_backup_folder');
         $s3Key = $input->getOption('key');
 
         $backupFilePath = $this->downloadBackupFileIfNotExist($output, $databaseName, $tmpBackupFolder, $s3Key);
-        $this->restoreDatabase($backupFilePath, $databaseName);
+
+        $this->backupDatabase->restore($connection, $backupFilePath);
 
         $output->writeln("<info>Database $databaseName restored...</info>");
     }
@@ -80,26 +84,5 @@ class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
         }
 
         return $backupFilePath;
-    }
-
-    private function restoreDatabase(string $backupFilePath, string $databaseName): void
-    {
-        $connection = $this->entityManager->getConnection()->getParams();
-
-        $fileContent = file($backupFilePath);
-        $filteredContent = array_filter($fileContent, function ($line) {
-            return strpos($line, 'enable the sandbox mode') === false;
-        });
-
-        $tempFilePath = sys_get_temp_dir() . '/filtered_backup.sql';
-        file_put_contents($tempFilePath, implode("", $filteredContent));
-
-        $command = "mysql --force -u" . escapeshellarg($connection['user'])
-            . " --password=" . escapeshellarg($connection['password'])
-            . " -h" . escapeshellarg($connection['host'])
-            . " " . escapeshellarg($databaseName)
-            . " < " . escapeshellarg($tempFilePath);
-
-        exec($command);
     }
 }

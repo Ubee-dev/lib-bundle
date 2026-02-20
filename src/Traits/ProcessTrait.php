@@ -6,12 +6,7 @@ namespace UbeeDev\LibBundle\Traits;
 
 trait ProcessTrait
 {
-    /**
-     * @param $command
-     * @return string
-     * @throws \Exception
-     */
-    public function executeCommand($command)
+    public function executeCommand(string $command): array
     {
         exec($command, $output);
         return $output;

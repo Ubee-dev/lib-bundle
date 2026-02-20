@@ -7,7 +7,7 @@ use DateTimeZone;
 
 class Date extends AbstractDateTime
 {
-    public function __construct($time = 'now', ?DateTimeZone $timezone = null)
+    public function __construct(string $time = 'now', ?DateTimeZone $timezone = null)
     {
         parent::__construct($time, $timezone);
         $this->setTime(0,0,0,0);
@@ -18,7 +18,7 @@ class Date extends AbstractDateTime
         return $this->formatDate($this, 'Y-m-d');
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->formatDate($this, 'Y-m-d');
     }

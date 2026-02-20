@@ -9,11 +9,7 @@ use Money\Money;
 trait MoneyTrait
 {
 
-    /**
-     * @param Money $money
-     * @return string
-     */
-    public function formatMoney(Money $money)
+    public function formatMoney(Money $money): string
     {
         $currencies = new ISOCurrencies();
 
@@ -23,17 +19,12 @@ trait MoneyTrait
         return $this->cleanString($moneyFormatter->format($money));
     }
 
-    /**
-     * @param Money $money
-     * @return float|int
-     */
-    public function formatMoneyToFloat(Money $money)
+    public function formatMoneyToFloat(Money $money): float|int
     {
         return $money->getAmount() / 100;
     }
 
-
-    private function cleanString($string)
+    private function cleanString(string $string): string
     {
         return preg_replace('/\s/u', ' ', $string);
     }

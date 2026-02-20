@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 trait EntityManagerTrait
 {
-    public function ensureDatabaseConnectedAndEmCacheIsCleared(EntityManagerInterface $entityManager)
+    public function ensureDatabaseConnectedAndEmCacheIsCleared(EntityManagerInterface $entityManager): void
     {
         $entityManager->clear();
     }

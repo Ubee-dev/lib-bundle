@@ -9,9 +9,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class SpreadsheetExporter
 {
-    private $formatter;
+    private ?object $formatter;
 
-    public function __construct($formatter = null)
+    public function __construct(?object $formatter = null)
     {
         $this->formatter = $formatter;
     }
@@ -58,7 +58,7 @@ class SpreadsheetExporter
         return $spreadsheet;
     }
 
-    private function addHeaders(Worksheet $excel, $descriptors): Worksheet
+    private function addHeaders(Worksheet $excel, array $descriptors): Worksheet
     {
         //headers
         foreach ($descriptors as $key => $descriptor) {
@@ -69,7 +69,7 @@ class SpreadsheetExporter
         return $excel;
     }
 
-    private function getValues($item, $descriptor): array
+    private function getValues(mixed $item, array $descriptor): array
     {
         $values = [];
 

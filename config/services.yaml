@@ -3,7 +3,6 @@ parameters:
   env(APP_TOKEN): ~
   upload_dir: /uploads
   mediaClassName: null
-  #todo tester si on peut l'écraser en lancant les tests parallèles
   env(TEST_TOKEN): "1"
   env(MUTE_OPS_ALERTS): false
   env(ERROR_CHANNEL): ''
@@ -42,6 +41,8 @@ services:
     arguments:
       $apiKey: '%env(MAILER_PASSWORD)%'
   
+  UbeeDev\LibBundle\Service\DatabaseDumperInterface: '@UbeeDev\LibBundle\Service\DatabaseDumper\MysqlDumper'
+
   UbeeDev\LibBundle\Service\S3Client:
     arguments:
       $key: '%env(S3_KEY)%'

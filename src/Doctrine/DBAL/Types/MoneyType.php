@@ -60,7 +60,7 @@ class MoneyType extends Type
         return ParameterType::INTEGER;
     }
 
-    public function requiresSQLCommentHint(AbstractPlatform $platform) : bool
+    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
     }

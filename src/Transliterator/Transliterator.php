@@ -32,7 +32,7 @@ class Transliterator
      *
      * @return bool
      */
-    public static function seemsUtf8($string)
+    public static function seemsUtf8(string $string): bool
     {
         $stringLength = strlen($string);
 
@@ -72,7 +72,7 @@ class Transliterator
      * @see Transliterator::utf8ToAscii for a full transliteration to ASCII
      *
      */
-    public static function unaccent($string)
+    public static function unaccent(string $string): string
     {
         if (!preg_match('/[\x80-\xff]/', $string)) {
             return $string;
@@ -342,7 +342,7 @@ class Transliterator
      *
      * @return string US-ASCII string
      */
-    public static function utf8ToAscii($str, $unknown = '?')
+    public static function utf8ToAscii(string $str, string $unknown = '?'): string
     {
         static $UTF8_TO_ASCII;
 
@@ -411,7 +411,7 @@ class Transliterator
      * @see Transliterator::unaccent for the transliteration logic
      *
      */
-    public static function urlize($text, $separator = '-')
+    public static function urlize(string $text, string $separator = '-'): string
     {
         $text = self::unaccent($text);
 
@@ -428,7 +428,7 @@ class Transliterator
      *
      * @return string $text
      */
-    public static function transliterate($text, $separator = '-')
+    public static function transliterate(string $text, string $separator = '-'): string
     {
         if (preg_match('/[\x80-\xff]/', $text) && self::validUtf8($text)) {
             $text = self::utf8ToAscii($text);
@@ -451,7 +451,7 @@ class Transliterator
      *
      * @see    http://hsivonen.iki.fi/php-utf8/
      */
-    public static function validUtf8($str)
+    public static function validUtf8(string $str): bool
     {
         $mState = 0; // cached expected number of octets after the current octet
         // until the beginning of the next UTF8 character sequence
@@ -565,7 +565,7 @@ class Transliterator
      *
      * @return string
      */
-    private static function postProcessText($text, $separator)
+    private static function postProcessText(string $text, string $separator): string
     {
         if (function_exists('mb_strtolower')) {
             $text = mb_strtolower($text);

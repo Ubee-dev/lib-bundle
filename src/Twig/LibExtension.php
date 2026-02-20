@@ -12,6 +12,7 @@ use Normalizer;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
@@ -22,30 +23,13 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
     use VideoTrait;
     use PhoneNumberTrait;
 
-    /**
-     * The file extensions to check if there is a minified version
-     *
-     * @var array
-     */
-    private static $minify_exts = ['css', 'js'];
-
-    /**
-     * Whether to search for minified rev'd versions of the assets
-     *
-     * @var bool
-     */
-    private $minified;
-
-    /**
-     * The array of assets rev, raw_asset => rev_asset
-     *
-     * @var array
-     */
-    private $assets;
+    private static array $minify_exts = ['css', 'js'];
+    private bool $minified;
+    private array $assets;
 
     public function __construct(
-        protected RequestStack $requestStack, 
-        private UtmManager $utmManager, 
+        protected RequestStack $requestStack,
+        private UtmManager $utmManager,
         protected ParameterBagInterface $parameterBag,
         protected string $currentEnv
     )
@@ -66,34 +50,14 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
         ];
     }
 
-    /**
-     * Transform youtube url in youtube embed url and Add youtube options [autoplay, start, end]
-     * rel=0 and modestbranding=1 are allready set
-     *
-     * @param string $url
-     * @param bool $autoplay
-     * @param int $start
-     * @param int $end
-     *
-     * @return string
-     */
-    public function youtubeEmbedUrlFilter($url, $autoplay = false)
+    public function youtubeEmbedUrlFilter(string $url, bool $autoplay = false): string
     {
         return $this->getYoutubeEmbedUrl($url, [
             'autoplay' => $autoplay
         ]);
     }
 
-    /**
-     * Transform youtube url in youtube embed url and Add youtube options [autoplay, start, end]
-     * rel=0 and modestbranding=1 are allready set
-     *
-     * @param string $url
-     * @param bool $autoplay
-     * @return string
-     * @throws \Exception
-     */
-    public function embedUrlFilter($url, $autoplay = false)
+    public function embedUrlFilter(string $url, bool $autoplay = false): ?string
     {
         if(!$url) {
             return null;
@@ -105,7 +69,7 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
             ;
     }
 
-    public function youtubeThumbnailUrlFilter($url, $quality = 'medium')
+    public function youtubeThumbnailUrlFilter(string $url, string $quality = 'medium'): string
     {
         return $this->getYoutubeThumbUrlFromYoutubeUrl($url, $quality);
     }
@@ -117,15 +81,7 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
         ];
     }
 
-    /**
-     * Gets the rev'd asset,
-     *
-     * @param \Twig_Environment $env The twig environment
-     * @param string $asset The asset string to rev
-     *
-     * @return string The rev'd asset if available, else the original asset
-     */
-    public function assetRev(\Twig_Environment $env, $asset)
+    public function assetRev(Environment $env, string $asset): string
     {
         $pathinfo = pathinfo($asset);
         if (!isset($pathinfo['extension'])) {
@@ -134,15 +90,7 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
         return ($this->minify($env, $pathinfo)) ?: ((isset($this->assets[$asset])) ? 'dist/' . $this->assets[$asset] : 'dist/' . $asset);
     }
 
-    /**
-     * Gets the minified asset
-     *
-     * @param \Twig_Environment $env The twig environment
-     * @param array $pathinfo The pathinfo for the asset
-     *
-     * @return bool|string The minified rev'd asset if available, else false
-     */
-    public function minify($env, $pathinfo)
+    public function minify(Environment $env, array $pathinfo): string|false
     {
         $min = sprintf(
             "%s/%s.min.%s",
@@ -160,17 +108,17 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
 
     public function getFunctions(): array
     {
-        return array(
+        return [
             new TwigFunction('removeKeys', [$this, 'removeKeys']),
             new TwigFunction('parameter', [$this, 'getParameter']),
             new TwigFunction('getMockedJSTimestamp', [$this, 'getMockedJSTimestamp']),
             new TwigFunction('getCountries', [$this, 'getCountries']),
             new TwigFunction('formattedPhoneNumber', [$this, 'formattedPhoneNumber']),
             new TwigFunction('getEnvName', [$this, 'getEnvName'], ['needs_environment' => true]),
-        );
+        ];
     }
 
-    public function removeKeys(array $array, array $keys)
+    public function removeKeys(array $array, array $keys): array
     {
         foreach ($keys as $key) {
             if (array_key_exists($key, $array)) {
@@ -180,21 +128,17 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
         return $array;
     }
 
-    public function getParameter($parameterName)
+    public function getParameter(string $parameterName): mixed
     {
         return $this->parameterBag->get($parameterName);
     }
 
-    public function slugifyUAIdsFilter($UAIds)
+    public function slugifyUAIdsFilter(string $UAIds): string
     {
         return preg_replace('/[, ]/', '_', $UAIds);
     }
 
-    /**
-     * @return integer|null
-     * @throws \Exception
-     */
-    public function getMockedJSTimestamp()
+    public function getMockedJSTimestamp(): ?int
     {
         $fileSystem = new Filesystem();
         $mockTimeFilePath = $this->parameterBag->get('kernel.project_dir').'/tests/assets/mockTime'.getenv('TEST_TOKEN').'.txt';
@@ -203,26 +147,24 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
         }
 
         return null;
-
     }
 
-    public function getUTMParamsFromRequest(){
+    public function getUTMParamsFromRequest(): array
+    {
         $request = $this->requestStack->getCurrentRequest();
         return $this->utmManager->getUtmParamsFromRequest($request);
     }
 
-    public function utmParams($url){
+    public function utmParams(string $url): string
+    {
         $request = $this->requestStack->getCurrentRequest();
         return $this->utmManager->utmParams($url, $request);
     }
 
-    /**
-     * @return array
-     */
-    public function getCountries()
+    public function getCountries(): array
     {
         $json_countries_url = $this->parameterBag->get('kernel.project_dir').'/public/bundles/ubeedevlib/countries.json';
-        $json_countries_content = normalizer_normalize(file_get_contents($json_countries_url),Normalizer::FORM_C ); // for w3c validation
+        $json_countries_content = normalizer_normalize(file_get_contents($json_countries_url),Normalizer::FORM_C );
         $json_countries =  json_decode( $json_countries_content, true);
         $collator = new Collator('fr_FR');
         $collator->asort($json_countries['national']);
@@ -230,23 +172,16 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
         return $json_countries;
     }
 
-    /**
-     * @param PhoneNumberInterface $entity
-     * @return string
-     */
-    public function formattedPhoneNumber(PhoneNumberInterface $entity)
+    public function formattedPhoneNumber(PhoneNumberInterface $entity): string
     {
         return $this->getFormattedPhoneNumber($entity->getCountryCallingCode(), $entity->getPhoneNumber());
-
     }
 
-    /**
-     *  @return string|null
-     */
-    public function getEnvName() {
-        switch ($this->currentEnv) {
-            case 'dev': return 'local';
-            default: return null;
-        }
+    public function getEnvName(): ?string
+    {
+        return match ($this->currentEnv) {
+            'dev' => 'local',
+            default => null,
+        };
     }
 }

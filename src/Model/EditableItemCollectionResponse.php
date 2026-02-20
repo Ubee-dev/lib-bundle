@@ -7,14 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class EditableItemCollectionResponse extends JsonResponse
 {
-    /**
-     * EditableItemCollectionResponse constructor.
-     * @param $existingItems
-     * @param $availableItems
-     * @param null $dtoClass
-     * @param array $parameters
-     */
-    public function __construct($existingItems, $availableItems, $dtoClass = null, $parameters = [])
+    public function __construct(iterable $existingItems, iterable $availableItems, ?string $dtoClass = null, array $parameters = [])
     {
         $data = ['existingItems' => [], 'availableItems' => []];
 

@@ -36,7 +36,7 @@ class BackupDatabaseSaveCommandTest extends TestCase
         $backupDatabase
             ->expects($this->once())
             ->method('dump')
-            ->with('/tmp/dump', 'database_host', 'database_name', 'database_user', 'database_password')
+            ->with($connection, '/tmp/dump')
             ->willReturn('/tmp/dump/database_name/database_name.sql');
 
         $s3Client

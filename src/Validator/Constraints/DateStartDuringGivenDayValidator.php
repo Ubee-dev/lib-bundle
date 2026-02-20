@@ -4,7 +4,6 @@ namespace  UbeeDev\LibBundle\Validator\Constraints;
 
 
 
-use App\Entity\Availability;
 use UbeeDev\LibBundle\Traits\DateTimeTrait;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
@@ -14,11 +13,7 @@ use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 class DateStartDuringGivenDayValidator extends ConstraintValidator
 {
     use DateTimeTrait;
-    /**
-     * @param Availability $value
-     * @param Constraint $constraint
-     */
-    public function validate($value, Constraint $constraint)
+    public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof DateStartDuringGivenDay) {
             throw new UnexpectedTypeException($constraint, DateStartDuringGivenDay::class);

@@ -10,7 +10,7 @@ class S3Client
 {
     private amazonS3Client $s3Client;
 
-    public function __construct($key, $secret, $region, $version)
+    public function __construct(string $key, string $secret, string $region, string $version)
     {
         $this->s3Client =  new amazonS3Client([
             'region' => $region,
@@ -22,7 +22,7 @@ class S3Client
         ]);
     }
 
-    public function upload($localFilePath, $bucket, $s3FilePath): string
+    public function upload(string $localFilePath, string $bucket, string $s3FilePath): string
     {
         $result = $this->s3Client->putObject([
             'Bucket'     => $bucket,
@@ -33,7 +33,7 @@ class S3Client
         return $result->get("ObjectURL");
     }
 
-    public function get($bucket, $keyName): string
+    public function get(string $bucket, string $keyName): string
     {
         $object = $this->s3Client->getObject([
             'Bucket'     => $bucket,
@@ -43,7 +43,7 @@ class S3Client
         return $object['@metadata']['effectiveUri'];
     }
 
-    public function download($bucket, $keyName, $tmpDumpFolderPath, $tmpDumpFileName): string
+    public function download(string $bucket, string $keyName, string $tmpDumpFolderPath, string $tmpDumpFileName): string
     {
         $tmpDumpFilePath = $tmpDumpFolderPath.'/'.$tmpDumpFileName;
         $fileSystem = new Filesystem();
@@ -60,7 +60,7 @@ class S3Client
 
 
 
-    public function delete($bucket, $keyName): bool
+    public function delete(string $bucket, string $keyName): bool
     {
         $this->s3Client->deleteObject([
             'Bucket'     => $bucket,
@@ -70,7 +70,7 @@ class S3Client
         return true;
     }
 
-    public function list($options): array
+    public function list(array $options): array
     {
         $objects = $this->s3Client->getIterator('ListObjects', $options);
         $list = [];

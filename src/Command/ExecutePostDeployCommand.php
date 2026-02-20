@@ -181,7 +181,7 @@ class ExecutePostDeployCommand extends Command
     private function savePostDeployExecutionInDatabase(
         SplFileInfo $file,
         int $executionTime
-    )
+    ): void
     {
         $fileNameWithoutExtension = $file->getFilenameWithoutExtension();
         $postDeployServiceName = $this->getClassNameWithNamespaceFromFile($file->getRealPath());
