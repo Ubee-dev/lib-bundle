@@ -2,6 +2,8 @@
 
 This bundle provides a set of custom Symfony validation constraints that can be used as PHP 8 attributes on your entity properties and classes.
 
+Symfony's built-in constraints do not cover domain-specific needs like `Money` comparison, video URL provider validation, or file validation on `Media` entities. These custom validators fill those gaps so you can enforce business rules declaratively.
+
 All constraints live under the `UbeeDev\LibBundle\Validator\Constraints` namespace.
 
 ---

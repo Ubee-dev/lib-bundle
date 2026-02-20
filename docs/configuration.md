@@ -2,6 +2,8 @@
 
 This document covers all configuration options for the UbeeDev LibBundle, including environment variables, bundle parameters, and package-level settings.
 
+The bundle relies on environment variables and parameters to connect to external services such as Redis, RabbitMQ, S3, Slack, and email providers. Getting these right is essential -- most bundle features will not work without proper configuration of the underlying services.
+
 ## Table of Contents
 
 - [Environment Variables](#environment-variables)
@@ -49,6 +51,8 @@ DATABASE_URL="postgresql://user:password@127.0.0.1:5432/my_database?serverVersio
 
 ### Redis
 
+Redis is used for session storage and caching throughout the application.
+
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `REDIS_HOST` | Yes | -- | Redis server hostname or IP address. |
@@ -74,6 +78,8 @@ RABBITMQ_PASSWORD=guest
 ```
 
 ### AWS S3
+
+S3 is used for database backups and file storage (e.g., media uploads managed by `MediaManager`).
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|

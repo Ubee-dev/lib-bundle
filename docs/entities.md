@@ -201,6 +201,8 @@ $activePromos = $repository->findBy(['active' => true]);
 
 An abstract class extending PHP's native `\DateTime` with comparison and formatting methods. Implements `\JsonSerializable`. The default timezone is `Europe/Paris`.
 
+The custom class exists because PHP's `\DateTime` lacks convenience methods needed throughout the application -- age calculation, French-locale formatting, and period comparison. `AbstractDateTime` extends it with these utilities via `DateTimeTrait` and enforces a consistent `Europe/Paris` timezone across the entire codebase.
+
 This class also uses the `DateTimeTrait`, which provides a rich set of date manipulation utilities (adding seconds, minutes, hours, days, months; computing differences; timezone conversion, etc.).
 
 ### Constants
@@ -564,7 +566,7 @@ json_encode($address);
 
 **Namespace:** `UbeeDev\LibBundle\Entity\FooterLink`
 
-Abstract entity for website footer links. Extends `AbstractEntity`. Since it is a `MappedSuperclass`, create a concrete subclass in your application.
+Abstract entity for website footer links. Extends `AbstractEntity`. It provides a reusable base for websites that need configurable footer navigation links stored in the database, avoiding the need to redefine label/url/position/active fields in every project. Since it is a `MappedSuperclass`, create a concrete subclass in your application.
 
 ### Fields
 

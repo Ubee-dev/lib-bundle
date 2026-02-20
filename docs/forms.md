@@ -2,6 +2,8 @@
 
 This document covers the form types, data transformers, anti-robot protection, and form themes provided by the UbeeDev LibBundle.
 
+These components extend Symfony's form system with reusable UI elements (action buttons, custom HTML blocks), value-object transformers for the bundle's domain types, and pluggable bot-detection strategies that can be swapped without changing your form code.
+
 ## Table of Contents
 
 - [Form Types](#form-types)
@@ -85,7 +87,7 @@ $builder->add('delete', DeleteButtonType::class);
 
 ### CustomHtmlType
 
-Renders an arbitrary Twig template inside a form. The template path and its variables are passed through the field's `attr` option.
+Use this type to inject read-only content, help text, or custom UI elements into a Symfony form without creating a full form type. It renders an arbitrary Twig template inside the form layout; the template path and its variables are passed through the field's `attr` option.
 
 - **Class:** `UbeeDev\LibBundle\Form\Type\CustomHtmlType`
 - **Parent:** Symfony `TextType`
@@ -114,7 +116,7 @@ The `custom_html_widget` block includes the template specified in `attr.dataHtml
 
 ## Form Transformers
 
-The bundle provides two data transformers that convert between value objects and strings for use in Symfony forms.
+The bundle provides two data transformers that convert between value objects and strings for use in Symfony forms. These are needed when your entity properties use value objects like `HtmlName` or `Url`, so the form can convert between the object and the plain string shown in the input field.
 
 ### HtmlNameTransformer
 
