@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Doctrine\Mysql;
+namespace UbeeDev\LibBundle\Doctrine\Mysql;
 
 use Doctrine\ORM\Query\AST\ASTException;
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;

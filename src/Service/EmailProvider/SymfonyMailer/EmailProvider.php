@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Khalil1608\LibBundle\Service\EmailProvider\SymfonyMailer;
+namespace UbeeDev\LibBundle\Service\EmailProvider\SymfonyMailer;
 
-use Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface;
-use Khalil1608\LibBundle\Service\Mailer;
+use UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface;
+use UbeeDev\LibBundle\Service\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;

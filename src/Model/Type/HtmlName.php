@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Model\Type;
+namespace UbeeDev\LibBundle\Model\Type;
 
 class HtmlName implements \JsonSerializable
 {

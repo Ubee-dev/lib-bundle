@@ -1,11 +1,11 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Entity;
+namespace UbeeDev\LibBundle\Tests\Entity;
 
 
-use Khalil1608\LibBundle\Entity\PostDeployExecution;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Entity\PostDeployExecution;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace Khalil1608\LibBundle\Consumer;
+namespace UbeeDev\LibBundle\Consumer;
 
-use Khalil1608\LibBundle\Producer\BulkEmailProducer;
-use Khalil1608\LibBundle\Producer\ErrorProducer;
-use Khalil1608\LibBundle\Service\EmailProvider\BulkEmailProviderInterface;
+use UbeeDev\LibBundle\Producer\BulkEmailProducer;
+use UbeeDev\LibBundle\Producer\ErrorProducer;
+use UbeeDev\LibBundle\Service\EmailProvider\BulkEmailProviderInterface;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqplib\Message\AMQPMessage;
 

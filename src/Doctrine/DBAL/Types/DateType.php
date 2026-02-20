@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Doctrine\DBAL\Types;
+namespace UbeeDev\LibBundle\Doctrine\DBAL\Types;
 
-use Khalil1608\LibBundle\Entity\Date;
+use UbeeDev\LibBundle\Entity\Date;
 use DateTimeInterface;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;

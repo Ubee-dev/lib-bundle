@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Model;
+namespace UbeeDev\LibBundle\Model;
 
 
-use Khalil1608\LibBundle\Entity\Address;
+use UbeeDev\LibBundle\Entity\Address;
 
 interface AddressInterface
 {

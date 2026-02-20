@@ -1,11 +1,11 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+namespace UbeeDev\LibBundle\Tests\Helper;
 
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Entity\Media;
-use Khalil1608\LibBundle\Entity\PostDeployExecution;
-use Khalil1608\LibBundle\Traits\DateTimeTrait;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Entity\Media;
+use UbeeDev\LibBundle\Entity\PostDeployExecution;
+use UbeeDev\LibBundle\Traits\DateTimeTrait;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;

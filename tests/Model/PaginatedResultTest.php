@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Model;
+namespace UbeeDev\LibBundle\Tests\Model;
 
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Khalil1608\LibBundle\Model\PaginatedResult;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Model\PaginatedResult;
 
 class PaginatedResultTest extends AbstractWebTestCase
 {

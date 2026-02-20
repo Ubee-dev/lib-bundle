@@ -1,11 +1,11 @@
 <?php
 
 
-namespace  Khalil1608\LibBundle\Tests\Consumer;
+namespace  UbeeDev\LibBundle\Tests\Consumer;
 
-use Khalil1608\LibBundle\Consumer\BulkEmailConsumer;
-use Khalil1608\LibBundle\Producer\BulkEmailProducer;
-use Khalil1608\LibBundle\Service\EmailProvider\BulkEmailProviderInterface;
+use UbeeDev\LibBundle\Consumer\BulkEmailConsumer;
+use UbeeDev\LibBundle\Producer\BulkEmailProducer;
+use UbeeDev\LibBundle\Service\EmailProvider\BulkEmailProviderInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class BulkEmailConsumerTest extends AbstractConsumerCase

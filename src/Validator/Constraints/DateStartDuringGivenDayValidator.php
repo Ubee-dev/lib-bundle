@@ -1,11 +1,11 @@
 <?php
 
-namespace  Khalil1608\LibBundle\Validator\Constraints;
+namespace  UbeeDev\LibBundle\Validator\Constraints;
 
 
 
 use App\Entity\Availability;
-use Khalil1608\LibBundle\Traits\DateTimeTrait;
+use UbeeDev\LibBundle\Traits\DateTimeTrait;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;

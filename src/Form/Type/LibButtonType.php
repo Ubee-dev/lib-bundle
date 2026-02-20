@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Form\Type;
+namespace UbeeDev\LibBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -17,7 +17,7 @@ class LibButtonType extends AbstractType
 
     public function getFormTheme(): array
     {
-        return ['@Khalil1608Lib/Form/Type/lib_button.html.twig'];
+        return ['@UbeeDevLib/Form/Type/lib_button.html.twig'];
     }
 
     public function configureOptions(OptionsResolver $resolver)

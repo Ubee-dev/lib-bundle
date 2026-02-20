@@ -1,11 +1,11 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service\EmailProvider\Mailchimp;
+namespace UbeeDev\LibBundle\Tests\Service\EmailProvider\Mailchimp;
 
-use Khalil1608\LibBundle\Service\EmailProvider\BulkEmailProviderInterface;
-use Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\AbstractEmailProvider;
-use Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Service\EmailProvider\BulkEmailProviderInterface;
+use UbeeDev\LibBundle\Service\EmailProvider\Mailchimp\AbstractEmailProvider;
+use UbeeDev\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;

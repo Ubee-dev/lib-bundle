@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Consumer;
+namespace UbeeDev\LibBundle\Tests\Consumer;
 
-use Khalil1608\LibBundle\Consumer\CompressPdfConsumer;
-use Khalil1608\LibBundle\Producer\CompressPdfProducer;
+use UbeeDev\LibBundle\Consumer\CompressPdfConsumer;
+use UbeeDev\LibBundle\Producer\CompressPdfProducer;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\Filesystem\Filesystem;
 use function Symfony\Component\String\u;
@@ -25,6 +25,10 @@ class CompressPdfConsumerTest extends AbstractConsumerCase
 
     public function testCompressPdf(): void
     {
+        if (!shell_exec('which gs')) {
+            $this->markTestSkipped('Ghostscript (gs) is not installed.');
+        }
+
         $this->createAMPMessage([
             'filePath' => '/tmp/compress-pdf/to-compress.pdf',
         ]);
@@ -40,6 +44,10 @@ class CompressPdfConsumerTest extends AbstractConsumerCase
 
     public function testCompressPdfShouldSendNotificationIfFails(): void
     {
+        if (!shell_exec('which gs')) {
+            $this->markTestSkipped('Ghostscript (gs) is not installed.');
+        }
+
         $this->createAMPMessage($parameters = [
             'filePath' => '/badpath/bad-file-path.pdf',
         ]);
@@ -52,6 +60,20 @@ class CompressPdfConsumerTest extends AbstractConsumerCase
                 $this->equalTo($parameters),
                 $this->stringContains('Unable to open the initial device'),
             );
+
+        $this->compressPdfConsumer->execute($this->message);
+    }
+
+    public function testCompressPdfThrowsWhenGhostscriptNotInstalled(): void
+    {
+        if (shell_exec('which gs')) {
+            $this->markTestSkipped('Ghostscript is installed, cannot test missing binary.');
+        }
+
+        $this->createAMPMessage(['filePath' => '/tmp/some.pdf']);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Ghostscript (gs) is required');
 
         $this->compressPdfConsumer->execute($this->message);
     }

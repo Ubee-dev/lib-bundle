@@ -1,10 +1,11 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Service\FormManager;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Service\FormManager;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class FormManagerTest extends AbstractWebTestCase
 {
@@ -175,6 +176,6 @@ class FormManagerTest extends AbstractWebTestCase
 
     private function initManager(): FormManager
     {
-        return new FormManager(true);
+        return new FormManager($this->createMock(CsrfTokenManagerInterface::class), true);
     }
 }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Command;
+namespace UbeeDev\LibBundle\Command;
 
-use Khalil1608\LibBundle\Tests\Helper\CleanerInterface;
+use UbeeDev\LibBundle\Tests\Helper\CleanerInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 #[When(env: 'test')]
 #[When(env: 'dev')]
 #[AsCommand(
-    name: 'Khalil1608:fixtures:load',
+    name: 'UbeeDev:fixtures:load',
 )]
 class GenerateFixturesCommand extends Command
 {

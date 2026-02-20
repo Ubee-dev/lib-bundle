@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Traits;
+namespace UbeeDev\LibBundle\Traits;
 
 use Doctrine\ORM\EntityManagerInterface;
 

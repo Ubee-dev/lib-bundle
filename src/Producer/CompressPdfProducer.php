@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Producer;
+namespace UbeeDev\LibBundle\Producer;
 
 class CompressPdfProducer extends AbstractProducer
 {

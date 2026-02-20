@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Validator;
+namespace UbeeDev\LibBundle\Validator;
 
-use Khalil1608\LibBundle\Exception\InvalidArgumentException;
+use UbeeDev\LibBundle\Exception\InvalidArgumentException;
 use Symfony\Component\Validator\{ConstraintViolation, Validator\ValidatorInterface};
 
 class Validator

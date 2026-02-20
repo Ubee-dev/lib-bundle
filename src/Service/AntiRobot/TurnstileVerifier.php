@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service\AntiRobot;
+namespace UbeeDev\LibBundle\Service\AntiRobot;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\HttpClient\HttpClientInterface;

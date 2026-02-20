@@ -1,15 +1,15 @@
 <?php
 
-namespace Khalil1608\LibBundle\Config;
+namespace UbeeDev\LibBundle\Config;
 
 use BackedEnum;
-use Khalil1608\LibBundle\Config\CustomEnumInterface;
-use Khalil1608\LibBundle\Entity\Date;
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Model\Type\Email;
-use Khalil1608\LibBundle\Model\Type\Name;
-use Khalil1608\LibBundle\Model\Type\PhoneNumber;
-use Khalil1608\LibBundle\Model\Type\Url;
+use UbeeDev\LibBundle\Config\CustomEnumInterface;
+use UbeeDev\LibBundle\Entity\Date;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Model\Type\Email;
+use UbeeDev\LibBundle\Model\Type\Name;
+use UbeeDev\LibBundle\Model\Type\PhoneNumber;
+use UbeeDev\LibBundle\Model\Type\Url;
 use Money\Money;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 

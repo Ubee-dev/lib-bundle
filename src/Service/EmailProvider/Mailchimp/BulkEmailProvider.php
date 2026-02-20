@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service\EmailProvider\Mailchimp;
+namespace UbeeDev\LibBundle\Service\EmailProvider\Mailchimp;
 
-use Khalil1608\LibBundle\Service\EmailProvider\BulkEmailProviderInterface;
+use UbeeDev\LibBundle\Service\EmailProvider\BulkEmailProviderInterface;
 use Exception;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;

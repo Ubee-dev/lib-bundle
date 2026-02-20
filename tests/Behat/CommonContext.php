@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Behat;
+namespace UbeeDev\LibBundle\Tests\Behat;
 
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterStepScope;
@@ -13,18 +13,19 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Behat\MinkExtension\Context\MinkContext;
 use Behat\Testwork\Tester\Result\TestResult;
-use Khalil1608\LibBundle\Entity\Date;
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Service\OpsAlertManager;
-use Khalil1608\LibBundle\Tests\Helper\CleanerInterface;
-use Khalil1608\LibBundle\Tests\Helper\ContextStateInterface;
-use Khalil1608\LibBundle\Tests\Helper\DateMock;
-use Khalil1608\LibBundle\Tests\Helper\DateTimeMock;
-use Khalil1608\LibBundle\Tests\Helper\FactoryInterface;
-use Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider;
-use Khalil1608\LibBundle\Traits\DateTimeTrait;
-use Khalil1608\LibBundle\Traits\MoneyTrait;
-use Khalil1608\LibBundle\Traits\ProcessTrait;
+use UbeeDev\LibBundle\Entity\Date;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Service\Slack\FileSnippet;
+use UbeeDev\LibBundle\Service\SlackManager;
+use UbeeDev\LibBundle\Tests\Helper\CleanerInterface;
+use UbeeDev\LibBundle\Tests\Helper\ContextStateInterface;
+use UbeeDev\LibBundle\Tests\Helper\DateMock;
+use UbeeDev\LibBundle\Tests\Helper\DateTimeMock;
+use UbeeDev\LibBundle\Tests\Helper\FactoryInterface;
+use UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider;
+use UbeeDev\LibBundle\Traits\DateTimeTrait;
+use UbeeDev\LibBundle\Traits\MoneyTrait;
+use UbeeDev\LibBundle\Traits\ProcessTrait;
 use Exception;
 use PHPUnit\Framework\Assert;
 use SlopeIt\ClockMock\ClockMock;
@@ -65,10 +66,11 @@ class CommonContext extends MinkContext implements Context
         protected readonly ParameterBagInterface $parameterBag,
         protected readonly RouterInterface       $router,
         protected readonly ContextStateInterface $contextState,
-        protected readonly OpsAlertManager       $opsAlertManager,
+        protected readonly SlackManager           $slackManager,
         protected readonly string                $testToken,
         protected readonly string                $isCI,
         protected readonly string                $slackNotificationTs,
+        protected readonly ?string               $slackChannel = null,
     )
     {
         $this->screenshotDir = '/var/www/behat/' . basename($this->parameterBag->get('kernel.project_dir'));
@@ -296,7 +298,7 @@ class CommonContext extends MinkContext implements Context
      * @Then the absolute url should match :url
      * @Then the absolute url should :exactly match :url
      */
-    public function theAbsoluteUrlShouldMatch(string $exactly = null, string $url = null)
+    public function theAbsoluteUrlShouldMatch(?string $exactly = null, ?string $url = null): void
     {
         $currentUrl = $this->getSession()->getCurrentUrl();
 
@@ -1084,7 +1086,7 @@ class CommonContext extends MinkContext implements Context
      * @throws UnsupportedDriverActionException
      * @throws TransportExceptionInterface
      */
-    public function takeScreenshot(string $filename = null, ?string $errorMessage = null): void
+    public function takeScreenshot(?string $filename = null, ?string $errorMessage = null): void
     {
         $driver = $this->getSession()->getDriver();
         if (!($driver instanceof Selenium2Driver)) {
@@ -1105,15 +1107,13 @@ class CommonContext extends MinkContext implements Context
         print "Screenshot saved to: " . $path . "\n";
         file_put_contents($path, $this->getSession()->getDriver()->getScreenshot());
 
-        if ($this->isCI === 'true') {
-            $this->opsAlertManager->sendSlackNotification([
-                'file' => $path,
-                'filetype' => 'jpg',
-                'threadTs' => $this->slackNotificationTs,
-                'encodeParameters' => false,
-                'initialComment' => $errorMessage,
-                'channel' => 'ci'
-            ]);
+        if ($this->isCI === 'true' && $this->slackChannel) {
+            $this->slackManager->sendNotification(
+                $this->slackChannel,
+                $errorMessage ?? 'Behat screenshot',
+                new FileSnippet($path),
+                $this->slackNotificationTs ?: null
+            );
         }
     }
 
@@ -1188,7 +1188,7 @@ class CommonContext extends MinkContext implements Context
      * @return bool
      * @throws Exception
      */
-    public function spin(callable $lambda, int $wait = 60, string $message = null): bool
+    public function spin(callable $lambda, int $wait = 60, ?string $message = null): bool
     {
         $wait = $wait * 2;
         for ($i = 0; $i < $wait; $i++) {
@@ -1537,7 +1537,7 @@ class CommonContext extends MinkContext implements Context
      * @param null $projectName
      * @return Swift_Message|null
      */
-    protected function getEmailData(string $recipientEmail, string $subject = null, ?string $projectName = null): ?array
+    protected function getEmailData(string $recipientEmail, ?string $subject = null, ?string $projectName = null): ?array
     {
         $fakeEmailFilePath = $this->getFakeEmailsDir($projectName) . FakeEmailProvider::getFileNameForEmailAndSubject($recipientEmail, $subject);
         if ($this->fileSystem->exists($fakeEmailFilePath)) {

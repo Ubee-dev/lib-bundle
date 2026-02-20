@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+namespace UbeeDev\LibBundle\Tests\Helper;
 
-use Khalil1608\LibBundle\Exception\InvalidArgumentException;
+use UbeeDev\LibBundle\Exception\InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Attribute\Route;
 

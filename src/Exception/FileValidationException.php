@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Exception;
+namespace UbeeDev\LibBundle\Exception;
 
 class FileValidationException extends \Exception
 {

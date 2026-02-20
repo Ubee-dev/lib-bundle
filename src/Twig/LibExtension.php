@@ -1,12 +1,12 @@
 <?php
 
-namespace Khalil1608\LibBundle\Twig;
+namespace UbeeDev\LibBundle\Twig;
 
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Model\PhoneNumberInterface;
-use Khalil1608\LibBundle\Service\UtmManager;
-use Khalil1608\LibBundle\Traits\PhoneNumberTrait;
-use Khalil1608\LibBundle\Traits\VideoTrait;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Model\PhoneNumberInterface;
+use UbeeDev\LibBundle\Service\UtmManager;
+use UbeeDev\LibBundle\Traits\PhoneNumberTrait;
+use UbeeDev\LibBundle\Traits\VideoTrait;
 use Collator;
 use Normalizer;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -221,7 +221,7 @@ class LibExtension extends AbstractExtension implements GlobalsInterface
      */
     public function getCountries()
     {
-        $json_countries_url = $this->parameterBag->get('kernel.project_dir').'/public/bundles/khalil1608lib/countries.json';
+        $json_countries_url = $this->parameterBag->get('kernel.project_dir').'/public/bundles/ubeedevlib/countries.json';
         $json_countries_content = normalizer_normalize(file_get_contents($json_countries_url),Normalizer::FORM_C ); // for w3c validation
         $json_countries =  json_decode( $json_countries_content, true);
         $collator = new Collator('fr_FR');

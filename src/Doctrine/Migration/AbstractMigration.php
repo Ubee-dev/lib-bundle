@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Doctrine\Migration;
+namespace UbeeDev\LibBundle\Doctrine\Migration;
 
-use Khalil1608\LibBundle\Migrations\Factory\MigrationInterface;
+use UbeeDev\LibBundle\Migrations\Factory\MigrationInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;

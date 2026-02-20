@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Builder;
+namespace UbeeDev\LibBundle\Builder;
 
 class ArrayExpectation extends ExpectationBuilder
 {

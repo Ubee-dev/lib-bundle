@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+namespace UbeeDev\LibBundle\Tests\Helper;
 
-use Khalil1608\LibBundle\Model\JsonSerializable;
+use UbeeDev\LibBundle\Model\JsonSerializable;
 
 class DummySerializedClass implements JsonSerializable
 {

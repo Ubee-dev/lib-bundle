@@ -1,26 +1,25 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service;
+namespace UbeeDev\LibBundle\Service;
 
 use BackedEnum;
-use Khalil1608\LibBundle\Builder\ExpectationBuilder;
-use Khalil1608\LibBundle\Config\CustomEnumInterface;
-use Khalil1608\LibBundle\Config\ParameterType;
-use Khalil1608\LibBundle\Entity\AbstractDateTime;
-use Khalil1608\LibBundle\Entity\Date;
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Exception\FileValidationException;
-use Khalil1608\LibBundle\Exception\InvalidArgumentException;
-use Khalil1608\LibBundle\Model\Type\Email;
-use Khalil1608\LibBundle\Model\Type\Name;
-use Khalil1608\LibBundle\Model\Type\PhoneNumber;
-use Khalil1608\LibBundle\Model\Type\Url;
+use UbeeDev\LibBundle\Builder\ExpectationBuilder;
+use UbeeDev\LibBundle\Config\CustomEnumInterface;
+use UbeeDev\LibBundle\Config\ParameterType;
+use UbeeDev\LibBundle\Entity\AbstractDateTime;
+use UbeeDev\LibBundle\Entity\Date;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Exception\FileValidationException;
+use UbeeDev\LibBundle\Exception\InvalidArgumentException;
+use UbeeDev\LibBundle\Model\Type\Email;
+use UbeeDev\LibBundle\Model\Type\Name;
+use UbeeDev\LibBundle\Model\Type\PhoneNumber;
+use UbeeDev\LibBundle\Model\Type\Url;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Money\Money;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OptionsResolver
 {
@@ -31,7 +30,6 @@ class OptionsResolver
     private bool $strictMode = true;
 
     public function __construct(
-        private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
     ) {
     }
@@ -192,14 +190,14 @@ class OptionsResolver
                 }
 
                 if ($expectation['required'] && ($parameters[$key] === null || $parameters[$key] === [])) {
-                    $errors[$key] = $this->translator->trans('Ce champ est obligatoire.', [], 'validators');
+                    $errors[$key] = 'validation.required';
                 }
 
                 continue;
             }
 
             if ($expectation['type'] === 'array' && $expectation['required'] && is_array($value) && empty($value)) {
-                $errors[$key] = $this->translator->trans('Ce champ est obligatoire.', [], 'validators');
+                $errors[$key] = 'validation.required';
                 continue;
             }
 
@@ -230,12 +228,16 @@ class OptionsResolver
                     }
                 } else {
                     $parameters[$key] = $this->sanitizeParameter($key, $value, $expectation);
+
+                    if ($parameters[$key] === null && $expectation['required'] && !isset($this->allowedValues[$key])) {
+                        $errors[$key] = 'validation.invalid';
+                    }
                 }
 
             } catch (FileValidationException $e) {
                 $errors[$key] = $e->getMessage();
             } catch (Exception|\ValueError) {
-                $errors[$key] = $this->translator->trans('Khalil1608_lib.field.invalid', [], 'validators');
+                $errors[$key] = 'validation.invalid';
             }
         }
 
@@ -345,14 +347,7 @@ class OptionsResolver
                 $currentValue = $currentValue ? 'true' : 'false';
             }
 
-            $errors[$parameterName] = $this->translator->trans(
-                'Khalil1608_lib.not_allowed_value',
-                [
-                    '{{ current_value }}' => $currentValue,
-                    '{{ allowed_values }}' => implode(', ', $allowedValues)
-                ],
-                'validators'
-            );
+            $errors[$parameterName] = 'validation.not_allowed_value';
         }
 
         if ($errors) {
@@ -422,33 +417,15 @@ class OptionsResolver
             $normalizedExtensions = array_map(fn($e) => strtolower(ltrim($e, '.')), $allowedExtensions);
 
             if (!in_array($extension, $normalizedExtensions, true)) {
-                throw new FileValidationException(
-                    $this->translator->trans(
-                        'Khalil1608_lib.file.invalid_extension',
-                        [
-                            '{{ extension }}' => '.' . $extension,
-                            '{{ allowed_extensions }}' => implode(', ', $allowedExtensions),
-                        ],
-                        'validators'
-                    )
-                );
+                throw new FileValidationException('validation.file.extension_invalid');
             }
         }
 
         if ($allowedMimetypes !== null) {
-            $mimetype = $value->getMimeType();
+            $mimetype = $value->getClientMimeType();
 
             if (!in_array($mimetype, $allowedMimetypes, true)) {
-                throw new FileValidationException(
-                    $this->translator->trans(
-                        'Khalil1608_lib.file.invalid_mimetype',
-                        [
-                            '{{ mimetype }}' => $mimetype,
-                            '{{ allowed_mimetypes }}' => implode(', ', $allowedMimetypes),
-                        ],
-                        'validators'
-                    )
-                );
+                throw new FileValidationException('validation.file.mime_type_invalid');
             }
         }
 

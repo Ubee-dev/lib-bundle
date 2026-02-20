@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Doctrine\DBAL\Types;
+namespace UbeeDev\LibBundle\Doctrine\DBAL\Types;
 
 use Doctrine\DBAL\Types\Type as BaseType;
 

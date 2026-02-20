@@ -1,19 +1,19 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Builder\Expect;
-use Khalil1608\LibBundle\Config\CustomEnumInterface;
-use Khalil1608\LibBundle\Config\ParameterType;
-use Khalil1608\LibBundle\Exception\InvalidArgumentException;
-use Khalil1608\LibBundle\Model\Type\Email;
-use Khalil1608\LibBundle\Model\Type\Name;
-use Khalil1608\LibBundle\Model\Type\PhoneNumber;
-use Khalil1608\LibBundle\Model\Type\Url;
-use Khalil1608\LibBundle\Service\OptionsResolver;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Khalil1608\LibBundle\Tests\Helper\DummyEnum;
-use Khalil1608\LibBundle\Tests\Helper\PHPUnitHelper;
+use UbeeDev\LibBundle\Builder\Expect;
+use UbeeDev\LibBundle\Config\CustomEnumInterface;
+use UbeeDev\LibBundle\Config\ParameterType;
+use UbeeDev\LibBundle\Exception\InvalidArgumentException;
+use UbeeDev\LibBundle\Model\Type\Email;
+use UbeeDev\LibBundle\Model\Type\Name;
+use UbeeDev\LibBundle\Model\Type\PhoneNumber;
+use UbeeDev\LibBundle\Model\Type\Url;
+use UbeeDev\LibBundle\Service\OptionsResolver;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Tests\Helper\DummyEnum;
+use UbeeDev\LibBundle\Tests\Helper\PHPUnitHelper;
 use DateTimeZone;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,7 +28,6 @@ class OptionsResolverTest extends AbstractWebTestCase
     use PHPUnitHelper;
     private OptionsResolver $optionsResolver;
     private MockObject|Stub $entityManagerMock;
-
     public function setUp(): void
     {
         parent::setUp();
@@ -343,7 +342,6 @@ class OptionsResolverTest extends AbstractWebTestCase
 
         $repositoryStub
             ->method('findOneBy')
-            ->with(['id' => "18"])
             ->willReturn($expectedEntity);
 
         $result = $this->optionsResolver
@@ -615,7 +613,7 @@ class OptionsResolverTest extends AbstractWebTestCase
         } catch (InvalidArgumentException $exception) {
             $errorCatched = true;
             $this->assertEquals([
-                'file' => "L'extension .pdf n'est pas autorisée. Extensions autorisées: .csv, .xlsx.",
+                'file' => 'validation.file.extension_invalid',
             ], $exception->getErrors());
         }
         $this->assertTrue($errorCatched);
@@ -636,7 +634,7 @@ class OptionsResolverTest extends AbstractWebTestCase
         } catch (InvalidArgumentException $exception) {
             $errorCatched = true;
             $this->assertEquals([
-                'file' => "Le type de fichier application/pdf n'est pas autorisé. Types autorisés: text/csv, application/vnd.ms-excel.",
+                'file' => 'validation.file.mime_type_invalid',
             ], $exception->getErrors());
         }
         $this->assertTrue($errorCatched);
@@ -804,16 +802,16 @@ class OptionsResolverTest extends AbstractWebTestCase
             $errorCatched = true;
             $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
             $this->assertEquals([
-                'otherRequiredField' => 'Ce champ est obligatoire.',
-                'requiredField' => 'Ce champ est obligatoire.',
-                'array' => 'Ce champ est obligatoire.',
+                'otherRequiredField' => 'validation.required',
+                'requiredField' => 'validation.required',
+                'array' => 'validation.required',
                 'nestedArray' => [
-                    0 => ['firstName' => 'Ce champ est obligatoire.'],
+                    0 => ['firstName' => 'validation.required'],
                 ],
                 'requiredNestedArray' => [
-                    1 => ['lastName' => 'Ce champ est obligatoire.'],
+                    1 => ['lastName' => 'validation.required'],
                 ],
-                'requiredNestedArrayWithoutData' => 'Ce champ est obligatoire.',
+                'requiredNestedArrayWithoutData' => 'validation.required',
             ], $exception->getErrors());
             $this->assertEquals($parameters, $exception->getData());
         }
@@ -835,7 +833,7 @@ class OptionsResolverTest extends AbstractWebTestCase
             $errorCatched = true;
             $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
             $this->assertEquals([
-                'nonNullableInt' => 'Ce champ est obligatoire.'
+                'nonNullableInt' => 'validation.required'
             ], $exception->getErrors());
             $this->assertEquals($parameters, $exception->getData());
 
@@ -860,8 +858,8 @@ class OptionsResolverTest extends AbstractWebTestCase
             $errorCatched = true;
             $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
             $this->assertEquals([
-                'badValue' => 'La valeur 18 est invalide. Les valeurs acceptées sont: 1, 2.',
-                'otherBadValue' => 'La valeur false est invalide. Les valeurs acceptées sont: true.',
+                'badValue' => 'validation.not_allowed_value',
+                'otherBadValue' => 'validation.not_allowed_value',
             ], $exception->getErrors());
             $this->assertEquals(['badValue' => 18, 'otherBadValue' => false], $exception->getData());
         }
@@ -878,7 +876,7 @@ class OptionsResolverTest extends AbstractWebTestCase
             $errorCatched = true;
             $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
             $this->assertEquals([
-                'badValue' => 'La valeur 18 est invalide. Les valeurs acceptées sont: 1, 2.'
+                'badValue' => 'validation.not_allowed_value'
             ], $exception->getErrors());
             $this->assertEquals(['badValue' => 18], $exception->getData());
         }
@@ -913,8 +911,8 @@ class OptionsResolverTest extends AbstractWebTestCase
             $errorCatched = true;
             $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
             $this->assertEquals([
-                'badEnum' => 'La valeur 8 est invalide. Les valeurs acceptées sont: 1, 2.',
-                'badCustomEnum' => 'La valeur 8 est invalide. Les valeurs acceptées sont: 1, 2.',
+                'badEnum' => 'validation.not_allowed_value',
+                'badCustomEnum' => 'validation.not_allowed_value',
             ], $exception->getErrors());
             $this->assertEquals(['badEnum' => 8, 'badCustomEnum' => 8], $exception->getData());
         }
@@ -941,8 +939,8 @@ class OptionsResolverTest extends AbstractWebTestCase
             $errorCatched = true;
             $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
             $this->assertEquals([
-                'badEnum' => 'La valeur 2 est invalide. Les valeurs acceptées sont: 1.',
-                'badCustomEnum' => 'La valeur 2 est invalide. Les valeurs acceptées sont: 1.',
+                'badEnum' => 'validation.not_allowed_value',
+                'badCustomEnum' => 'validation.not_allowed_value',
             ], $exception->getErrors());
             $this->assertEquals(['badEnum' => 2, 'badCustomEnum' => 2], $exception->getData());
         }
@@ -978,20 +976,150 @@ class OptionsResolverTest extends AbstractWebTestCase
             $errorCatched = true;
             $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
             $this->assertEquals([
-                'email' => 'Ce champ est invalide.',
-                'name' => 'Ce champ est invalide.',
-                'url' => 'Ce champ est invalide.',
-                'phoneNumber' => 'Ce champ est invalide.',
+                'email' => 'validation.invalid',
+                'name' => 'validation.invalid',
+                'url' => 'validation.invalid',
+                'phoneNumber' => 'validation.invalid',
             ], $exception->getErrors());
             $this->assertEquals($parameters, $exception->getData());
         }
         $this->assertTrue($errorCatched);
     }
 
+    public function testSanitizeEntityThrowsWhenNotFoundAndRequired(): void
+    {
+        $repositoryStub = $this->createStub(ServiceEntityRepository::class);
+
+        $this->entityManagerMock
+            ->method('getRepository')
+            ->willReturn($repositoryStub);
+
+        $repositoryStub
+            ->method('findOneBy')
+            ->willReturn(null);
+
+        $errorCatched = false;
+        try {
+            $this->optionsResolver
+                ->setParameters($parameters = ['entity1' => 'invalid-code', 'entity2' => 'bad-id'])
+                ->setSanitizingExpectations([
+                    'entity1' => Expect::entity(FakeEntity::class)->by('code'),
+                    'entity2' => ['type' => ParameterType::ENTITY, 'class' => FakeEntity::class],
+                ])
+                ->resolve();
+        } catch (InvalidArgumentException $exception) {
+            $errorCatched = true;
+            $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
+            $this->assertEquals([
+                'entity1' => 'validation.invalid',
+                'entity2' => 'validation.invalid',
+            ], $exception->getErrors());
+            $this->assertEquals($parameters, $exception->getData());
+        }
+        $this->assertTrue($errorCatched);
+    }
+
+    public function testSanitizeEntityReturnsNullWhenNotFoundAndOptional(): void
+    {
+        $repositoryStub = $this->createStub(ServiceEntityRepository::class);
+
+        $this->entityManagerMock
+            ->method('getRepository')
+            ->willReturn($repositoryStub);
+
+        $repositoryStub
+            ->method('findOneBy')
+            ->willReturn(null);
+
+        $result = $this->optionsResolver
+            ->setParameters(['entity1' => 'invalid-code', 'entity2' => 'bad-id'])
+            ->setSanitizingExpectations([
+                'entity1' => Expect::entity(FakeEntity::class)->by('code')->optional(),
+                'entity2' => ['type' => ParameterType::ENTITY, 'class' => FakeEntity::class, 'required' => false],
+            ])
+            ->resolve();
+
+        $this->assertNull($result['entity1']);
+        $this->assertNull($result['entity2']);
+    }
+
+    public function testSanitizeEnumThrowsWhenInvalidAndRequired(): void
+    {
+        $errorCatched = false;
+        try {
+            $this->optionsResolver
+                ->setParameters($parameters = ['enum1' => 999, 'enum2' => 888])
+                ->setSanitizingExpectations([
+                    'enum1' => Expect::enum(DummyEnum::class),
+                    'enum2' => ['type' => ParameterType::ENUM, 'class' => DummyEnum::class],
+                ])
+                ->resolve();
+        } catch (InvalidArgumentException $exception) {
+            $errorCatched = true;
+            $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
+            $this->assertEquals([
+                'enum1' => 'validation.invalid',
+                'enum2' => 'validation.invalid',
+            ], $exception->getErrors());
+            $this->assertEquals($parameters, $exception->getData());
+        }
+        $this->assertTrue($errorCatched);
+    }
+
+    public function testSanitizeEnumReturnsNullWhenInvalidAndOptional(): void
+    {
+        $result = $this->optionsResolver
+            ->setParameters(['enum1' => 999, 'enum2' => 888])
+            ->setSanitizingExpectations([
+                'enum1' => Expect::enum(DummyEnum::class)->optional(),
+                'enum2' => ['type' => ParameterType::ENUM, 'class' => DummyEnum::class, 'required' => false],
+            ])
+            ->resolve();
+
+        $this->assertNull($result['enum1']);
+        $this->assertNull($result['enum2']);
+    }
+
+    public function testSanitizeCustomEnumThrowsWhenInvalidAndRequired(): void
+    {
+        $errorCatched = false;
+        try {
+            $this->optionsResolver
+                ->setParameters($parameters = ['enum1' => 999, 'enum2' => 888])
+                ->setSanitizingExpectations([
+                    'enum1' => Expect::customEnum(DummyCustomEnum::class),
+                    'enum2' => ['type' => ParameterType::CUSTOM_ENUM, 'class' => DummyCustomEnum::class],
+                ])
+                ->resolve();
+        } catch (InvalidArgumentException $exception) {
+            $errorCatched = true;
+            $this->assertEquals('Parameters fail the sanitizing expectations.', $exception->getMessage());
+            $this->assertEquals([
+                'enum1' => 'validation.invalid',
+                'enum2' => 'validation.invalid',
+            ], $exception->getErrors());
+            $this->assertEquals($parameters, $exception->getData());
+        }
+        $this->assertTrue($errorCatched);
+    }
+
+    public function testSanitizeCustomEnumReturnsNullWhenInvalidAndOptional(): void
+    {
+        $result = $this->optionsResolver
+            ->setParameters(['enum1' => 999, 'enum2' => 888])
+            ->setSanitizingExpectations([
+                'enum1' => Expect::customEnum(DummyCustomEnum::class)->optional(),
+                'enum2' => ['type' => ParameterType::CUSTOM_ENUM, 'class' => DummyCustomEnum::class, 'required' => false],
+            ])
+            ->resolve();
+
+        $this->assertNull($result['enum1']);
+        $this->assertNull($result['enum2']);
+    }
+
     private function initResolver(): void
     {
         $this->optionsResolver = new OptionsResolver(
-            $this->container->get(TranslatorInterface::class),
             $this->entityManagerMock
         );
     }

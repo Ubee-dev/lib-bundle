@@ -1,13 +1,10 @@
 <?php
 
-namespace Khalil1608\LibBundle\Command;
+namespace UbeeDev\LibBundle\Command;
 
-use Khalil1608\LibBundle\Job\BackupDatabaseListJob;
-use Khalil1608\LibBundle\Service\Mailer;
-use Khalil1608\LibBundle\Service\S3Client;
+use UbeeDev\LibBundle\Service\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,11 +17,10 @@ class BackupDatabaseListCommand extends AbstractMonitoredCommand
 {
     public function __construct(
         private readonly S3Client               $s3Client,
-        private readonly Mailer                 $mailer,
         private readonly EntityManagerInterface $entityManager,
+        private readonly string                 $s3BackupBucket,
         ?string                                 $name = null
-    )
-    {
+    ) {
         parent::__construct($name);
     }
 
@@ -32,20 +28,33 @@ class BackupDatabaseListCommand extends AbstractMonitoredCommand
     {
         parent::configure();
         $this
-            ->addOption('database', null, InputOption::VALUE_OPTIONAL, 'Database you want to list in S3')
-            ->addOption('fromEnv', null, InputOption::VALUE_OPTIONAL, 'Env in S3 you went to list', 'dev');
+            ->addOption('database', null, InputOption::VALUE_OPTIONAL, 'Database you want to list in S3');
     }
 
     public function perform(InputInterface $input, OutputInterface $output): void
     {
-        $job = new BackupDatabaseListJob(
-            [],
-            $output,
-            $this->mailer,
-            $this->s3Client,
-            'Khalil1608-backup-' . $input->getOption('fromEnv'),
-            $input->getOption('database') ?? $this->entityManager->getConnection()->getDatabase()
-        );
-        $job->run();
+        $bucket = $this->s3BackupBucket;
+        $databaseName = $input->getOption('database') ?? $this->entityManager->getConnection()->getDatabase();
+
+        $output->writeln("<info>Start listing $bucket...</info>");
+
+        $options = ['Bucket' => $bucket];
+        if ($databaseName) {
+            $options['Prefix'] = $databaseName;
+        }
+
+        $list = $this->s3Client->list($options);
+
+        if ($list) {
+            foreach ($list as $dump) {
+                $output->writeln("<info>$dump</info>");
+            }
+        } else {
+            $message = "There is no dump in the bucket $bucket";
+            if ($databaseName) {
+                $message .= ' for the database ' . $databaseName;
+            }
+            $output->writeln("<info>$message</info>");
+        }
     }
 }

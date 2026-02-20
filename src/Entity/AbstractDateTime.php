@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Entity;
+namespace UbeeDev\LibBundle\Entity;
 
-use Khalil1608\LibBundle\Traits\DateTimeTrait;
+use UbeeDev\LibBundle\Traits\DateTimeTrait;
 use IntlDateFormatter;
 
 abstract class AbstractDateTime extends \DateTime implements \JsonSerializable

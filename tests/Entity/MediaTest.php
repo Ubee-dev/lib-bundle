@@ -1,10 +1,10 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Entity;
+namespace UbeeDev\LibBundle\Tests\Entity;
 
-use Khalil1608\LibBundle\Entity\AbstractEntity;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Khalil1608\LibBundle\Tests\Helper\DummyMedia;
+use UbeeDev\LibBundle\Entity\AbstractEntity;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Tests\Helper\DummyMedia;
 
 class MediaTest extends AbstractWebTestCase
 {

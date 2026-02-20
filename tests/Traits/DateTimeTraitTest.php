@@ -1,12 +1,12 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Traits;
+namespace UbeeDev\LibBundle\Tests\Traits;
 
 
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Khalil1608\LibBundle\Traits\DateTimeTrait;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Traits\DateTimeTrait;
 
 class DateTimeTraitTest extends AbstractWebTestCase
 {

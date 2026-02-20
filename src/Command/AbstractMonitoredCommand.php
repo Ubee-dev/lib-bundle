@@ -1,16 +1,15 @@
 <?php
 
-namespace Khalil1608\LibBundle\Command;
+namespace UbeeDev\LibBundle\Command;
 
-use App\Job\AbstractJob;
-use App\Job\ScheduleEventRemindersJob;
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Model\MonitoredCommandInterface;
+use Exception;
+use UbeeDev\LibBundle\Model\MonitoredCommandInterface;
 use Sentry\CheckInStatus;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use function Sentry\captureCheckIn;
 use function Sentry\captureException;
 
 abstract class AbstractMonitoredCommand extends Command implements MonitoredCommandInterface
@@ -34,23 +33,23 @@ abstract class AbstractMonitoredCommand extends Command implements MonitoredComm
         try {
             $slug = $input->getOption('monitoring-slug');
             // 🟡 Notify Sentry your job is running:
-            $checkInId = \Sentry\captureCheckIn(
+            $checkInId = captureCheckIn(
                 slug: $slug,
                 status: CheckInStatus::inProgress()
             );
 
             $this->perform($input, $output);
 
-            \Sentry\captureCheckIn(
+            captureCheckIn(
                 slug: $slug,
                 status: CheckInStatus::ok(),
                 checkInId: $checkInId,
             );
 
             return Command::SUCCESS;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             captureException($exception);
-            \Sentry\captureCheckIn(
+            captureCheckIn(
                 slug: $slug,
                 status: CheckInStatus::error(),
                 checkInId: $checkInId,

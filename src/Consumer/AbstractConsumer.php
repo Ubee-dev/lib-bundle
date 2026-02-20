@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Consumer;
+namespace UbeeDev\LibBundle\Consumer;
 
-use Khalil1608\LibBundle\Traits\EntityManagerTrait;
+use UbeeDev\LibBundle\Traits\EntityManagerTrait;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 
 abstract class AbstractConsumer implements ConsumerInterface

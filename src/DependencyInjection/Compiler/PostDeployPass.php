@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\DependencyInjection\Compiler;
+namespace UbeeDev\LibBundle\DependencyInjection\Compiler;
 
-use Khalil1608\LibBundle\Traits\StringTrait;
+use UbeeDev\LibBundle\Traits\StringTrait;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Finder\Finder;

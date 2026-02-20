@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Deploy;
+namespace UbeeDev\LibBundle\Deploy;
 
 interface PostDeployInterface
 {

@@ -1,6 +1,6 @@
 # lib-bundle
 
-Ce package contient les fonctionnalités et helpers de base utilisables dans tous les projets Khalil1608.
+Ce package contient les fonctionnalités et helpers de base utilisables dans tous les projets UbeeDev.
 
 ## Comment publier une nouvelle version du package
 

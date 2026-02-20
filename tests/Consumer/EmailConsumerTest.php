@@ -1,10 +1,10 @@
 <?php
 
 
-namespace  Khalil1608\LibBundle\Tests\Consumer;
+namespace  UbeeDev\LibBundle\Tests\Consumer;
 
-use Khalil1608\LibBundle\Consumer\EmailConsumer;
-use Khalil1608\LibBundle\Service\Mailer;
+use UbeeDev\LibBundle\Consumer\EmailConsumer;
+use UbeeDev\LibBundle\Service\Mailer;
 
 class EmailConsumerTest extends AbstractConsumerCase
 {

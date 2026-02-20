@@ -122,7 +122,7 @@ const phoneNumber = {
     },
 
     updateFlag: function(){
-        const flagPath = window.location.origin + '/bundles/Khalil1608lib/images/flags/' + this.countryCode + '.svg';
+        const flagPath = window.location.origin + '/bundles/ubeedevlib/images/flags/' + this.countryCode + '.svg';
         const countryName = this.$selectCountryCode.querySelector("option[value=" + this.countryCode + "]").innerText;
         const img = this.$countryCodeFlag.querySelector('img');
 

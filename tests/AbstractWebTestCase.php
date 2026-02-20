@@ -1,37 +1,31 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests;
+namespace UbeeDev\LibBundle\Tests;
 
-use Khalil1608\LibBundle\Entity\Date;
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Model\PaginatedResult;
-use Khalil1608\LibBundle\Service\Mailer;
-use Khalil1608\LibBundle\Tests\Helper\Cleaner;
-use Khalil1608\LibBundle\Tests\Helper\CleanerInterface;
-use Khalil1608\LibBundle\Tests\Helper\DateMock;
-use Khalil1608\LibBundle\Tests\Helper\DateTimeMock;
-use Khalil1608\LibBundle\Tests\Helper\Factory;
-use Khalil1608\LibBundle\Tests\Helper\FactoryInterface;
-use Khalil1608\LibBundle\Tests\Helper\PHPUnitHelper;
-use Khalil1608\LibBundle\Tests\Helper\ValidationReporter;
-use Khalil1608\LibBundle\Traits\DateTimeTrait;
-use Khalil1608\LibBundle\Validator\Validator;
-use DG\BypassFinals;
+use UbeeDev\LibBundle\Entity\Date;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Model\PaginatedResult;
+use UbeeDev\LibBundle\Tests\Helper\Cleaner;
+use UbeeDev\LibBundle\Tests\Helper\CleanerInterface;
+use UbeeDev\LibBundle\Tests\Helper\DateMock;
+use UbeeDev\LibBundle\Tests\Helper\DateTimeMock;
+use UbeeDev\LibBundle\Tests\Helper\Factory;
+use UbeeDev\LibBundle\Tests\Helper\FactoryInterface;
+use UbeeDev\LibBundle\Tests\Helper\PHPUnitHelper;
+use UbeeDev\LibBundle\Tests\Helper\ValidationReporter;
+use UbeeDev\LibBundle\Traits\DateTimeTrait;
+use UbeeDev\LibBundle\Validator\Validator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use InvalidArgumentException;
-use IteratorAggregate;
-use JetBrains\PhpStorm\ArrayShape;
 use phpmock\MockBuilder;
 use phpmock\MockEnabledException;
-use PHPUnit\Framework\MockObject\Builder\InvocationMocker;
 use PHPUnit\Framework\MockObject\InvocationStubberImplementation;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
-use Psr\Http\Message\StreamInterface;
 use ReflectionClass;
 use ReflectionException;
 use SlopeIt\ClockMock\ClockMock;
@@ -45,11 +39,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\FileBag;
-use Symfony\Component\HttpFoundation\HeaderBag;
-use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -57,7 +47,6 @@ use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Zfekete\BypassReadonly\BypassReadonly;
 
 abstract class AbstractWebTestCase extends WebTestCase
 {
@@ -137,16 +126,12 @@ abstract class AbstractWebTestCase extends WebTestCase
     /**
      * Get UploadedFile for a test asset document.
      */
-    public function getUploadedFile(string $fileName = 'document.pdf'): UploadedFile
+    public function getUploadedFile(string $fileName = 'document.pdf', ?string $mimeType = null): UploadedFile
     {
-        # Select the file from the filesystem
         return new UploadedFile(
-        # Path to the file to send
             $this->getAsset($fileName),
-            # Name of the sent file
             $fileName,
-            # MIME type
-            'application/pdf',
+            $mimeType ?? mime_content_type($this->getAsset($fileName)) ?: 'application/octet-stream',
             null,
             true,
         );

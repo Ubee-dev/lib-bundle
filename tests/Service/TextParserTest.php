@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Service\TextParser;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Service\TextParser;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 
 class TextParserTest extends AbstractWebTestCase
 {

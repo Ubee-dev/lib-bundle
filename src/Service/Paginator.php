@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service;
+namespace UbeeDev\LibBundle\Service;
 
-use Khalil1608\LibBundle\Model\PaginatedResult;
+use UbeeDev\LibBundle\Model\PaginatedResult;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\Request;
 

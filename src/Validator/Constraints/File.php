@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Validator\Constraints;
+namespace UbeeDev\LibBundle\Validator\Constraints;
 
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
@@ -16,10 +16,10 @@ class File extends Constraint
         public string|int|null $maxSize = null,
         public ?bool $binaryFormat = null,
         public array $mimeTypes = [],
-        public string $maxSizeMessage = 'Khalil1608_lib.media.max_size.invalid',
-        public string $mimeTypesMessage = 'Khalil1608_lib.media.mime_type.invalid',
+        public string $maxSizeMessage = 'ubee_dev_lib.media.max_size.invalid',
+        public string $mimeTypesMessage = 'ubee_dev_lib.media.mime_type.invalid',
         public array $extensions = [],
-        public string $extensionsMessage = 'Khalil1608_lib.media.extension.invalid',
+        public string $extensionsMessage = 'ubee_dev_lib.media.extension.invalid',
     ) {
         parent::__construct();
         $this->maxSize = $maxSize ?? $this->maxSize;

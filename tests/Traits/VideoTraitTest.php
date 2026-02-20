@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Traits;
+namespace UbeeDev\LibBundle\Tests\Traits;
 
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Khalil1608\LibBundle\Traits\VideoTrait;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Traits\VideoTrait;
 use Exception;
 use InvalidArgumentException;
 

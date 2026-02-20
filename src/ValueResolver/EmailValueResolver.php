@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\ValueResolver;
+namespace UbeeDev\LibBundle\ValueResolver;
 
-use Khalil1608\LibBundle\Model\Type\Email;
+use UbeeDev\LibBundle\Model\Type\Email;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;

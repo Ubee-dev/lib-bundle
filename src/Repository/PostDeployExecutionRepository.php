@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Repository;
+namespace UbeeDev\LibBundle\Repository;
 
-use Khalil1608\LibBundle\Entity\PostDeployExecution;
+use UbeeDev\LibBundle\Entity\PostDeployExecution;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

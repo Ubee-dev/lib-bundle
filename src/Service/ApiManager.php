@@ -1,11 +1,11 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service;
+namespace UbeeDev\LibBundle\Service;
 
-use Khalil1608\LibBundle\Config\ParameterType;
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Model\JsonSerializable;
-use Khalil1608\LibBundle\Traits\DateTimeTrait;
+use UbeeDev\LibBundle\Config\ParameterType;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Model\JsonSerializable;
+use UbeeDev\LibBundle\Traits\DateTimeTrait;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Money\Money;

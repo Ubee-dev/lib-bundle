@@ -1,13 +1,13 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
 use ArrayIterator;
-use Khalil1608\LibBundle\Service\Paginator;
-use Khalil1608\LibBundle\Service\PaginatorFactory;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Khalil1608\LibBundle\Tests\Helper\DummyDTO;
-use Khalil1608\LibBundle\Tests\Helper\DummyObject;
+use UbeeDev\LibBundle\Service\Paginator;
+use UbeeDev\LibBundle\Service\PaginatorFactory;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Tests\Helper\DummyDTO;
+use UbeeDev\LibBundle\Tests\Helper\DummyObject;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator as ORMPaginator;
 use Exception;

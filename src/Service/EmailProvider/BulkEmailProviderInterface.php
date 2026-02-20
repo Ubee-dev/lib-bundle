@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service\EmailProvider;
+namespace UbeeDev\LibBundle\Service\EmailProvider;
 
 
 interface BulkEmailProviderInterface

@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+namespace UbeeDev\LibBundle\Tests\Helper;
 
 use Monolog\Level;
 use Monolog\LogRecord;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Validator\Constraints;
+namespace UbeeDev\LibBundle\Validator\Constraints;
 
-use Khalil1608\LibBundle\Model\PhoneNumberInterface;
+use UbeeDev\LibBundle\Model\PhoneNumberInterface;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumber as PhoneNumberObject;
 use libphonenumber\PhoneNumberFormat;

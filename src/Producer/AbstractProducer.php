@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Producer;
+namespace UbeeDev\LibBundle\Producer;
 
 
-use Khalil1608\LibBundle\Tests\Helper\RabbitMQStub;
+use UbeeDev\LibBundle\Tests\Helper\RabbitMQStub;
 use OldSound\RabbitMqBundle\RabbitMq\Producer as RabbitProducer;
 
 abstract class AbstractProducer

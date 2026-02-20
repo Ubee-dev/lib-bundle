@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Service\PdfGenerator;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Service\PdfGenerator;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -17,9 +17,9 @@ class PdfGeneratorTest extends AbstractWebTestCase
     {
         parent::setUp();
         $this->initManager();
-//        $this->mockBuiltInFunction('Khalil1608\LibBundle\Service', 'uniqid', '123456');
-//        $this->mockBuiltInFunction('Khalil1608\LibBundle\Service', 'sha1_file', 'sha1_file_result');
-//        $this->mockBuiltInFunction('Khalil1608\LibBundle\Service', 'sha1', 'sha1_result');
+//        $this->mockBuiltInFunction('UbeeDev\LibBundle\Service', 'uniqid', '123456');
+//        $this->mockBuiltInFunction('UbeeDev\LibBundle\Service', 'sha1_file', 'sha1_file_result');
+//        $this->mockBuiltInFunction('UbeeDev\LibBundle\Service', 'sha1', 'sha1_result');
     }
 
     /**

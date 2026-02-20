@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+namespace UbeeDev\LibBundle\Tests\Helper;
 
 
 use PHPUnit\Framework\Assert;

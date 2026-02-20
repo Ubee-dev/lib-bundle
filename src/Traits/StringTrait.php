@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Traits;
+namespace UbeeDev\LibBundle\Traits;
 
 
-use Khalil1608\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Entity\DateTime;
 
 trait StringTrait
 {
@@ -15,8 +15,8 @@ trait StringTrait
     public function slugify($string)
     {
 
-        $transliterator = ['Khalil1608\LibBundle\Transliterator\Transliterator', 'transliterate'];
-        $urlizer = ['Khalil1608\LibBundle\Transliterator\Transliterator', 'urlize'];
+        $transliterator = ['UbeeDev\LibBundle\Transliterator\Transliterator', 'transliterate'];
+        $urlizer = ['UbeeDev\LibBundle\Transliterator\Transliterator', 'urlize'];
 
         // trim generated slug as it will have unnecessary trailing space
         $slug = trim($string);

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Traits;
+namespace UbeeDev\LibBundle\Traits;
 
 use libphonenumber\PhoneNumberFormat;
 use libphonenumber\PhoneNumberUtil;

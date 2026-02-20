@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Builder;
+namespace UbeeDev\LibBundle\Builder;
 
-use Khalil1608\LibBundle\Config\CustomEnumInterface;
-use Khalil1608\LibBundle\Config\ParameterType;
+use UbeeDev\LibBundle\Config\CustomEnumInterface;
+use UbeeDev\LibBundle\Config\ParameterType;
 use BackedEnum;
 
 /**

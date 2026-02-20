@@ -1,17 +1,20 @@
 <?php
 
-namespace Khalil1608\LibBundle\Consumer;
+namespace UbeeDev\LibBundle\Consumer;
 
-use Khalil1608\LibBundle\Producer\EmailProducer;
-use Khalil1608\LibBundle\Service\OpsAlertManager;
+use UbeeDev\LibBundle\Producer\EmailProducer;
+use UbeeDev\LibBundle\Service\Slack\JsonSnippet;
+use UbeeDev\LibBundle\Service\SlackManager;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class ErrorConsumer
+readonly class ErrorConsumer
 {
     public function __construct(
-        private readonly OpsAlertManager $opsAlertManager, 
-        private readonly EmailProducer $emailProducer
+        private SlackManager  $slackManager,
+        private EmailProducer $emailProducer,
+        private ?string       $errorChannel = null,
+        private ?string       $errorEmail = null,
     )
     {
     }
@@ -21,17 +24,28 @@ class ErrorConsumer
      */
     public function execute(AMQPMessage $message): int|bool
     {
-        $messageBody = json_decode($message->getBody(), true);
-        $subject = 'Erreur provenant de : '.$messageBody['component'].'->'.$messageBody['function'];
-        try {
-            $this->opsAlertManager->sendSlackNotification([
-                'parameters' => $messageBody,
-                'initialComment' => $subject,
-                'channel' => 'dev',
-            ]);
-        } catch (\Exception $exception) {
-            $this->emailProducer->sendMail('khalil1608@gmail.com', ['khalil1608@gmail.com'], $message->getBody(), $subject);
+        if (!$this->errorChannel) {
+            return ConsumerInterface::MSG_ACK;
         }
+
+        $messageBody = json_decode($message->getBody(), true);
+        $subject = 'Error from: '.$messageBody['component'].'->'.$messageBody['function'];
+
+        try {
+            $this->slackManager->sendNotification(
+                $this->errorChannel,
+                $subject,
+                new JsonSnippet($messageBody)
+            );
+            return ConsumerInterface::MSG_ACK;
+        } catch (\Exception) {
+            // Fallback to email if Slack fails
+            if ($this->errorEmail) {
+                $this->emailProducer->sendMail($this->errorEmail, [$this->errorEmail], $message->getBody(), $subject);
+            }
+        }
+
+
         return ConsumerInterface::MSG_ACK;
     }
 }

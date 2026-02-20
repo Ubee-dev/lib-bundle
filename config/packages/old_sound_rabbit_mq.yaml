@@ -35,24 +35,24 @@ old_sound_rabbit_mq:
       connection: default
       exchange_options: {name: 'error-exchange', type: direct}
       queue_options:    {name: 'error-queue'}
-      callback: Khalil1608\LibBundle\Consumer\ErrorConsumer
+      callback: UbeeDev\LibBundle\Consumer\ErrorConsumer
     send_email:
       connection:       default
       exchange_options: {name: 'send_email', type: x-delayed-message, arguments:{'x-delayed-type': ['S', 'direct']}}
       queue_options:    {name: 'send_email'}
-      callback:         Khalil1608\LibBundle\Consumer\EmailConsumer
+      callback:         UbeeDev\LibBundle\Consumer\EmailConsumer
     send_bulk_email:
       connection:       default
       exchange_options: {name: 'send_bulk_email', type: x-delayed-message, arguments:{'x-delayed-type': ['S', 'direct']}}
       queue_options:    {name: 'send_bulk_email'}
-      callback:         Khalil1608\LibBundle\Consumer\BulkEmailConsumer
+      callback:         UbeeDev\LibBundle\Consumer\BulkEmailConsumer
     send_slack_notification:
       connection:       default
       exchange_options: {name: 'send_slack_notification', type: x-delayed-message, arguments:{'x-delayed-type': ['S', 'direct']}}
       queue_options:    {name: 'send_slack_notification'}
-      callback:         Khalil1608\LibBundle\Consumer\SlackNotificationConsumer
+      callback:         UbeeDev\LibBundle\Consumer\SlackNotificationConsumer
     compress_pdf:
       connection: default
       exchange_options: { name: 'compress_pdf', type: direct }
       queue_options: { name: 'compress_pdf' }
-      callback: Khalil1608\LibBundle\Consumer\CompressPdfConsumer
+      callback: UbeeDev\LibBundle\Consumer\CompressPdfConsumer

@@ -1,17 +1,18 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Consumer;
+namespace UbeeDev\LibBundle\Tests\Consumer;
 
-use Khalil1608\LibBundle\Producer\EmailProducer;
-use Khalil1608\LibBundle\Producer\ErrorProducer;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Producer\EmailProducer;
+use UbeeDev\LibBundle\Producer\ErrorProducer;
+use UbeeDev\LibBundle\Service\Mailer;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use PhpAmqpLib\Message\AMQPMessage;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class AbstractConsumerCase extends AbstractWebTestCase
 {
-    /** @var errorProducer|MockObject */
+    /** @var ErrorProducer|MockObject */
     protected $errorProducerMock;
 
     /** @var AMQPMessage */
@@ -20,11 +21,15 @@ class AbstractConsumerCase extends AbstractWebTestCase
     /** @var EmailProducer|MockObject */
     protected $emailProducerMock;
 
+    /** @var Mailer|MockObject */
+    protected $mailerMock;
+
     public function setUp(): void
     {
         parent::setUp();
         $this->errorProducerMock = $this->getMockedClass(ErrorProducer::class);
         $this->emailProducerMock = $this->getMockedClass(EmailProducer::class);
+        $this->mailerMock = $this->getMockedClass(Mailer::class);
     }
 
     protected function createAMPMessage($params, bool $useSerialization = false): void

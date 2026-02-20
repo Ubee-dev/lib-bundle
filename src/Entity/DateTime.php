@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Entity;
+namespace UbeeDev\LibBundle\Entity;
 
 class DateTime extends AbstractDateTime
 {
