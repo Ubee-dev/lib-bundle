@@ -2,7 +2,6 @@
     "name": "ubee-dev/lib-bundle",
     "description": "Lib bundle",
     "type": "symfony-bundle",
-    "version": "2.0.15",
     "autoload": {
         "psr-4": {
             "UbeeDev\\LibBundle\\": "src/",
