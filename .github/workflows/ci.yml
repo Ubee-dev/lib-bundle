@@ -16,7 +16,7 @@ jobs:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: lib_bundle_test
+          MYSQL_DATABASE: lib_bundle_test_test1
         ports:
           - 3306:3306
         options: >-
