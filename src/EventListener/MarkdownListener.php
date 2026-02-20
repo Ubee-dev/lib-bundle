@@ -1,10 +1,10 @@
 <?php
 
-namespace Khalil1608\LibBundle\EventListener;
+namespace UbeeDev\LibBundle\EventListener;
 
-use Khalil1608\LibBundle\Annotations\Markdown;
-use Khalil1608\LibBundle\Model\MarkdownInterface;
-use Khalil1608\LibBundle\Service\MarkdownParserInterface;
+use UbeeDev\LibBundle\Annotations\Markdown;
+use UbeeDev\LibBundle\Model\MarkdownInterface;
+use UbeeDev\LibBundle\Service\MarkdownParserInterface;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\PrePersistEventArgs;

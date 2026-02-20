@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+namespace UbeeDev\LibBundle\Tests\Helper;
 
-use Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface;
-use Khalil1608\LibBundle\Service\Mailer;
+use UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface;
+use UbeeDev\LibBundle\Service\Mailer;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 

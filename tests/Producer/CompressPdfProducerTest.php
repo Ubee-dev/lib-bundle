@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Producer;
+namespace UbeeDev\LibBundle\Tests\Producer;
 
-use Khalil1608\LibBundle\Producer\CompressPdfProducer;
+use UbeeDev\LibBundle\Producer\CompressPdfProducer;
 
 class CompressPdfProducerTest extends AbstractProducerCase
 {

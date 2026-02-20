@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Khalil1608\LibBundle\Migrations\Factory;
+namespace UbeeDev\LibBundle\Migrations\Factory;
 
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\Migrations\Version\MigrationFactory;

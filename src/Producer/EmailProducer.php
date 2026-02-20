@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Producer;
+namespace UbeeDev\LibBundle\Producer;
 
-use Khalil1608\LibBundle\Model\Type\Email;
+use UbeeDev\LibBundle\Model\Type\Email;
 
 class EmailProducer extends AbstractProducer
 {

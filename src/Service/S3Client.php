@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service;
+namespace UbeeDev\LibBundle\Service;
 
 use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client as amazonS3Client;
@@ -22,78 +22,55 @@ class S3Client
         ]);
     }
 
-    public function upload($localFilePath, $bucket, $s3FilePath): ?string
+    public function upload($localFilePath, $bucket, $s3FilePath): string
     {
-        try {
-            $result = $this->s3Client->putObject([
-                'Bucket'     => $bucket,
-                'Key'        => $s3FilePath,
-                'SourceFile' => $localFilePath,
-            ]);
+        $result = $this->s3Client->putObject([
+            'Bucket'     => $bucket,
+            'Key'        => $s3FilePath,
+            'SourceFile' => $localFilePath,
+        ]);
 
-            return $result->get("ObjectURL");
-
-        } catch (S3Exception $e) {
-            return null;
-        }
+        return $result->get("ObjectURL");
     }
 
-    public function get($bucket, $keyName)
+    public function get($bucket, $keyName): string
     {
-        try {
+        $object = $this->s3Client->getObject([
+            'Bucket'     => $bucket,
+            'Key'        => $keyName
+        ]);
 
-            $object = $this->s3Client->getObject([
-                'Bucket'     => $bucket,
-                'Key'        => $keyName
-            ]);
-
-            return $object['@metadata']['effectiveUri'];
-
-        } catch (S3Exception $e) {
-            return null;
-        }
+        return $object['@metadata']['effectiveUri'];
     }
 
-    public function download($bucket, $keyName, $tmpDumpFolderPath, $tmpDumpFileName)
+    public function download($bucket, $keyName, $tmpDumpFolderPath, $tmpDumpFileName): string
     {
-        try {
-            $tmpDumpFilePath = $tmpDumpFolderPath.'/'.$tmpDumpFileName;
-            $fileSystem = new Filesystem();
-            $fileSystem->mkdir($tmpDumpFolderPath);
+        $tmpDumpFilePath = $tmpDumpFolderPath.'/'.$tmpDumpFileName;
+        $fileSystem = new Filesystem();
+        $fileSystem->mkdir($tmpDumpFolderPath);
 
-            $result = $this->s3Client->getObject([
-                'Bucket'     => $bucket,
-                'Key'        => $keyName,
-                'SaveAs'     =>  $tmpDumpFilePath
-            ]);
+        $this->s3Client->getObject([
+            'Bucket'     => $bucket,
+            'Key'        => $keyName,
+            'SaveAs'     =>  $tmpDumpFilePath
+        ]);
 
-            return $tmpDumpFilePath;
-
-        } catch (S3Exception $e) {
-
-            return null;
-        }
+        return $tmpDumpFilePath;
     }
 
 
 
-    public function delete($bucket, $keyName)
+    public function delete($bucket, $keyName): bool
     {
-        try {
+        $this->s3Client->deleteObject([
+            'Bucket'     => $bucket,
+            'Key'        => $keyName
+        ]);
 
-            $object = $this->s3Client->deleteObject([
-                'Bucket'     => $bucket,
-                'Key'        => $keyName
-            ]);
-
-            return true;
-
-        } catch (S3Exception $e) {
-            return null;
-        }
+        return true;
     }
 
-    public function list($options)
+    public function list($options): array
     {
         $objects = $this->s3Client->getIterator('ListObjects', $options);
         $list = [];

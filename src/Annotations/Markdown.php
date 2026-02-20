@@ -1,5 +1,5 @@
 <?php
-namespace Khalil1608\LibBundle\Annotations;
+namespace UbeeDev\LibBundle\Annotations;
 
 use Attribute;
 

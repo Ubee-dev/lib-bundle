@@ -21,7 +21,7 @@
         <div class="col-12 col-lg-7 col-xl-6 user-dispatch-home__right-column">
             {# STUDENT #}
             <a href="{{ path(student_path_name) }}" class="user-dispatch-home__user-box">
-                {% include '@Khalil1608Lib/Svg/_student.svg.twig' with {'class': 'w-100 d-none d-sm-inline-block'} only %}
+                {% include '@UbeeDevLib/Svg/_student.svg.twig' with {'class': 'w-100 d-none d-sm-inline-block'} only %}
 
                 <span class="btn btn_unfilled btn_full-width px-1">
                     {{ (home_translation_base ~ '.index.student_link')|trans }}
@@ -30,7 +30,7 @@
 
             {# COLLABORATOR #}
             <a href="{{ path(collaborator_path_name) }}" class="user-dispatch-home__user-box">
-                {% include '@Khalil1608Lib/Svg/_collaborator.svg.twig' with {'class': 'w-100 d-none d-sm-inline-block'} only %}
+                {% include '@UbeeDevLib/Svg/_collaborator.svg.twig' with {'class': 'w-100 d-none d-sm-inline-block'} only %}
 
                 <span class="btn btn_unfilled btn_full-width px-1">
                     {{ (home_translation_base ~ '.index.collaborator_link')|trans }}

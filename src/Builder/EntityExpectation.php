@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Builder;
+namespace UbeeDev\LibBundle\Builder;
 
-use Khalil1608\LibBundle\Config\ParameterType;
+use UbeeDev\LibBundle\Config\ParameterType;
 
 class EntityExpectation extends ExpectationBuilder
 {

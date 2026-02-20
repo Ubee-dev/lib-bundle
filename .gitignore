@@ -1,1 +1,20 @@
-/.idea/*
+/.idea/
+/.claude/settings.local.json
+/.phpunit.result.cache
+/composer.lock
+/private/
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

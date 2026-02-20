@@ -1,18 +1,19 @@
 <?php
 
-namespace Khalil1608\LibBundle\Consumer;
+namespace UbeeDev\LibBundle\Consumer;
 
-use Khalil1608\LibBundle\Producer\ErrorProducer;
-use Khalil1608\LibBundle\Producer\SlackNotificationProducer;
-use Khalil1608\LibBundle\Service\OpsAlertManager;
+use UbeeDev\LibBundle\Producer\ErrorProducer;
+use UbeeDev\LibBundle\Producer\SlackNotificationProducer;
+use UbeeDev\LibBundle\Service\Slack\SlackSnippetInterface;
+use UbeeDev\LibBundle\Service\SlackManager;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqplib\Message\AMQPMessage;
 
 class SlackNotificationConsumer implements ConsumerInterface
 {
     public function __construct(
-        private readonly OpsAlertManager $opsAlertManager, 
-        private readonly ErrorProducer $errorProducer, 
+        private readonly SlackManager $slackManager,
+        private readonly ErrorProducer $errorProducer,
         private readonly SlackNotificationProducer $slackNotificationProducer
     )
     {
@@ -22,31 +23,40 @@ class SlackNotificationConsumer implements ConsumerInterface
     {
         $options = json_decode($msg->body, true);
 
-       
         try {
-            $slackParameters = array_diff_key($options, ['retryNumber' => '']);
-            $this->opsAlertManager->sendSlackNotification($slackParameters);
+            $channel = $options['channel'];
+            $title = $options['title'];
+            $snippet = $this->deserializeSnippet($options['snippet']);
+            $threadTs = $options['threadTs'] ?? null;
+
+            $this->slackManager->sendNotification($channel, $title, $snippet, $threadTs);
         } catch (\Exception $exception) {
             $this->retryOrNotify($options, $exception);
         }
         return ConsumerInterface::MSG_ACK;
     }
 
-    private function retryOrNotify($options, $exception)
+    private function deserializeSnippet(array $snippetData): SlackSnippetInterface
     {
-        if($options['retryNumber'] >= 2) {
-            ConsumerInterface::MSG_ACK;
+        $class = $snippetData['class'];
+        return new $class($snippetData['content']);
+    }
 
+    private function retryOrNotify(array $options, \Exception $exception): void
+    {
+        $retryNumber = $options['retryNumber'] ?? 0;
+
+        if ($retryNumber >= 2) {
             $this->errorProducer->sendNotification(
                 SlackNotificationConsumer::class,
-                'sendSlackNotification',
+                'sendNotification',
                 $options,
                 $exception->getMessage()
             );
-
             return;
         }
-        $options['retryNumber']++;
-        $this->slackNotificationProducer->sendSlackNotification($options, $options['retryNumber']);
+
+        $options['retryNumber'] = $retryNumber + 1;
+        $this->slackNotificationProducer->sendNotification($options);
     }
 }

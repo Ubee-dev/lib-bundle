@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Consumer;
+namespace UbeeDev\LibBundle\Consumer;
 
-use Khalil1608\LibBundle\Producer\CompressPdfProducer;
-use Khalil1608\LibBundle\Producer\ErrorProducer;
+use UbeeDev\LibBundle\Producer\CompressPdfProducer;
+use UbeeDev\LibBundle\Producer\ErrorProducer;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 
@@ -17,6 +17,9 @@ class CompressPdfConsumer implements ConsumerInterface
 
     public function execute(AMQPMessage $msg): int|bool
     {
+        if (!shell_exec('which gs')) {
+            throw new \RuntimeException('Ghostscript (gs) is required to compress PDFs. Install it with: apt-get install ghostscript');
+        }
 
         $data = json_decode($msg->body, true);
         $filePath = $data['filePath'];

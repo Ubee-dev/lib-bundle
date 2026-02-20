@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Model\Type;
+namespace UbeeDev\LibBundle\Tests\Model\Type;
 
-use Khalil1608\LibBundle\Model\Type\PhoneNumber;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Model\Type\PhoneNumber;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 
 class PhoneNumberTest extends AbstractWebTestCase
 {

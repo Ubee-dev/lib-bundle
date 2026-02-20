@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+namespace UbeeDev\LibBundle\Tests\Helper;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -81,7 +81,7 @@ class HttpMock implements HttpClientInterface
         }
     }
 
-    public function stream(iterable|ResponseInterface $responses, float $timeout = null): ResponseStreamInterface
+    public function stream(iterable|ResponseInterface $responses, ?float $timeout = null): ResponseStreamInterface
     {
         // TODO: Implement stream() method.
     }
@@ -130,7 +130,7 @@ class HttpMock implements HttpClientInterface
                 // TODO: Implement cancel() method.
             }
 
-            public function getInfo(string $type = null): mixed
+            public function getInfo(?string $type = null): mixed
             {
                 // TODO: Implement getInfo() method.
             }

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Exception;
+namespace UbeeDev\LibBundle\Exception;
 
 
 class InvalidArgumentException extends \Exception implements \JsonSerializable

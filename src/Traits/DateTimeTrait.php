@@ -1,10 +1,10 @@
 <?php
 
-namespace Khalil1608\LibBundle\Traits;
+namespace UbeeDev\LibBundle\Traits;
 
-use Khalil1608\LibBundle\Entity\AbstractDateTime;
-use Khalil1608\LibBundle\Entity\Date;
-use Khalil1608\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Entity\AbstractDateTime;
+use UbeeDev\LibBundle\Entity\Date;
+use UbeeDev\LibBundle\Entity\DateTime;
 use DateTimeInterface;
 use DateTimeZone;
 use Exception;

@@ -1,10 +1,12 @@
 <?php
 
+namespace UbeeDev\LibBundle\Tests\Helper;
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+use Doctrine\ORM\Mapping as ORM;
+use UbeeDev\LibBundle\Entity\Media;
 
-use Khalil1608\LibBundle\Entity\Media;
-
+#[ORM\Entity]
+#[ORM\Table(name: 'media')]
 class DummyMedia extends Media
 {
 }

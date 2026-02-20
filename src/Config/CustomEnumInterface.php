@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Config;
+namespace UbeeDev\LibBundle\Config;
 
 interface CustomEnumInterface {
 

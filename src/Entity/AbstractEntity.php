@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Entity;
+namespace UbeeDev\LibBundle\Entity;
 
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;

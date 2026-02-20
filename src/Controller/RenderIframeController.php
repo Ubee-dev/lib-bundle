@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Controller;
+namespace UbeeDev\LibBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;

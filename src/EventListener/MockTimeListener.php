@@ -1,11 +1,11 @@
 <?php
 
-namespace Khalil1608\LibBundle\EventListener;
+namespace UbeeDev\LibBundle\EventListener;
 
-use Khalil1608\LibBundle\Entity\Date;
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Tests\Helper\DateMock;
-use Khalil1608\LibBundle\Tests\Helper\DateTimeMock;
+use UbeeDev\LibBundle\Entity\Date;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Tests\Helper\DateMock;
+use UbeeDev\LibBundle\Tests\Helper\DateTimeMock;
 use SlopeIt\ClockMock\ClockMock;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;

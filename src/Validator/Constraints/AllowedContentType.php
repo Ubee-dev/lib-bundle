@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Validator\Constraints;
+namespace UbeeDev\LibBundle\Validator\Constraints;
 
 use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;

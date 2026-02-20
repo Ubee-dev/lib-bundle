@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Khalil1608\LibBundle\Tests\Service\EmailProvider\SymfonyMailer;
+namespace UbeeDev\LibBundle\Tests\Service\EmailProvider\SymfonyMailer;
 
-use Khalil1608\LibBundle\Service\EmailProvider\SymfonyMailer\EmailProvider;
-use Khalil1608\LibBundle\Service\Mailer;
+use UbeeDev\LibBundle\Service\EmailProvider\SymfonyMailer\EmailProvider;
+use UbeeDev\LibBundle\Service\Mailer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mailer\Exception\TransportException;

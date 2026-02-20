@@ -4,7 +4,7 @@ Configuration: Configuration
 Dashboard: Dashboard
 
 # lib translations
-Khalil1608_lib:
+ubee_dev_lib:
     id: Id
     active: Activé
     created_at: Date de création

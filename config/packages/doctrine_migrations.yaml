@@ -5,4 +5,4 @@ doctrine_migrations:
     table_storage:
       table_name: 'migration_versions'
   services:
-    'Doctrine\Migrations\Version\MigrationFactory': 'Khalil1608\LibBundle\Migrations\Factory\MigrationFactoryDecorator'
+    'Doctrine\Migrations\Version\MigrationFactory': 'UbeeDev\LibBundle\Migrations\Factory\MigrationFactoryDecorator'

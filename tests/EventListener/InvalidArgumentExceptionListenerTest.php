@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\EventListener;
+namespace UbeeDev\LibBundle\Tests\EventListener;
 
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 
 class InvalidArgumentExceptionListenerTest extends AbstractWebTestCase
 {

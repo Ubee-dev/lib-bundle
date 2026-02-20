@@ -1,119 +1,112 @@
 <?php
 
+namespace UbeeDev\LibBundle\Tests\Consumer;
 
-namespace  Khalil1608\LibBundle\Tests\Consumer;
-
-use Khalil1608\LibBundle\Consumer\SlackNotificationConsumer;
-use Khalil1608\LibBundle\Producer\SlackNotificationProducer;
-use Khalil1608\LibBundle\Service\OpsAlertManager;
+use UbeeDev\LibBundle\Consumer\SlackNotificationConsumer;
+use UbeeDev\LibBundle\Producer\SlackNotificationProducer;
+use UbeeDev\LibBundle\Service\Slack\TextSnippet;
+use UbeeDev\LibBundle\Service\SlackManager;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class SlackNotificationConsumerTest extends AbstractConsumerCase
 {
-    /** @var SlackNotificationConsumer */
-    private $slackConsumer;
-    
-    /** @var MockObject|OpsAlertManager */
-    private $opsAlertManagerMock;
-    
+    private SlackNotificationConsumer $slackConsumer;
+
+    /** @var MockObject|SlackManager */
+    private MockObject|SlackManager $slackManagerMock;
+
     /** @var MockObject|SlackNotificationProducer */
-    private $slackProducerMock;
-    private $parameters;
+    private MockObject|SlackNotificationProducer $slackProducerMock;
+    private array $parameters;
 
     public function setUp(): void
     {
         parent::setUp();
-        $this->opsAlertManagerMock = $this->getMockedClass(OpsAlertManager::class);
+        $this->slackManagerMock = $this->getMockedClass(SlackManager::class);
         $this->slackProducerMock = $this->getMockedClass(SlackNotificationProducer::class);
         $this->slackConsumer = $this->initConsumer();
-        $this->parameters =  [
-            'some' => 'parameters',
-            'retryNumber' => 0
+        $this->parameters = [
+            'channel' => 'dev',
+            'title' => 'Test notification',
+            'snippet' => (new TextSnippet('some content'))->jsonSerialize(),
+            'threadTs' => null,
+            'retryNumber' => 0,
         ];
     }
 
-    public function testSendSlackNotificationSuccessfully()
+    public function testSendSlackNotificationSuccessfully(): void
     {
         $this->createAMPMessage($this->parameters);
 
-        $this->opsAlertManagerMock->expects($this->once())
-            ->method('sendSlackNotification')
-            ->with($this->equalTo(['some' => 'parameters']));
-
-        $this->slackConsumer->execute($this->message);
-    }
-
-    public function testSendSlackNotificationSuccessfullyWithoutEncodeParameter()
-    {
-        unset($this->parameters['encodeParameters']);
-        $this->createAMPMessage($this->parameters);
-
-        $this->opsAlertManagerMock->expects($this->once())
-            ->method('sendSlackNotification')
-            ->with($this->equalTo(['some' => 'parameters']));
-
-        $this->slackConsumer->execute($this->message);
-    }
-
-    public function testSendSlackNotificationRetriesOnFirstFail()
-    {
-        $this->createAMPMessage($this->parameters);
-
-        $this->opsAlertManagerMock->expects($this->once())
-            ->method('sendSlackNotification')
-            ->with($this->equalTo(['some' => 'parameters']))
-            ->willThrowException(new \Exception('some error'));
-
-        $this->parameters['retryNumber'] = 1 ;
-        $this->slackProducerMock->expects($this->once())
-            ->method('sendSlackNotification')
+        $this->slackManagerMock->expects($this->once())
+            ->method('sendNotification')
             ->with(
-                $this->equalTo($this->parameters),
-                $this->equalTo(1)
+                $this->equalTo('dev'),
+                $this->equalTo('Test notification'),
+                $this->isInstanceOf(TextSnippet::class),
+                $this->isNull()
             );
 
         $this->slackConsumer->execute($this->message);
     }
 
-    public function testSendEmailRetriesOnSecondFail()
+    public function testSendSlackNotificationRetriesOnFirstFail(): void
+    {
+        $this->createAMPMessage($this->parameters);
+
+        $this->slackManagerMock->expects($this->once())
+            ->method('sendNotification')
+            ->willThrowException(new \Exception('some error'));
+
+        $this->slackProducerMock->expects($this->once())
+            ->method('sendNotification')
+            ->with(
+                $this->callback(function (array $options) {
+                    return $options['retryNumber'] === 1
+                        && $options['channel'] === 'dev';
+                })
+            );
+
+        $this->slackConsumer->execute($this->message);
+    }
+
+    public function testSendEmailRetriesOnSecondFail(): void
     {
         $this->parameters['retryNumber'] = 1;
         $this->createAMPMessage($this->parameters);
 
-        $this->opsAlertManagerMock->expects($this->once())
-            ->method('sendSlackNotification')
-            ->with($this->equalTo(['some' => 'parameters']))
+        $this->slackManagerMock->expects($this->once())
+            ->method('sendNotification')
             ->willThrowException(new \Exception('some error'));
 
-        $this->parameters['retryNumber'] = 2;
         $this->slackProducerMock->expects($this->once())
-            ->method('sendSlackNotification')
+            ->method('sendNotification')
             ->with(
-                $this->equalTo($this->parameters),
-                $this->equalTo(2)
+                $this->callback(function (array $options) {
+                    return $options['retryNumber'] === 2;
+                })
             );
 
         $this->slackConsumer->execute($this->message);
     }
 
-    public function testSendEmailNotifyErrorOnThirdFail()
+    public function testSendEmailNotifyErrorOnThirdFail(): void
     {
         $this->parameters['retryNumber'] = 2;
         $this->createAMPMessage($this->parameters);
 
-        $this->opsAlertManagerMock->expects($this->once())
-            ->method('sendSlackNotification')
-            ->with($this->equalTo(['some' => 'parameters']))
+        $this->slackManagerMock->expects($this->once())
+            ->method('sendNotification')
             ->willThrowException(new \Exception('some error'));
 
         $this->slackProducerMock->expects($this->never())
-            ->method('sendSlackNotification');
+            ->method('sendNotification');
 
         $this->errorProducerMock->expects($this->once())
             ->method('sendNotification')
             ->with(
                 $this->equalTo(SlackNotificationConsumer::class),
-                $this->equalTo('sendSlackNotification'),
+                $this->equalTo('sendNotification'),
                 $this->equalTo($this->parameters),
                 $this->equalTo('some error')
             );
@@ -121,10 +114,10 @@ class SlackNotificationConsumerTest extends AbstractConsumerCase
         $this->slackConsumer->execute($this->message);
     }
 
-    private function initConsumer()
+    private function initConsumer(): SlackNotificationConsumer
     {
         return new SlackNotificationConsumer(
-            $this->opsAlertManagerMock,
+            $this->slackManagerMock,
             $this->errorProducerMock,
             $this->slackProducerMock
         );

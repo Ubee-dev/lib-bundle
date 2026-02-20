@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Migrations\Factory;
+namespace UbeeDev\LibBundle\Migrations\Factory;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;

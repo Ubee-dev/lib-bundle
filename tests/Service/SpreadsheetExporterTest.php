@@ -1,10 +1,10 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Service\SpreadsheetExporter;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Khalil1608\LibBundle\Traits\PhoneNumberTrait;
+use UbeeDev\LibBundle\Service\SpreadsheetExporter;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Traits\PhoneNumberTrait;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
@@ -53,7 +53,7 @@ class SpreadsheetExporterTest extends AbstractWebTestCase
         ]);
 
         $this->assertEquals("Some title", $spreadsheet->getProperties()->getTitle());
-        $this->assertEquals("Khalil1608", $spreadsheet->getProperties()->getCreator());
+        $this->assertEquals("UbeeDev", $spreadsheet->getProperties()->getCreator());
         $this->assertCellValue('A1', 'Person firstName', $spreadsheet);
         $this->assertCellValue('B1', 'Person lastName', $spreadsheet);
         $this->assertCellValue('C1', 'Person phone number', $spreadsheet);

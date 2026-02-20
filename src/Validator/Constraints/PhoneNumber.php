@@ -1,5 +1,5 @@
 <?php
-namespace Khalil1608\LibBundle\Validator\Constraints;
+namespace UbeeDev\LibBundle\Validator\Constraints;
 
 use libphonenumber\PhoneNumberUtil;
 use Symfony\Component\Validator\Constraint;
@@ -44,7 +44,7 @@ class PhoneNumber extends Constraint
         if (null !== $this->message) {
             return $this->message;
         }
-        return 'Khalil1608_lib.phone_number.invalid';
+        return 'ubee_dev_lib.phone_number.invalid';
     }
 
     public function getTargets(): string|array

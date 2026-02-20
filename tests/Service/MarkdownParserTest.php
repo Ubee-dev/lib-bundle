@@ -1,13 +1,14 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Service\MarkdownParser;
+use UbeeDev\LibBundle\Service\MarkdownParser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 
-class MarkdownParserTest extends WebTestCase
+class MarkdownParserTest extends AbstractWebTestCase
 {
-    const MARKDOWN_SAMPLE = "# Heading 1
+    const string MARKDOWN_SAMPLE = "# Heading 1
 ## Heading 2 {#heading-2}
 ### Heading 3
 
@@ -50,7 +51,7 @@ Sommaire:
 
 Mon iframe :
 
-{iframe:https://www.ycbm.com/Khalil1608/rdv-lca?p=2&amp;q=1,height:450}
+{iframe:https://www.ycbm.com/UbeeDev/rdv-lca?p=2&amp;q=1,height:450}
 
 {[Mon Bouton](https://www.google.fr)}
 
@@ -60,7 +61,7 @@ J'adore DBZ
 *[DBZ]: Dragon Ball Z
 ";
 
-    const MARKDOWN_PARSED = <<<EOT
+    const string MARKDOWN_PARSED = <<<EOT
 <h1>Heading 1</h1>
 <h2 id="heading-2">Heading 2</h2>
 <h3>Heading 3</h3>
@@ -106,7 +107,7 @@ It can span multiple lines!</p>
 </div>
 <p>Mon iframe : </p>
 <div class="js-iframe-with-loader-container iframe-with-loader-container">
-<iframe src="https://www.ycbm.com/Khalil1608/rdv-lca?p=2&amp;q=1" class="js-iframe-with-loader" height="500px"></iframe>
+<iframe src="https://www.ycbm.com/UbeeDev/rdv-lca?p=2&amp;q=1" class="js-iframe-with-loader" height="500px"></iframe>
 </div>
 <div class="btn-container">
 <a href="https://www.google.fr" class="btn btn_dark js-external-link-target tk-markdown__cta">Mon Bouton</a>
@@ -122,7 +123,11 @@ EOT;
 
     protected function setUp(): void
     {
-       $this->parser = new MarkdownParser();
+       parent::setUp();
+       $this->parser = new MarkdownParser(
+           entityManager: $this->entityManager,
+           parameterBag: $this->container->getParameterBag()
+       );
     }
 
     public function testParseBasic(): void
@@ -154,14 +159,14 @@ EOT;
         $this->assertStringContainsString('<li>item 1</li>', $html);
         $this->assertStringContainsString('<li>item 2</li>', $html);
         $this->assertStringContainsString('<li>item 3</li>', $html);
-        $this->assertStringContainsString('<a href="http://www.example.com" class="js-external-link-target">Link text</a>', $html);
+        $this->assertStringContainsString('<a href="http://www.example.com" class="js-external-link-target" target="_blank" rel="noopener noreferrer">Link text</a>', $html);
 
         $this->assertStringContainsString("<div class=\"ratio ratio-16x9\"><iframe src=\"https://www.youtube.com/embed/firstVideo?modestbranding=1&amp;rel=0\" allowfullscreen></iframe></div>", $html);
         $this->assertStringContainsString("<div class=\"ratio ratio-16x9\"><iframe src=\"https://www.youtube.com/embed/secondVideo?modestbranding=1&amp;rel=0\" allowfullscreen></iframe></div>", $html);
 
-        $this->assertStringContainsString("<div class=\"js-iframe-with-loader-container iframe-with-loader-container\">\n<iframe src=\"https://www.ycbm.com/Khalil1608/rdv-lca?p=2&amp;q=1\" class=\"js-iframe-with-loader\" height=\"450\"></iframe>\n</div>", $html);
+        $this->assertStringContainsString("<div class=\"js-iframe-with-loader-container iframe-with-loader-container\">\n<iframe src=\"https://www.ycbm.com/UbeeDev/rdv-lca?p=2&amp;q=1\" class=\"js-iframe-with-loader\" height=\"450\"></iframe>\n</div>", $html);
 
-        $this->assertStringContainsString("<div class=\"btn-container\">\n<a href=\"https://www.google.fr\" class=\"btn btn_dark js-external-link-target tk-markdown__cta\">Mon Bouton</a>\n</div>", $html);
+        $this->assertStringContainsString("<div class=\"btn-container\">\n<a href=\"https://www.google.fr\" class=\"btn btn_dark js-external-link-target tk-markdown__cta\" target=\"_blank\" rel=\"noopener noreferrer\">Mon Bouton</a>\n</div>", $html);
 
         $this->assertStringContainsString("<a href=\"#\" data-video-time=\"3600\" class=\"js-video-time info__video-time\">1:00:00</a>", $html);
         $this->assertStringContainsString("<a href=\"#\" data-video-time=\"5400\" class=\"js-video-time info__video-time\">1:30:00</a>", $html);

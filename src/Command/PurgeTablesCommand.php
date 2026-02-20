@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Command;
+namespace UbeeDev\LibBundle\Command;
 
-use Khalil1608\LibBundle\Tests\Helper\CleanerInterface;
+use UbeeDev\LibBundle\Tests\Helper\CleanerInterface;
 use Doctrine\DBAL\Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 #[When(env: 'dev')]
 #[AsCommand(
-    name: 'Khalil1608:purge:tables'
+    name: 'UbeeDev:purge:tables'
 )]
 class PurgeTablesCommand extends Command
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Validator\Constraints;
+namespace UbeeDev\LibBundle\Validator\Constraints;
 
 use App\Entity\Media;
 use Exception;

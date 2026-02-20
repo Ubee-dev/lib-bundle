@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service\AntiRobot;
+namespace UbeeDev\LibBundle\Service\AntiRobot;
 
 use InvalidArgumentException;
 

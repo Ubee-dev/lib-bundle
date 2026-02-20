@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Service\BackupDatabase;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Service\BackupDatabase;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use Exception;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -24,14 +24,16 @@ class BackupDatabaseTest extends AbstractWebTestCase
         $fileSystem = new Filesystem();
         $fileSystem->remove($this->backupFolderName);
 
-        $databaseParams = $this->em->getConnection()->getParams();
+        $connection = $this->entityManager->getConnection();
+        $databaseParams = $connection->getParams();
+        $databaseName = $connection->getDatabase();
         $backupDatabaseService = new BackupDatabase();
         $backupDatabaseService->dump(
             $this->backupFolderName,
-            $databaseParams['host'],
-            $databaseName = $databaseParams['dbname'],
-            $databaseParams['user'],
-            $databaseParams['password']
+            $databaseParams['host'] ?? 'localhost',
+            $databaseName,
+            $databaseParams['user'] ?? '',
+            $databaseParams['password'] ?? ''
         );
         $tmpBackupFolder = $this->backupFolderName.'/'.$databaseName;
 
@@ -48,16 +50,18 @@ class BackupDatabaseTest extends AbstractWebTestCase
     {
         $fileSystem = new Filesystem();
         $fileSystem->remove($this->backupFolderName);
-        $databaseParams = $this->em->getConnection()->getParams();
+        $connection = $this->entityManager->getConnection();
+        $databaseParams = $connection->getParams();
+        $databaseName = $connection->getDatabase();
 
         $backupDatabaseService = new BackupDatabase();
         for($i=0; $i<=1; $i++) {
             $backupDatabaseService->dump(
                 $this->backupFolderName,
-                $databaseParams['host'],
-                $databaseName = $databaseParams['dbname'],
-                $databaseParams['user'],
-                $databaseParams['password']
+                $databaseParams['host'] ?? 'localhost',
+                $databaseName,
+                $databaseParams['user'] ?? '',
+                $databaseParams['password'] ?? ''
             );
             if($i === 0) { sleep(1); }
         }

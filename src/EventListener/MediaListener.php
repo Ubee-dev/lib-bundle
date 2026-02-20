@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\EventListener;
+namespace UbeeDev\LibBundle\EventListener;
 
-use Khalil1608\LibBundle\Entity\Media;
-use Khalil1608\LibBundle\Service\MediaManager;
+use UbeeDev\LibBundle\Entity\Media;
+use UbeeDev\LibBundle\Service\MediaManager;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostRemoveEventArgs;

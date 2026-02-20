@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Producer;
+namespace UbeeDev\LibBundle\Tests\Producer;
 
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use OldSound\RabbitMqBundle\RabbitMq\Producer as RabbitProducer;
 
 class AbstractProducerCase extends AbstractWebTestCase

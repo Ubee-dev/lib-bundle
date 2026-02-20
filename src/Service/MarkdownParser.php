@@ -1,14 +1,11 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service;
+namespace UbeeDev\LibBundle\Service;
 
-use Khalil1608\LibBundle\Traits\VideoTrait;
-use cebe\markdown\GithubMarkdown;
-use cebe\markdown\Markdown;
-use cebe\markdown\MarkdownExtra;
+use UbeeDev\LibBundle\Traits\VideoTrait;
 use Exception;
-use ParsedownExtra;
 use Doctrine\ORM\EntityManagerInterface;
+use ParsedownExtra;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 /**
@@ -19,20 +16,18 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class MarkdownParser implements MarkdownParserInterface
 {
     private ParsedownExtra $parser;
-    private EntityManagerInterface $entityManager;
     private ?string $mediaClassName;
     private ?string $siteDomain;
 
     use VideoTrait;
 
     public function __construct(
-        EntityManagerInterface $entityManager,
+        private readonly EntityManagerInterface $entityManager,
         ParameterBagInterface $parameterBag
     ) {
         $this->parser = new ParsedownExtra();
-        $this->entityManager = $entityManager;
         $this->mediaClassName = $parameterBag->get('mediaClassName');
-        $this->siteDomain = $parameterBag->get('site.domain', null);
+        $this->siteDomain = $parameterBag->has('site.domain') ? $parameterBag->get('site.domain') : null;
     }
 
     /**
@@ -293,7 +288,7 @@ class MarkdownParser implements MarkdownParserInterface
             $url = preg_replace('/\|\d+$/', '', $url);
 
             // Reconstitue la balise <img> avec l'URL modifiée et l'attribut alt
-            return '<img src="' . $url . '" alt="' . $alt . '"  />';
+            return '<img src="' . $url . '" alt="' . $alt . '" />';
         }, $html);
     }
 

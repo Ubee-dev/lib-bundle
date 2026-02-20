@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Form\Transformer;
+namespace UbeeDev\LibBundle\Form\Transformer;
 
-use Khalil1608\LibBundle\Model\Type\HtmlName;
+use UbeeDev\LibBundle\Model\Type\HtmlName;
 use Symfony\Component\Form\DataTransformerInterface;
 
 class HtmlNameTransformer implements DataTransformerInterface

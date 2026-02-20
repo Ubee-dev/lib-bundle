@@ -1,13 +1,13 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Entity\Media;
-use Khalil1608\LibBundle\Exception\InvalidArgumentException;
-use Khalil1608\LibBundle\Service\MediaManager;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Khalil1608\LibBundle\Tests\Helper\Factory;
+use UbeeDev\LibBundle\Entity\Media;
+use UbeeDev\LibBundle\Exception\InvalidArgumentException;
+use UbeeDev\LibBundle\Service\MediaManager;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Tests\Helper\Factory;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -33,9 +33,9 @@ class MediaManagerTest extends AbstractWebTestCase
         // use lib-bundle factory and prevent override by admin-bundle factory
         $this->factory = $this->container->get(Factory::class);
         $this->initManager();
-        $this->mockBuiltInFunction('Khalil1608\LibBundle\Service', 'uniqid', '123456');
-        $this->mockBuiltInFunction('Khalil1608\LibBundle\Service', 'sha1_file', 'sha1_file_result');
-        $this->mockBuiltInFunction('Khalil1608\LibBundle\Service', 'sha1', 'sha1_result');
+        $this->mockBuiltInFunction('UbeeDev\LibBundle\Service', 'uniqid', '123456');
+        $this->mockBuiltInFunction('UbeeDev\LibBundle\Service', 'sha1_file', 'sha1_file_result');
+        $this->mockBuiltInFunction('UbeeDev\LibBundle\Service', 'sha1', 'sha1_result');
 
         $this->publicMedia = $this->factory->createMedia(['filename' => 'testpublicfile.txt']);
         $this->privateMedia = $this->factory->createMedia(['filename' => 'testprivatefile.txt', 'private' => true]);
@@ -60,8 +60,8 @@ class MediaManagerTest extends AbstractWebTestCase
 
         $this->assertFalse($this->fileSystem->exists($this->publicFilePath));
         $this->assertFalse($this->fileSystem->exists($this->privateFilePath));
-        $this->assertNull($this->em->getRepository($this->container->getParameter('mediaClassName'))->find($publicMediaId));
-        $this->assertNull($this->em->getRepository($this->container->getParameter('mediaClassName'))->find($privateMediaId));
+        $this->assertNull($this->entityManager->getRepository($this->container->getParameter('mediaClassName'))->find($publicMediaId));
+        $this->assertNull($this->entityManager->getRepository($this->container->getParameter('mediaClassName'))->find($privateMediaId));
     }
 
     /**
@@ -77,8 +77,8 @@ class MediaManagerTest extends AbstractWebTestCase
 
         $this->assertFalse($this->fileSystem->exists($this->publicFilePath));
         $this->assertFalse($this->fileSystem->exists($this->privateFilePath));
-        $this->assertNotNull($this->em->getRepository($this->container->getParameter('mediaClassName'))->find($this->publicMedia->getId()));
-        $this->assertNotNull($this->em->getRepository($this->container->getParameter('mediaClassName'))->find($this->privateMedia->getId()));
+        $this->assertNotNull($this->entityManager->getRepository($this->container->getParameter('mediaClassName'))->find($this->publicMedia->getId()));
+        $this->assertNotNull($this->entityManager->getRepository($this->container->getParameter('mediaClassName'))->find($this->privateMedia->getId()));
     }
 
     /**
@@ -118,6 +118,7 @@ class MediaManagerTest extends AbstractWebTestCase
             'context' => Factory::UPLOAD_CONTEXT,
             'contentType' => 'application/pdf',
         ]);
+        $this->initManager();
 
         // upload public media
         $media = $this->mediaManager->upload($file, Factory::UPLOAD_CONTEXT);
@@ -147,6 +148,7 @@ class MediaManagerTest extends AbstractWebTestCase
             'context' => Factory::UPLOAD_CONTEXT,
             'contentType' => 'application/pdf',
         ]);
+        $this->initManager();
 
         // upload public media
         $media = $this->mediaManager->upload(
@@ -170,10 +172,6 @@ class MediaManagerTest extends AbstractWebTestCase
      */
     public function testUploadMediaShouldDeleteCreatedFileIfMediaCannotBeFlush(): void
     {
-        $this->initManager(mockEntityManager: true);
-        $this->emMock
-            ->method('flush')
-            ->willThrowException(new Exception('test exception'));
         $file = $this->createAndGetUploadedFile('document.pdf');
         $fileSize = $file->getSize();
 
@@ -183,6 +181,10 @@ class MediaManagerTest extends AbstractWebTestCase
             'context' => Factory::UPLOAD_CONTEXT,
             'contentType' => 'application/pdf',
         ]);
+        $this->initManager(mockEntityManager: true);
+        $this->emMock
+            ->method('flush')
+            ->willThrowException(new Exception('test exception'));
 
         $errorCatched = false;
         try {
@@ -209,6 +211,7 @@ class MediaManagerTest extends AbstractWebTestCase
             'context' => Factory::UPLOAD_CONTEXT,
             'contentType' => 'application/pdf',
         ]);
+        $this->initManager();
         $media = $this->mediaManager->createPdfFromHtml($html, Factory::UPLOAD_CONTEXT);
 
         $filePath = $this->getPublicPathForMedia($media);
@@ -242,6 +245,7 @@ class MediaManagerTest extends AbstractWebTestCase
             'context' => Factory::UPLOAD_CONTEXT,
             'contentType' => 'application/pdf',
         ]);
+        $this->initManager();
         $media = $this->mediaManager->createPdfFromHtml($html, Factory::UPLOAD_CONTEXT, private: true);
 
         $filePath = $this->getPrivatePathForMedia($media);
@@ -266,10 +270,6 @@ class MediaManagerTest extends AbstractWebTestCase
      */
     public function testCreatePdfFromHtmlShouldDeleteCreatedFileIfMediaCannotBeFlush(): void
     {
-        $this->initManager(mockEntityManager: true);
-        $this->emMock
-            ->method('flush')
-            ->willThrowException(new Exception('test exception'));
         $html = '<html><body><h1>Test</h1></body></html>';
         $fileSize = filesize($this->getAsset('html-to-pdf.pdf'));
 
@@ -279,6 +279,10 @@ class MediaManagerTest extends AbstractWebTestCase
             'context' => Factory::UPLOAD_CONTEXT,
             'contentType' => 'application/pdf',
         ]);
+        $this->initManager(mockEntityManager: true);
+        $this->emMock
+            ->method('flush')
+            ->willThrowException(new Exception('test exception'));
 
         $errorCatched = false;
         try {
@@ -347,7 +351,7 @@ class MediaManagerTest extends AbstractWebTestCase
         if ($mockEntityManager) {
             $em = $this->emMock = $this->getMockedClass(EntityManagerInterface::class);
         } else {
-            $em = $this->em;
+            $em = $this->entityManager;
         }
 
         $this->mediaManager = new MediaManager(

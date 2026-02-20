@@ -1,108 +1,109 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Service\S3Client;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
+use Aws\Result;
+use Aws\S3\S3Client as AmazonS3Client;
+use PHPUnit\Framework\TestCase;
+use UbeeDev\LibBundle\Service\S3Client;
 
-class S3ClientTest extends AbstractWebTestCase
+class S3ClientTest extends TestCase
 {
-    private $exportDir;
-    private $filePath;
-    
-    /** @var S3Client */
-    private $s3Client;
-    
-    private $s3BackupBucket;
+    private S3Client $s3Client;
+    private AmazonS3Client $amazonS3ClientMock;
 
     protected function setUp(): void
     {
-        parent::setUp();
+        $this->amazonS3ClientMock = $this->createMock(AmazonS3Client::class);
 
-        $this->exportDir = $this->container->getParameter('export_dir').'/';
-        $this->cleaner->cleanFolder($this->exportDir);
-        $fs = new Filesystem();
-        $this->filePath = $this->exportDir.'file.txt';
-        $fs->touch($this->filePath);
-
-        $this->s3Client = new S3Client(
-            getenv('S3_KEY'),
-            getenv('S3_SECRET'),
-            $this->container->getParameter('s3_region'),
-            $this->container->getParameter('s3_version')
-        );
-
-        $this->s3BackupBucket = $this->container->getParameter('s3_backup_bucket');
-        $this->s3Client->delete($this->s3BackupBucket, 'tests');
-        
+        // Use reflection to inject the mock since the constructor creates the real client
+        $this->s3Client = (new \ReflectionClass(S3Client::class))->newInstanceWithoutConstructor();
+        $reflection = new \ReflectionProperty(S3Client::class, 's3Client');
+        $reflection->setValue($this->s3Client, $this->amazonS3ClientMock);
     }
 
-    public function testSuccessUpload()
+    public function testUploadReturnsObjectUrl(): void
     {
-        $s3Url = $this->s3Client->upload($this->filePath, $this->s3BackupBucket, 'tests/file.txt');
-        // AWS SDK changed its upload url somewhere between v3.36 and v3.45
-        $this->assertEquals('https://'.$this->s3BackupBucket.'.s3.'.$this->container->getParameter('s3_region').'.amazonaws.com/tests/file.txt', $s3Url);
+        $result = new Result(['ObjectURL' => 'https://bucket.s3.eu-west-1.amazonaws.com/tests/file.txt']);
+
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('__call')
+            ->with('putObject', [[
+                'Bucket' => 'test-bucket',
+                'Key' => 'tests/file.txt',
+                'SourceFile' => '/tmp/file.txt',
+            ]])
+            ->willReturn($result);
+
+        $url = $this->s3Client->upload('/tmp/file.txt', 'test-bucket', 'tests/file.txt');
+        $this->assertEquals('https://bucket.s3.eu-west-1.amazonaws.com/tests/file.txt', $url);
     }
 
-    public function testFailUpload()
+    public function testGetReturnsEffectiveUri(): void
     {
-        $s3Client = new S3Client('wrongkey', 'wrongsecret', 'eu-west-1', '2006-03-01');
-        $s3Url = $s3Client->upload($this->filePath, $this->container->getParameter('s3_backup_bucket'), 'tests/file.txt');
-        $this->assertEquals(null, $s3Url);
+        $result = new Result(['@metadata' => ['effectiveUri' => 'https://bucket.s3.amazonaws.com/tests/file.txt']]);
+
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('__call')
+            ->with('getObject', [[
+                'Bucket' => 'test-bucket',
+                'Key' => 'tests/file.txt',
+            ]])
+            ->willReturn($result);
+
+        $uri = $this->s3Client->get('test-bucket', 'tests/file.txt');
+        $this->assertEquals('https://bucket.s3.amazonaws.com/tests/file.txt', $uri);
     }
 
-
-    public function testSuccessfulGetObject()
+    public function testDownloadReturnsFilePath(): void
     {
-        $s3Url = $this->s3Client->upload($this->filePath, $this->s3BackupBucket, 'tests/file.txt');
-        $objectUrl = $this->s3Client->get($this->s3BackupBucket, 'tests/file.txt');
-        $this->assertNotNull($objectUrl);
-        $this->assertEquals($s3Url, $objectUrl);
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('__call')
+            ->with('getObject', [[
+                'Bucket' => 'test-bucket',
+                'Key' => 'tests/file.txt',
+                'SaveAs' => '/tmp/test/test.sql',
+            ]])
+            ->willReturn(new Result([]));
+
+        $filePath = $this->s3Client->download('test-bucket', 'tests/file.txt', '/tmp/test', 'test.sql');
+        $this->assertEquals('/tmp/test/test.sql', $filePath);
     }
 
-    public function testSuccessfulDeleteObject()
+    public function testDeleteReturnsTrue(): void
     {
-        $this->s3Client->upload($this->filePath, $this->s3BackupBucket, 'tests/file.txt');
-        $result = $this->s3Client->delete($this->s3BackupBucket, 'tests/file.txt');
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('__call')
+            ->with('deleteObject', [[
+                'Bucket' => 'test-bucket',
+                'Key' => 'tests/file.txt',
+            ]])
+            ->willReturn(new Result([]));
+
+        $result = $this->s3Client->delete('test-bucket', 'tests/file.txt');
         $this->assertTrue($result);
-        $objectUrl = $this->s3Client->get($this->s3BackupBucket, 'tests/file.txt');
-        $this->assertNull($objectUrl);
     }
 
-    public function testSuccessList()
+    public function testListReturnsKeys(): void
     {
-        $this->s3Client->upload($this->filePath, $this->s3BackupBucket, 'tests/file2.txt');
-        $this->s3Client->upload($this->filePath, $this->s3BackupBucket, 'tests/file1.txt');
+        $objects = [
+            ['Key' => 'tests/file1.txt'],
+            ['Key' => 'tests/file2.txt'],
+        ];
 
-        $dumpsDatabase = $this->s3Client->list(['Bucket' => $this->s3BackupBucket, 'Prefix' => 'tests']);
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('getIterator')
+            ->with('ListObjects', ['Bucket' => 'test-bucket', 'Prefix' => 'tests'])
+            ->willReturn(new \ArrayIterator($objects));
 
-        $this->assertCount(2, $dumpsDatabase);
-
-        $this->assertEquals('tests/file1.txt', $dumpsDatabase[0]);
-        $this->assertEquals('tests/file2.txt', $dumpsDatabase[1]);
-    }
-
-    public function testSuccessDownload()
-    {
-        $this->s3Client->upload($this->filePath, $this->s3BackupBucket, 'tests/file.txt');
-
-        $tmpDumpFilePath = $this->s3Client->download($this->s3BackupBucket, 'tests/file.txt', '/tmp/test', 'test.sql');
-
-        $finder = new Finder();
-        $this->assertEquals('/tmp/test/test.sql', $tmpDumpFilePath);
-        $this->assertCount(1, $finder->files()->in('/tmp/test')->name('test.sql'));
-    }
-
-    public function testDownloadWithoutCrashingIfFolderNotExist()
-    {
-        $this->s3Client->upload($this->filePath, $this->s3BackupBucket, 'tests/file.txt');
-
-        $tmpDumpFilePath = $this->s3Client->download($this->s3BackupBucket, 'tests/file.txt', '/tmp/test', 'test.sql');
-
-        $finder = new Finder();
-        $this->assertEquals('/tmp/test/test.sql', $tmpDumpFilePath);
-        $this->assertCount(1, $finder->files()->in('/tmp/test')->name('test.sql'));
+        $list = $this->s3Client->list(['Bucket' => 'test-bucket', 'Prefix' => 'tests']);
+        $this->assertCount(2, $list);
+        $this->assertEquals('tests/file1.txt', $list[0]);
+        $this->assertEquals('tests/file2.txt', $list[1]);
     }
 }

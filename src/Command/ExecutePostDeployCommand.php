@@ -1,13 +1,13 @@
 <?php
 
-namespace Khalil1608\LibBundle\Command;
+namespace UbeeDev\LibBundle\Command;
 
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Entity\PostDeployExecution;
-use Khalil1608\LibBundle\Producer\SlackNotificationProducer;
-use Khalil1608\LibBundle\Repository\PostDeployExecutionRepository;
-use Khalil1608\LibBundle\Service\PostDeployServiceLoader;
-use Khalil1608\LibBundle\Traits\StringTrait;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Entity\PostDeployExecution;
+use UbeeDev\LibBundle\Producer\SlackNotificationProducer;
+use UbeeDev\LibBundle\Service\Slack\TextSnippet;
+use UbeeDev\LibBundle\Repository\PostDeployExecutionRepository;
+use UbeeDev\LibBundle\Traits\StringTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use SplFileInfo;
@@ -38,6 +38,7 @@ class ExecutePostDeployCommand extends Command
         private readonly ContainerInterface            $container,
         private readonly SlackNotificationProducer     $slackNotificationProducer,
         private readonly KernelInterface               $kernel,
+        private readonly ?string                       $postDeploySlackChannel = null,
         ?string                                        $name = null
     )
     {
@@ -143,14 +144,14 @@ class ExecutePostDeployCommand extends Command
 
     private function sendSlackNotification(Exception $exception, string $message): void
     {
-        $this->slackNotificationProducer->sendSlackNotification(
-            [
-                'parameters' => [
-                    'exceptionMessage' => $exception->getMessage()
-                ],
-                'initialComment' => $message,
-                'channel' => 'dev',
-            ]
+        if (!$this->postDeploySlackChannel) {
+            return;
+        }
+
+        $this->slackNotificationProducer->publish(
+            $this->postDeploySlackChannel,
+            $message,
+            new TextSnippet($exception->getMessage())
         );
     }
 
@@ -168,7 +169,7 @@ class ExecutePostDeployCommand extends Command
         } catch (Exception $exception) {
             $this->sendSlackNotification(
                 $exception,
-                "[Attention] Erreur lors de l'exécution du script post déploiement \"*" . $postDeployServiceName . "*\" \n\nCommande de relance du script : \n```php " . $this->parameterBag->get('kernel.project_dir') . "/bin/console Khalil1608_lib:post_deploy --env=" . $this->kernel->getEnvironment() . "```"
+                "[Warning] Error executing post deploy script \"*" . $postDeployServiceName . "*\" \n\nRerun command: \n```php " . $this->parameterBag->get('kernel.project_dir') . "/bin/console lib:post_deploy --env=" . $this->kernel->getEnvironment() . "```"
             );
 
             throw $exception;
@@ -198,7 +199,7 @@ class ExecutePostDeployCommand extends Command
         } catch (Exception $exception) {
             $this->sendSlackNotification(
                 $exception,
-                "[Attention] Erreur lors de l'enregistrement de l'exécution du script post déploiement \"*" . $postDeployServiceName . "*\" \n\nPour éviter que ce script se relance au prochain déploiement, ajoutez manuellement un ligne dans la table *post_deploy_execution*\n```INSERT INTO `post_deploy_execution` (name, executed_at, execution_time) VALUES ('" . $fileNameWithoutExtension . "', NOW(), " . $executionTime . ");```"
+                "[Warning] Error saving post deploy execution \"*" . $postDeployServiceName . "*\" \n\nTo prevent this script from running again on next deploy, manually add a row in the *post_deploy_execution* table:\n```INSERT INTO `post_deploy_execution` (name, executed_at, execution_time) VALUES ('" . $fileNameWithoutExtension . "', NOW(), " . $executionTime . ");```"
             );
         }
     }

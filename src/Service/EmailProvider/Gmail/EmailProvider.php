@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service\EmailProvider\Gmail;
+namespace UbeeDev\LibBundle\Service\EmailProvider\Gmail;
 
-use Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface;
+use UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;

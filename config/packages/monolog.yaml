@@ -35,7 +35,7 @@ when@test: &monolog_test
         channels: [ "!event" ]
       nested:
         type: service
-        id: Khalil1608\LibBundle\Tests\Helper\MonologCISlackHandler
+        id: UbeeDev\LibBundle\Tests\Helper\MonologCISlackHandler
         level: critical
         channels: [ "!event" ]
 

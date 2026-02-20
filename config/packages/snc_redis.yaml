@@ -4,4 +4,4 @@ snc_redis:
       type: predis
       dsn: "redis://%env(REDIS_PASSWORD)%@%env(REDIS_HOST)%:6379"
       options:
-        prefix: khalil1608
+        prefix: ubee_dev

@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service;
+namespace UbeeDev\LibBundle\Service;
 
-use Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface;
+use UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface;
 
 class Mailer
 {

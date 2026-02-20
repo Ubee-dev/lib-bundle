@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Transliterator;
+namespace UbeeDev\LibBundle\Transliterator;
 
 /**
  * This is the part taken from Doctrine 1.2.3

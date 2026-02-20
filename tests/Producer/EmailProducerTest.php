@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Producer;
+namespace UbeeDev\LibBundle\Tests\Producer;
 
-use Khalil1608\LibBundle\Producer\EmailProducer;
+use UbeeDev\LibBundle\Producer\EmailProducer;
 
 class EmailProducerTest extends AbstractProducerCase
 {
@@ -16,7 +16,8 @@ class EmailProducerTest extends AbstractProducerCase
             'text' => 'some-text',
             'subject' => 'some-subject',
             'attachments' => ['some-attachments'],
-            'retryNumber' => 0
+            'retryNumber' => 0,
+            'replyTo' => null
         ]);
 
         $this->producerMock->expects($this->once())
@@ -41,7 +42,8 @@ class EmailProducerTest extends AbstractProducerCase
             'text' => 'some-text',
             'subject' => 'some-subject',
             'attachments' => ['some-attachments'],
-            'retryNumber' => 1
+            'retryNumber' => 1,
+            'replyTo' => null
         ]);
 
         $this->producerMock->expects($this->once())
@@ -66,7 +68,8 @@ class EmailProducerTest extends AbstractProducerCase
             'text' => 'some-text',
             'subject' => 'some-subject',
             'attachments' => ['some-attachments'],
-            'retryNumber' => 2
+            'retryNumber' => 2,
+            'replyTo' => null
         ]);
 
         $this->producerMock->expects($this->once())

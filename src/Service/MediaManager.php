@@ -1,11 +1,11 @@
 <?php
 
-namespace Khalil1608\LibBundle\Service;
+namespace UbeeDev\LibBundle\Service;
 
-use Khalil1608\LibBundle\Entity\DateTime;
-use Khalil1608\LibBundle\Entity\Media;
-use Khalil1608\LibBundle\Exception\InvalidArgumentException;
-use Khalil1608\LibBundle\Validator\Validator;
+use UbeeDev\LibBundle\Entity\DateTime;
+use UbeeDev\LibBundle\Entity\Media;
+use UbeeDev\LibBundle\Exception\InvalidArgumentException;
+use UbeeDev\LibBundle\Validator\Validator;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;

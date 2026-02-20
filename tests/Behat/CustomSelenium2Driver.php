@@ -1,6 +1,6 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Behat;
+namespace UbeeDev\LibBundle\Tests\Behat;
 
 use Behat\Mink\Driver\Selenium2Driver;
 

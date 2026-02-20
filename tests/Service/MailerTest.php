@@ -1,10 +1,10 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Service;
+namespace UbeeDev\LibBundle\Tests\Service;
 
-use Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface;
-use Khalil1608\LibBundle\Service\Mailer;
-use Khalil1608\LibBundle\Tests\AbstractWebTestCase;
+use UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface;
+use UbeeDev\LibBundle\Service\Mailer;
+use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
 class MailerTest extends AbstractWebTestCase
@@ -24,7 +24,7 @@ class MailerTest extends AbstractWebTestCase
     public function testIfMailIsSentSuccessfully()
     {
         $from = 'contact@domain.fr';
-        $to = ['khalil1608@gmail.com'];
+        $to = ['test@example.com'];
         $body = 'super body';
         $subject = 'super subject';
         $replyTo = 'replyTo@domain.fr';

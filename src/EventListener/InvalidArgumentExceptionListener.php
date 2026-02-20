@@ -1,8 +1,8 @@
 <?php
 
-namespace Khalil1608\LibBundle\EventListener;
+namespace UbeeDev\LibBundle\EventListener;
 
-use Khalil1608\LibBundle\Exception\InvalidArgumentException;
+use UbeeDev\LibBundle\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 

@@ -1,13 +1,13 @@
 doctrine:
   dbal:
     types:
-      datetime: Khalil1608\LibBundle\Doctrine\DBAL\Types\DateTimeType
-      date: Khalil1608\LibBundle\Doctrine\DBAL\Types\DateType
-      money: Khalil1608\LibBundle\Doctrine\DBAL\Types\MoneyType
-      email: Khalil1608\LibBundle\Doctrine\DBAL\Types\EmailType
-      name: Khalil1608\LibBundle\Doctrine\DBAL\Types\NameType
-      url: Khalil1608\LibBundle\Doctrine\DBAL\Types\UrlType
-      htmlName: Khalil1608\LibBundle\Doctrine\DBAL\Types\HtmlNameType
+      datetime: UbeeDev\LibBundle\Doctrine\DBAL\Types\DateTimeType
+      date: UbeeDev\LibBundle\Doctrine\DBAL\Types\DateType
+      money: UbeeDev\LibBundle\Doctrine\DBAL\Types\MoneyType
+      email: UbeeDev\LibBundle\Doctrine\DBAL\Types\EmailType
+      name: UbeeDev\LibBundle\Doctrine\DBAL\Types\NameType
+      url: UbeeDev\LibBundle\Doctrine\DBAL\Types\UrlType
+      htmlName: UbeeDev\LibBundle\Doctrine\DBAL\Types\HtmlNameType
 
 when@test:
   doctrine:

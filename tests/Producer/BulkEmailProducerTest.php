@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Khalil1608\LibBundle\Tests\Producer;
+namespace UbeeDev\LibBundle\Tests\Producer;
 
-use Khalil1608\LibBundle\Producer\BulkEmailProducer;
-use Khalil1608\LibBundle\Producer\EmailProducer;
+use UbeeDev\LibBundle\Producer\BulkEmailProducer;
+use UbeeDev\LibBundle\Producer\EmailProducer;
 
 class BulkEmailProducerTest extends AbstractProducerCase
 {

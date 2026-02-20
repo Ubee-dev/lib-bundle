@@ -1,9 +1,9 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Helper;
+namespace UbeeDev\LibBundle\Tests\Helper;
 
-use Khalil1608\LibBundle\Model\Type\Email;
-use Khalil1608\LibBundle\Producer\EmailProducer;
+use UbeeDev\LibBundle\Model\Type\Email;
+use UbeeDev\LibBundle\Producer\EmailProducer;
 use OldSound\RabbitMqBundle\RabbitMq\Producer as RabbitProducer;
 
 class EmailProducerStub extends EmailProducer

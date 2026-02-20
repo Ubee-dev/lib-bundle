@@ -1,14 +1,11 @@
 <?php
 
-namespace Khalil1608\LibBundle\Command;
+namespace UbeeDev\LibBundle\Command;
 
-use Khalil1608\LibBundle\Job\BackupDatabaseSaveJob;
-use Khalil1608\LibBundle\Service\BackupDatabase;
-use Khalil1608\LibBundle\Service\Mailer;
-use Khalil1608\LibBundle\Service\S3Client;
+use UbeeDev\LibBundle\Service\BackupDatabase;
+use UbeeDev\LibBundle\Service\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -23,12 +20,10 @@ class BackupDatabaseSaveCommand extends AbstractMonitoredCommand
         private readonly S3Client               $s3Client,
         private readonly BackupDatabase         $backupDatabase,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Mailer                 $mailer,
         private readonly ParameterBagInterface  $parameterBag,
         private readonly string                 $s3BackupBucket,
         ?string                                 $name = null
-    )
-    {
+    ) {
         parent::__construct($name);
     }
 
@@ -36,20 +31,29 @@ class BackupDatabaseSaveCommand extends AbstractMonitoredCommand
     {
         $connexion = $this->entityManager->getConnection();
         $params = $connexion->getParams();
+        $databaseName = $connexion->getDatabase();
+        $tmpBackupFolder = $this->parameterBag->get('tmp_backup_folder');
 
-        $job = new BackupDatabaseSaveJob(
-            [],
-            $output,
-            $this->mailer,
-            $this->backupDatabase,
-            $this->s3Client,
-            $this->s3BackupBucket,
-            $this->parameterBag->get('tmp_backup_folder'),
+        $output->writeln("<info>Start dumping $databaseName...</info>");
+
+        $tmpDatabaseFileName = $this->backupDatabase->dump(
+            $tmpBackupFolder,
             $params['host'],
-            $connexion->getDatabase(),
+            $databaseName,
             $params['user'],
-            $params['password'],
+            $params['password']
         );
-        $job->run();
+
+        $output->writeln("<fg=green;>$databaseName dumped</>");
+
+        $output->writeln("<info>Start sending $databaseName to {$this->s3BackupBucket} bucket...</info>");
+
+        $this->s3Client->upload(
+            $tmpDatabaseFileName,
+            $this->s3BackupBucket,
+            $databaseName . '/Dump_' . $databaseName . '_du_' . (new \DateTime())->format('Y-m-d H:i:s') . '.sql'
+        );
+
+        $output->writeln("<fg=green;>$databaseName uploaded</>");
     }
 }

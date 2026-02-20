@@ -6,6 +6,9 @@ parameters:
   #todo tester si on peut l'écraser en lancant les tests parallèles
   env(TEST_TOKEN): "1"
   env(MUTE_OPS_ALERTS): false
+  env(ERROR_CHANNEL): ''
+  env(ERROR_EMAIL): ''
+  env(POST_DEPLOY_SLACK_CHANNEL): ''
   env(TURNSTILE_SECRET_KEY): ''
   env(TURNSTILE_SITE_KEY): ''
   env(ANTI_ROBOT_DEFAULT_VERIFIER): 'honeypot' # 'turnstile' or 'honeypot'
@@ -25,90 +28,99 @@ services:
       $appToken: '%env(resolve:APP_TOKEN)%'
   
   # auto-register Service
-  Khalil1608\LibBundle\:
+  UbeeDev\LibBundle\:
     resource: '../src/*'
     exclude: '../src/{Entity}'
   
   # controllers are imported separately to make sure they're public
   # and have a tag that allows actions to type-hint Service
-  Khalil1608\LibBundle\Controller\:
+  UbeeDev\LibBundle\Controller\:
     resource: '../src/Controller'
     tags: [ 'controller.service_arguments' ]
 
-  Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider:
+  UbeeDev\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider:
     arguments:
       $apiKey: '%env(MAILER_PASSWORD)%'
   
-  Khalil1608\LibBundle\Service\S3Client:
+  UbeeDev\LibBundle\Service\S3Client:
     arguments:
       $key: '%env(S3_KEY)%'
       $secret: '%env(S3_SECRET)%'
       $region: "%s3_region%"
       $version: "%s3_version%"
   
-  Khalil1608\LibBundle\Producer\EmailProducer:
+  UbeeDev\LibBundle\Producer\EmailProducer:
     $producer: '@old_sound_rabbit_mq.send_email_producer'
   
-  Khalil1608\LibBundle\Producer\BulkEmailProducer:
+  UbeeDev\LibBundle\Producer\BulkEmailProducer:
     $producer: '@old_sound_rabbit_mq.send_bulk_email_producer'
   
-  Khalil1608\LibBundle\Producer\ErrorProducer:
+  UbeeDev\LibBundle\Producer\ErrorProducer:
     $producer: '@old_sound_rabbit_mq.error_producer'
   
-  Khalil1608\LibBundle\Producer\SlackNotificationProducer:
+  UbeeDev\LibBundle\Producer\SlackNotificationProducer:
     $producer: '@old_sound_rabbit_mq.send_slack_notification_producer'
   
-  Khalil1608\LibBundle\Producer\CompressPdfProducer:
+  UbeeDev\LibBundle\Producer\CompressPdfProducer:
     $producer: '@old_sound_rabbit_mq.compress_pdf_producer'
   
   Doctrine\Migrations\Version\DbalMigrationFactory: ~
-  Khalil1608\LibBundle\Migrations\Factory\MigrationFactoryDecorator:
+  UbeeDev\LibBundle\Migrations\Factory\MigrationFactoryDecorator:
     decorates: Doctrine\Migrations\Version\DbalMigrationFactory
-    arguments: [ '@Khalil1608\LibBundle\Migrations\Factory\MigrationFactoryDecorator.inner', '%env(APP_ENV)%', '@doctrine.orm.entity_manager', '@kernel' ]
+    arguments: [ '@UbeeDev\LibBundle\Migrations\Factory\MigrationFactoryDecorator.inner', '%env(APP_ENV)%', '@doctrine.orm.entity_manager', '@kernel' ]
 
-  Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\EmailProvider:
+  UbeeDev\LibBundle\Service\EmailProvider\Mailchimp\EmailProvider:
     arguments:
       $apiKey: '%env(MAILER_PASSWORD)%'
   
-  Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface: '@Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\EmailProvider'
-  Khalil1608\LibBundle\Service\EmailProvider\BulkEmailProviderInterface: '@Khalil1608\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider'
+  UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface: '@UbeeDev\LibBundle\Service\EmailProvider\Mailchimp\EmailProvider'
+  UbeeDev\LibBundle\Service\EmailProvider\BulkEmailProviderInterface: '@UbeeDev\LibBundle\Service\EmailProvider\Mailchimp\BulkEmailProvider'
   
-  Khalil1608\LibBundle\Serializer\DateTimeNormalizer:
+  UbeeDev\LibBundle\Serializer\DateTimeNormalizer:
     tags:
       - { name: serializer.normalizer }
   
-  Khalil1608\LibBundle\EventListener\InvalidArgumentExceptionListener:
+  UbeeDev\LibBundle\EventListener\InvalidArgumentExceptionListener:
     tags:
       - { name: kernel.event_listener, event: kernel.exception, method: onKernelException, priority: 9 }
   
-  Khalil1608\LibBundle\ValueResolver\EmailValueResolver:
+  UbeeDev\LibBundle\ValueResolver\EmailValueResolver:
     tags:
       - controller.argument_value_resolver:
           name: email
           priority: 150
           
-  Khalil1608\LibBundle\Service\OpsAlertManager:
+  UbeeDev\LibBundle\Service\SlackManager:
     arguments:
       $muteOpsAlerts: '%env(bool:MUTE_OPS_ALERTS)%'
+
+  UbeeDev\LibBundle\Consumer\ErrorConsumer:
+    arguments:
+      $errorChannel: '%env(ERROR_CHANNEL)%'
+      $errorEmail: '%env(ERROR_EMAIL)%'
+
+  UbeeDev\LibBundle\Command\ExecutePostDeployCommand:
+    arguments:
+      $postDeploySlackChannel: '%env(POST_DEPLOY_SLACK_CHANNEL)%'
       
   Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler:
     arguments: [ '@snc_redis.default' ]
     
   # Factory pour les vérificateurs anti-robot
-  Khalil1608\LibBundle\Service\AntiRobot\AntiRobotVerifierFactory:
+  UbeeDev\LibBundle\Service\AntiRobot\AntiRobotVerifierFactory:
     arguments:
       $defaultVerifier: '%env(ANTI_ROBOT_DEFAULT_VERIFIER)%'
       $verifiers: !tagged_iterator app.anti_robot_verifier
   
   # Implémentation Honeypot (utilise FormManager existant)
-  Khalil1608\LibBundle\Service\AntiRobot\HoneypotVerifier:
+  UbeeDev\LibBundle\Service\AntiRobot\HoneypotVerifier:
     arguments:
-      $formManager: '@Khalil1608\LibBundle\Service\FormManager'
+      $formManager: '@UbeeDev\LibBundle\Service\FormManager'
     tags:
       - { name: 'app.anti_robot_verifier' }
   
   # Implémentation Turnstile (optionnelle)
-  Khalil1608\LibBundle\Service\AntiRobot\TurnstileVerifier:
+  UbeeDev\LibBundle\Service\AntiRobot\TurnstileVerifier:
     arguments:
       $secretKey: '%env(TURNSTILE_SECRET_KEY)%'
       $siteKey: '%env(TURNSTILE_SITE_KEY)%'
@@ -116,14 +128,14 @@ services:
       - { name: 'app.anti_robot_verifier' }
   
   # Compiler pass pour enregistrer automatiquement les vérificateurs
-  Khalil1608\LibBundle\DependencyInjection\Compiler\AntiRobotVerifierPass:
+  UbeeDev\LibBundle\DependencyInjection\Compiler\AntiRobotVerifierPass:
     tags:
       - { name: kernel.compiler_pass }
   
   # Extension Twig pour exposer les données du vérificateur
-  Khalil1608\LibBundle\Twig\AntiRobotExtension:
+  UbeeDev\LibBundle\Twig\AntiRobotExtension:
     arguments:
-      - '@Khalil1608\LibBundle\Service\AntiRobot\AntiRobotVerifierFactory'
+      - '@UbeeDev\LibBundle\Service\AntiRobot\AntiRobotVerifierFactory'
     tags:
       - { name: twig.extension }
     
@@ -133,6 +145,7 @@ when@test:
     env(IS_CI): ""
     env(SLACK_TOKEN): ""
     env(SLACK_NOTIFICATION_TS): ""
+    mediaClassName: 'UbeeDev\LibBundle\Tests\Helper\DummyMedia'
     
   services:
     _defaults:
@@ -140,50 +153,50 @@ when@test:
       autoconfigure: true
       public: false
       
-    Khalil1608\LibBundle\Service\FormManager:
+    UbeeDev\LibBundle\Service\FormManager:
       arguments:
         $blockBots: false
     
-    Khalil1608\LibBundle\Tests\Helper\ValidationReporter:
+    UbeeDev\LibBundle\Tests\Helper\ValidationReporter:
       public: true
   
-    Khalil1608\LibBundle\Tests\Helper\Factory:
+    UbeeDev\LibBundle\Tests\Helper\Factory:
       public: true
-    Khalil1608\LibBundle\Tests\Helper\Cleaner:
+    UbeeDev\LibBundle\Tests\Helper\Cleaner:
       arguments:
         $currentEnv: '%env(APP_ENV)%'
       
-    Khalil1608\LibBundle\Tests\Behat\CommonContext:
+    UbeeDev\LibBundle\Tests\Behat\CommonContext:
       arguments:
         $testToken: "%env(TEST_TOKEN)%"
         $isCI: "%env(IS_CI)%"
         $slackNotificationTs: "%env(SLACK_NOTIFICATION_TS)%"
       
-    Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider:
+    UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider:
       arguments:
         $testToken: "%env(TEST_TOKEN)%"
 
-    Khalil1608\LibBundle\Tests\Helper\ContextState:
-    Khalil1608\LibBundle\Tests\Helper\FactoryInterface: '@Khalil1608\LibBundle\Tests\Helper\Factory'
-    Khalil1608\LibBundle\Tests\Helper\CleanerInterface: '@Khalil1608\LibBundle\Tests\Helper\Cleaner'
-    Khalil1608\LibBundle\Tests\Helper\ContextStateInterface: '@Khalil1608\LibBundle\Tests\Helper\ContextState'
-    Khalil1608\LibBundle\Service\EmailProviderInterface: '@Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider'
-    Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface: '@Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider'
+    UbeeDev\LibBundle\Tests\Helper\ContextState:
+    UbeeDev\LibBundle\Tests\Helper\FactoryInterface: '@UbeeDev\LibBundle\Tests\Helper\Factory'
+    UbeeDev\LibBundle\Tests\Helper\CleanerInterface: '@UbeeDev\LibBundle\Tests\Helper\Cleaner'
+    UbeeDev\LibBundle\Tests\Helper\ContextStateInterface: '@UbeeDev\LibBundle\Tests\Helper\ContextState'
+    UbeeDev\LibBundle\Service\EmailProviderInterface: '@UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider'
+    UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface: '@UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider'
     
-    Khalil1608\LibBundle\Tests\Helper\HttpMock:
+    UbeeDev\LibBundle\Tests\Helper\HttpMock:
       arguments:
         $testToken: '%env(TEST_TOKEN)%'
     
-    Khalil1608\LibBundle\Tests\Helper\DummyController:
+    UbeeDev\LibBundle\Tests\Helper\DummyController:
       tags: [ 'controller.service_arguments' ]
       
-    Khalil1608\LibBundle\Producer\EmailProducer:
-      class: Khalil1608\LibBundle\Tests\Helper\EmailProducerStub
+    UbeeDev\LibBundle\Producer\EmailProducer:
+      class: UbeeDev\LibBundle\Tests\Helper\EmailProducerStub
       arguments:
         $producer: '@old_sound_rabbit_mq.send_email_producer'
         $currentEnv: 'test'
     
-    Khalil1608\LibBundle\Tests\Helper\MonologCISlackHandler:
+    UbeeDev\LibBundle\Tests\Helper\MonologCISlackHandler:
       arguments:
         $isCi: '%env(IS_CI)%'
         $slackNotificationTs: "%env(SLACK_NOTIFICATION_TS)%"
@@ -202,20 +215,20 @@ when@dev:
       autoconfigure: true
       public: false
     
-    Khalil1608\LibBundle\Tests\Helper\Factory:
-    Khalil1608\LibBundle\Tests\Helper\Cleaner:
+    UbeeDev\LibBundle\Tests\Helper\Factory:
+    UbeeDev\LibBundle\Tests\Helper\Cleaner:
       arguments:
         $currentEnv: '%env(APP_ENV)%'
         
-    Khalil1608\LibBundle\Tests\Helper\CleanerInterface: '@Khalil1608\LibBundle\Tests\Helper\Cleaner'
+    UbeeDev\LibBundle\Tests\Helper\CleanerInterface: '@UbeeDev\LibBundle\Tests\Helper\Cleaner'
     
-    Khalil1608\LibBundle\Tests\Helper\HttpMock:
+    UbeeDev\LibBundle\Tests\Helper\HttpMock:
       arguments:
         $testToken: '%env(TEST_TOKEN)%'
         
-    Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider:
+    UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider:
       arguments:
         $testToken: "%env(TEST_TOKEN)%"
     
-    Khalil1608\LibBundle\Service\EmailProviderInterface: '@Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider'
-    Khalil1608\LibBundle\Service\EmailProvider\EmailProviderInterface: '@Khalil1608\LibBundle\Tests\Helper\FakeEmailProvider'
+    UbeeDev\LibBundle\Service\EmailProviderInterface: '@UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider'
+    UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface: '@UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider'

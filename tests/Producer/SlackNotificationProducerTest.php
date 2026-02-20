@@ -1,18 +1,22 @@
 <?php
 
-namespace Khalil1608\LibBundle\Tests\Producer;
+namespace UbeeDev\LibBundle\Tests\Producer;
 
-use Khalil1608\LibBundle\Producer\SlackNotificationProducer;
+use UbeeDev\LibBundle\Producer\SlackNotificationProducer;
+use UbeeDev\LibBundle\Service\Slack\TextSnippet;
 
 class SlackNotificationProducerTest extends AbstractProducerCase
 {
-    public function testSendNotificationWithoutRetryNumber()
+    public function testSendNotificationWithoutRetryNumber(): void
     {
-        $params = ['some' => 'params'];
-
-        $messageBody = json_encode(array_merge($params, [
-            'retryNumber' => 0
-        ]));
+        $snippet = new TextSnippet('some content');
+        $messageBody = json_encode([
+            'channel' => 'dev',
+            'title' => 'Test title',
+            'snippet' => $snippet->jsonSerialize(),
+            'threadTs' => null,
+            'retryNumber' => 0,
+        ]);
 
         $this->producerMock->expects($this->once())
             ->method('publish')
@@ -23,17 +27,20 @@ class SlackNotificationProducerTest extends AbstractProducerCase
                 $this->equalTo([])
             );
 
-        $slackNotificationProducer = new SlackNotificationProducer($this->producerMock);
-
-        $slackNotificationProducer->sendSlackNotification($params);
+        $producer = new SlackNotificationProducer($this->producerMock);
+        $producer->publish('dev', 'Test title', $snippet);
     }
 
-    public function testSendNotificationWithOneRetryNumber()
+    public function testSendNotificationWithOneRetryNumber(): void
     {
-        $messageBody = json_encode([
-            'some' => 'options',
-            'retryNumber' => 1
-        ]);
+        $options = [
+            'channel' => 'dev',
+            'title' => 'Test title',
+            'snippet' => (new TextSnippet('content'))->jsonSerialize(),
+            'retryNumber' => 0,
+        ];
+
+        $messageBody = json_encode(array_merge($options, ['retryNumber' => 1]));
 
         $this->producerMock->expects($this->once())
             ->method('publish')
@@ -44,17 +51,20 @@ class SlackNotificationProducerTest extends AbstractProducerCase
                 $this->equalTo(['x-delay' => 5 * 60 * 1000])
             );
 
-        $slackNotificationProducer = new SlackNotificationProducer($this->producerMock);
-
-        $slackNotificationProducer->sendSlackNotification(['some' => 'options', 'retryNumber' => 0], 1);
+        $producer = new SlackNotificationProducer($this->producerMock);
+        $producer->sendNotification($options, 1);
     }
 
-    public function testSendEmailWithTwoRetryNumber()
+    public function testSendNotificationWithTwoRetryNumber(): void
     {
-        $messageBody = json_encode([
-            'some' => 'options',
-            'retryNumber' => 2
-        ]);
+        $options = [
+            'channel' => 'dev',
+            'title' => 'Test title',
+            'snippet' => (new TextSnippet('content'))->jsonSerialize(),
+            'retryNumber' => 1,
+        ];
+
+        $messageBody = json_encode(array_merge($options, ['retryNumber' => 2]));
 
         $this->producerMock->expects($this->once())
             ->method('publish')
@@ -65,8 +75,7 @@ class SlackNotificationProducerTest extends AbstractProducerCase
                 $this->equalTo(['x-delay' => 15 * 60 * 1000])
             );
 
-        $slackNotificationProducer = new SlackNotificationProducer($this->producerMock);
-
-        $slackNotificationProducer->sendSlackNotification(['some' => 'options', 'retryNumber' => 1], 2);
+        $producer = new SlackNotificationProducer($this->producerMock);
+        $producer->sendNotification($options, 2);
     }
 }

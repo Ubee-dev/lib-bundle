@@ -1,4 +1,4 @@
-khalil1608_lib:
+ubee_dev_lib:
   s3_region: eu-west-3
   s3_version: "2006-03-01"
   export_dir: "%kernel.logs_dir%/../exports"
