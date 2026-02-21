@@ -2,8 +2,15 @@
 
 namespace UbeeDev\LibBundle\Tests\Helper;
 
+use OldSound\RabbitMqBundle\RabbitMq\Producer as RabbitProducer;
 
-class RabbitMQStub
+class RabbitMQStub extends RabbitProducer
 {
-    public function publish($msgBody, $routingKey = '', $additionalProperties = array(), ?array $headers = null){}
+    public function __construct()
+    {
+    }
+
+    public function publish($msgBody, $routingKey = '', $additionalProperties = array(), ?array $headers = null): void
+    {
+    }
 }
