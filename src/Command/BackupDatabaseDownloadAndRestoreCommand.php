@@ -3,7 +3,7 @@
 namespace UbeeDev\LibBundle\Command;
 
 use UbeeDev\LibBundle\Service\BackupDatabase;
-use UbeeDev\LibBundle\Service\S3Client;
+use UbeeDev\LibBundle\Service\ObjectStorageInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,16 +14,16 @@ use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 
 #[AsCommand(
     name: 'backupdb:download:restore',
-    description: 'Get last database backup from s3 and restore database'
+    description: 'Get last database backup from object storage and restore database'
 )]
 class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
 {
     public function __construct(
-        private readonly S3Client               $s3Client,
+        private readonly ObjectStorageInterface $objectStorage,
         private readonly BackupDatabase         $backupDatabase,
         private readonly EntityManagerInterface $entityManager,
         private readonly ParameterBagInterface  $parameterBag,
-        private readonly string                 $s3BackupBucket,
+        private readonly string                 $backupBucket,
         ?string                                 $name = null
     ) {
         parent::__construct($name);
@@ -33,7 +33,7 @@ class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
     {
         parent::configure();
         $this
-            ->addOption('key', null, InputOption::VALUE_OPTIONAL, 'File you want to download in S3', null);
+            ->addOption('key', null, InputOption::VALUE_OPTIONAL, 'File you want to download from object storage', null);
     }
 
     public function perform(InputInterface $input, OutputInterface $output): void
@@ -45,9 +45,11 @@ class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
 
         $backupFilePath = $this->downloadBackupFileIfNotExist($output, $databaseName, $tmpBackupFolder, $s3Key);
 
+        $output->writeln("<info>Restoring database <fg=yellow;>$databaseName</> from $backupFilePath...</info>");
+
         $this->backupDatabase->restore($connection, $backupFilePath);
 
-        $output->writeln("<info>Database $databaseName restored...</info>");
+        $output->writeln("<fg=green;>Database $databaseName restored successfully</>");
     }
 
     private function getLastDump(string $databaseName, ?string $s3Key): string
@@ -56,10 +58,7 @@ class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
             return $s3Key;
         }
 
-        $dumpsFile = $this->s3Client->list([
-            'Bucket' => $this->s3BackupBucket,
-            'Prefix' => $databaseName,
-        ]);
+        $dumpsFile = $this->objectStorage->list($this->backupBucket, $databaseName);
 
         return array_values(array_slice($dumpsFile, -1))[0];
     }
@@ -72,15 +71,17 @@ class BackupDatabaseDownloadAndRestoreCommand extends AbstractMonitoredCommand
         $backupFilePath = $backupFolder . '/' . $fileName;
 
         if (!file_exists($backupFilePath)) {
-            $output->writeln("<info>Start downloading $lastDump...</info>");
+            $output->writeln("<info>Downloading <fg=yellow;>$lastDump</> from bucket <fg=yellow;>{$this->backupBucket}</>...</info>");
 
-            $backupFilePath = $this->s3Client->download($this->s3BackupBucket, $lastDump, $backupFolder, $fileName);
+            $backupFilePath = $this->objectStorage->download($this->backupBucket, $lastDump, $backupFolder, $fileName);
 
             if (!$backupFilePath) {
                 throw new FileNotFoundException('File ' . $lastDump . ' not found');
             }
 
-            $output->writeln("<info>Database $databaseName downloaded...</info>");
+            $output->writeln("<fg=green;>Downloaded to:</> $backupFilePath");
+        } else {
+            $output->writeln("<comment>File already exists locally:</comment> $backupFilePath");
         }
 
         return $backupFilePath;

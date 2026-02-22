@@ -7,7 +7,7 @@ The services layer provides the main building blocks of the bundle -- autowirabl
 - [Media & Files](#media--files)
   - [MediaManager](#mediamanager)
   - [PdfGenerator](#pdfgenerator)
-  - [S3Client](#s3client)
+  - [ObjectStorage](#objectstorage)
   - [SpreadsheetExporter](#spreadsheetexporter)
 - [Email & Notifications](#email--notifications)
   - [Mailer](#mailer)
@@ -156,57 +156,60 @@ return new Response($pdfContent, 200, [
 
 ---
 
-### S3Client
+### ObjectStorage
 
-Wrapper around the AWS SDK S3 client for uploading, downloading, listing, and deleting objects in S3 buckets. Using this wrapper instead of the raw AWS SDK directly gives you a client that is pre-configured with the bundle's environment variables (key, secret, region, version), a simplified API for common operations (single-call upload, download-to-local-file, list keys), and consistent method signatures so callers never need to build AWS option arrays.
+Abstraction layer for S3-compatible object storage providers (AWS S3, OVH, MinIO, etc.). Provides a unified interface for uploading, downloading, listing, and deleting objects in buckets. The bundle pre-configures the client with environment variables (key, secret, region) so callers never need to build provider-specific option arrays.
 
-**Class:** `UbeeDev\LibBundle\Service\S3Client`
+**Interface:** `UbeeDev\LibBundle\Service\ObjectStorageInterface`
+
+**Implementations:**
+- `UbeeDev\LibBundle\Service\ObjectStorage\S3ObjectStorage` -- AWS S3 (default)
+- `UbeeDev\LibBundle\Service\ObjectStorage\OvhObjectStorage` -- OVH (S3-compatible with custom endpoint)
+
+To switch provider, see [ObjectStorage Configuration](configuration.md#objectstorage-configuration).
 
 #### upload
 
-Uploads a local file to S3 and returns the public object URL.
+Uploads a local file and returns the public object URL.
 
 ```php
-/** @var \UbeeDev\LibBundle\Service\S3Client $s3 */
+/** @var \UbeeDev\LibBundle\Service\ObjectStorageInterface $storage */
 
-$objectUrl = $s3->upload('/tmp/backup.sql', 'my-bucket', 'backups/2026/backup.sql');
+$objectUrl = $storage->upload('/tmp/backup.sql', 'my-bucket', 'backups/2026/backup.sql');
 // Returns: "https://my-bucket.s3.amazonaws.com/backups/2026/backup.sql"
 ```
 
 #### get
 
-Returns the effective URI of an object in S3.
+Returns the effective URI of an object.
 
 ```php
-$uri = $s3->get('my-bucket', 'backups/2026/backup.sql');
+$uri = $storage->get('my-bucket', 'backups/2026/backup.sql');
 ```
 
 #### download
 
-Downloads an S3 object to a local temporary file and returns the local file path.
+Downloads an object to a local temporary file and returns the local file path.
 
 ```php
-$localPath = $s3->download('my-bucket', 'backups/2026/backup.sql', '/tmp/downloads', 'backup.sql');
+$localPath = $storage->download('my-bucket', 'backups/2026/backup.sql', '/tmp/downloads', 'backup.sql');
 // Returns: "/tmp/downloads/backup.sql"
 ```
 
 #### delete
 
-Deletes an object from S3. Returns `true` on success.
+Deletes an object. Returns `true` on success.
 
 ```php
-$s3->delete('my-bucket', 'backups/2026/backup.sql');
+$storage->delete('my-bucket', 'backups/2026/backup.sql');
 ```
 
 #### list
 
-Lists object keys in a bucket. Accepts the same options as the AWS SDK `ListObjects` operation.
+Lists object keys in a bucket, optionally filtered by prefix.
 
 ```php
-$keys = $s3->list([
-    'Bucket' => 'my-bucket',
-    'Prefix' => 'backups/2026/',
-]);
+$keys = $storage->list('my-bucket', 'backups/2026/');
 // Returns: ["backups/2026/backup-01.sql", "backups/2026/backup-02.sql"]
 ```
 
@@ -813,15 +816,15 @@ Restores a database from a SQL dump file.
 $backup->restore($connection, '/var/backups/my_database/2026-02-20 14:30:00.sql');
 ```
 
-#### Combining with S3Client
+#### Combining with ObjectStorage
 
 ```php
-// Backup and upload to S3
+// Backup and upload
 $dumpFile = $backup->dump($connection, '/tmp/backups');
-$s3->upload($dumpFile, 'my-backup-bucket', 'db/' . basename($dumpFile));
+$storage->upload($dumpFile, 'my-backup-bucket', 'db/' . basename($dumpFile));
 
-// Download from S3 and restore
-$localFile = $s3->download('my-backup-bucket', 'db/2026-02-20 14:30:00.sql', '/tmp', 'restore.sql');
+// Download and restore
+$localFile = $storage->download('my-backup-bucket', 'db/2026-02-20 14:30:00.sql', '/tmp', 'restore.sql');
 $backup->restore($connection, $localFile);
 ```
 

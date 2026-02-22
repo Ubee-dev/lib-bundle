@@ -1815,8 +1815,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     role_hierarchy?: array<string, string|list<scalar|Param|null>>,
  * }
  * @psalm-type UbeeDevLibConfig = array{
- *     s3_region?: scalar|Param|null,
- *     s3_version?: scalar|Param|null,
  *     export_dir?: scalar|Param|null,
  *     tmp_backup_folder?: scalar|Param|null,
  * }

@@ -21,7 +21,7 @@ services:
       $container: '@service_container'
       $requestStack: '@request_stack'
       $slackToken: '%env(resolve:SLACK_TOKEN)%'
-      $s3BackupBucket: '%env(resolve:S3_BACKUP_BUCKET)%'
+      $backupBucket: '%env(resolve:BACKUP_BUCKET)%'
       $listPageSize: '%env(resolve:PAGE_SIZE)%'
       $currentEnv: '%env(resolve:APP_ENV)%'
       $appToken: '%env(resolve:APP_TOKEN)%'
@@ -43,12 +43,20 @@ services:
   
   UbeeDev\LibBundle\Service\DatabaseDumperInterface: '@UbeeDev\LibBundle\Service\DatabaseDumper\MysqlDumper'
 
-  UbeeDev\LibBundle\Service\S3Client:
+  UbeeDev\LibBundle\Service\ObjectStorageInterface: '@UbeeDev\LibBundle\Service\ObjectStorage\S3ObjectStorage'
+
+  UbeeDev\LibBundle\Service\ObjectStorage\S3ObjectStorage:
     arguments:
-      $key: '%env(S3_KEY)%'
-      $secret: '%env(S3_SECRET)%'
-      $region: "%s3_region%"
-      $version: "%s3_version%"
+      $key: '%env(OBJECT_STORAGE_KEY)%'
+      $secret: '%env(OBJECT_STORAGE_SECRET)%'
+      $region: '%env(OBJECT_STORAGE_REGION)%'
+
+  UbeeDev\LibBundle\Service\ObjectStorage\OvhObjectStorage:
+    arguments:
+      $key: '%env(OBJECT_STORAGE_KEY)%'
+      $secret: '%env(OBJECT_STORAGE_SECRET)%'
+      $region: '%env(OBJECT_STORAGE_REGION)%'
+      $endpoint: '%env(OBJECT_STORAGE_ENDPOINT)%'
   
   UbeeDev\LibBundle\Producer\EmailProducer:
     $producer: '@old_sound_rabbit_mq.send_email_producer'

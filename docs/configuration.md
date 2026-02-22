@@ -10,7 +10,7 @@ The bundle relies on environment variables and parameters to connect to external
   - [Database](#database)
   - [Redis](#redis)
   - [RabbitMQ](#rabbitmq)
-  - [AWS S3](#aws-s3)
+  - [Object Storage](#object-storage)
   - [Notifications](#notifications)
   - [Email](#email)
   - [Error Tracking](#error-tracking)
@@ -77,20 +77,35 @@ RABBITMQ_USER=guest
 RABBITMQ_PASSWORD=guest
 ```
 
-### AWS S3
+### Object Storage
 
-S3 is used for database backups and file storage (e.g., media uploads managed by `MediaManager`).
+Object storage is used for database backups and file storage. The bundle supports any S3-compatible provider (AWS S3, OVH, MinIO, etc.).
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `S3_KEY` | Yes | -- | AWS access key ID for S3. |
-| `S3_SECRET` | Yes | -- | AWS secret access key for S3. |
-| `S3_BACKUP_BUCKET` | Yes | -- | S3 bucket name used for file storage and database backups. |
+| `OBJECT_STORAGE_KEY` | Yes | -- | Access key ID for the storage provider. |
+| `OBJECT_STORAGE_SECRET` | Yes | -- | Secret access key for the storage provider. |
+| `OBJECT_STORAGE_REGION` | Yes | -- | Region of the storage provider (e.g. `eu-west-3`). |
+| `BACKUP_BUCKET` | Yes | -- | Bucket name used for database backups. |
+| `OBJECT_STORAGE_ENDPOINT` | No | -- | Custom endpoint URL (required for OVH and other S3-compatible providers). |
+
+**AWS S3:**
 
 ```bash
-S3_KEY=AKIAIOSFODNN7EXAMPLE
-S3_SECRET=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
-S3_BACKUP_BUCKET=my-app-backups
+OBJECT_STORAGE_KEY=AKIAIOSFODNN7EXAMPLE
+OBJECT_STORAGE_SECRET=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+OBJECT_STORAGE_REGION=eu-west-3
+BACKUP_BUCKET=my-app-backups
+```
+
+**OVH:**
+
+```bash
+OBJECT_STORAGE_KEY=ovh-access-key
+OBJECT_STORAGE_SECRET=ovh-secret-key
+OBJECT_STORAGE_REGION=gra
+OBJECT_STORAGE_ENDPOINT=https://s3.gra.io.cloud.ovh.net
+BACKUP_BUCKET=my-app-backups
 ```
 
 ### Notifications
@@ -194,18 +209,14 @@ The bundle exposes its own configuration under the `ubee_dev_lib` key. Add these
 ```yaml
 # config/packages/ubee_dev_lib.yaml
 ubee_dev_lib:
-    s3_region: eu-west-3                          # AWS S3 region
-    s3_version: "2006-03-01"                      # AWS S3 API version
     export_dir: "%kernel.logs_dir%/../exports"    # Directory for spreadsheet exports
     tmp_backup_folder: /tmp/dump                  # Temporary folder for database dumps
 ```
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `s3_region` | `eu-west-3` | The AWS region where your S3 bucket is located. |
-| `s3_version` | `"2006-03-01"` | The S3 API version to use. |
 | `export_dir` | `%kernel.logs_dir%/../exports` | Local directory where generated spreadsheet exports are stored. |
-| `tmp_backup_folder` | `/tmp/dump` | Local temporary directory used for database dump files before uploading to S3. |
+| `tmp_backup_folder` | `/tmp/dump` | Local temporary directory used for database dump files before uploading to object storage. |
 
 ---
 
@@ -471,9 +482,26 @@ You can use `mediaManager` directly in any Twig template:
 
 ---
 
+## ObjectStorage Configuration
+
+The bundle provides an `ObjectStorageInterface` used by the backup commands to upload, download, and list files in a remote bucket. The default implementation is **S3ObjectStorage** (AWS S3).
+
+To switch to **OVH** (or any S3-compatible provider), override the interface alias in your application's service configuration:
+
+```yaml
+# config/services.yaml
+services:
+    UbeeDev\LibBundle\Service\ObjectStorageInterface:
+        alias: UbeeDev\LibBundle\Service\ObjectStorage\OvhObjectStorage
+```
+
+Make sure to set the `OBJECT_STORAGE_ENDPOINT` environment variable when using OVH.
+
+---
+
 ## DatabaseDumper Configuration
 
-The bundle provides a `DatabaseDumperInterface` used by the backup system to dump databases before uploading to S3. The default implementation is **MysqlDumper**.
+The bundle provides a `DatabaseDumperInterface` used by the backup system to dump databases before uploading to object storage. The default implementation is **MysqlDumper**.
 
 To switch to **PostgreSQL**, override the interface alias in your application's service configuration:
 
@@ -484,4 +512,4 @@ services:
         alias: UbeeDev\LibBundle\Service\DatabaseDumper\PostgresDumper
 ```
 
-The dumper uses the `tmp_backup_folder` bundle parameter (default: `/tmp/dump`) as the temporary directory for dump files. Make sure this directory is writable by the application.
+The dumper uses the `tmp_backup_folder` bundle parameter (default: `/tmp/dump`) as the temporary directory for dump files before uploading to object storage. Make sure this directory is writable by the application.

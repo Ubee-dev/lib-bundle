@@ -9,13 +9,13 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use UbeeDev\LibBundle\Command\BackupDatabaseSaveCommand;
 use UbeeDev\LibBundle\Service\BackupDatabase;
-use UbeeDev\LibBundle\Service\S3Client;
+use UbeeDev\LibBundle\Service\ObjectStorageInterface;
 
 class BackupDatabaseSaveCommandTest extends TestCase
 {
     public function testSaveDatabase(): void
     {
-        $s3Client = $this->createMock(S3Client::class);
+        $objectStorage = $this->createMock(ObjectStorageInterface::class);
         $backupDatabase = $this->createMock(BackupDatabase::class);
         $entityManager = $this->createMock(EntityManagerInterface::class);
         $parameterBag = $this->createMock(ParameterBagInterface::class);
@@ -39,7 +39,7 @@ class BackupDatabaseSaveCommandTest extends TestCase
             ->with($connection, '/tmp/dump')
             ->willReturn('/tmp/dump/database_name/database_name.sql');
 
-        $s3Client
+        $objectStorage
             ->expects($this->once())
             ->method('upload')
             ->with(
@@ -49,12 +49,13 @@ class BackupDatabaseSaveCommandTest extends TestCase
             )
             ->willReturn('https://aws.com/myexportfile.xls');
 
-        $command = new BackupDatabaseSaveCommand($s3Client, $backupDatabase, $entityManager, $parameterBag, 'some-bucket');
+        $command = new BackupDatabaseSaveCommand($objectStorage, $backupDatabase, $entityManager, $parameterBag, 'some-bucket');
         $tester = new CommandTester($command);
         $tester->execute([]);
 
-        $this->assertStringContainsString('Start dumping database_name', $tester->getDisplay());
-        $this->assertStringContainsString('database_name dumped', $tester->getDisplay());
-        $this->assertStringContainsString('database_name uploaded', $tester->getDisplay());
+        $this->assertStringContainsString('Dumping database database_name', $tester->getDisplay());
+        $this->assertStringContainsString('Dump created:', $tester->getDisplay());
+        $this->assertStringContainsString('Uploading to bucket some-bucket', $tester->getDisplay());
+        $this->assertStringContainsString('Upload complete:', $tester->getDisplay());
     }
 }

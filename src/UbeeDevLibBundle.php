@@ -14,8 +14,6 @@ class UbeeDevLibBundle extends AbstractBundle
     {
         $definition->rootNode()
             ->children()
-            ->scalarNode('s3_region')->end()
-            ->scalarNode('s3_version')->end()
             ->scalarNode('export_dir')->end()
             ->scalarNode('tmp_backup_folder')->end()
             ->end();

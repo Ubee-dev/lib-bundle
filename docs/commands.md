@@ -21,11 +21,12 @@ This document covers all console commands provided by the UbeeDev LibBundle, as 
 
 ## Database Backup Commands
 
-These commands manage database backups through AWS S3. They require the following configuration:
+These commands manage database backups through a configurable object storage provider (AWS S3, OVH, etc.). They require the following configuration:
 
-- **Environment variable:** `S3_BACKUP_BUCKET` -- the S3 bucket where backups are stored.
+- **Environment variable:** `BACKUP_BUCKET` -- the bucket where backups are stored.
 - **Bundle parameter:** `ubee_dev_lib.tmp_backup_folder` -- the local temporary directory for dump files (default: `/tmp/dump`).
 - **Service:** A `DatabaseDumperInterface` implementation (MySQL by default, see [DatabaseDumper Configuration](configuration.md#databasedumper-configuration)).
+- **Service:** An `ObjectStorageInterface` implementation (S3 by default, see [ObjectStorage Configuration](configuration.md#objectstorage-configuration)).
 
 ### backupdb:save
 

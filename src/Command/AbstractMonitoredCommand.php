@@ -54,6 +54,13 @@ abstract class AbstractMonitoredCommand extends Command implements MonitoredComm
                 status: CheckInStatus::error(),
                 checkInId: $checkInId,
             );
+
+            $output->writeln("<error>{$exception->getMessage()}</error>");
+
+            if ($output->isVerbose()) {
+                $output->writeln("<comment>{$exception->getTraceAsString()}</comment>");
+            }
+
             return Command::FAILURE;
         }
     }

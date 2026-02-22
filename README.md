@@ -8,7 +8,7 @@ A comprehensive Symfony bundle providing reusable services, traits, validators, 
 
 - **Media Management** -- Upload, delete, WebP conversion, PDF generation
 - **Email System** -- Provider abstraction (Mailchimp, Gmail, Symfony Mailer) with RabbitMQ async
-- **Database Backup** -- Dump/restore with pluggable drivers (MySQL, PostgreSQL) and S3 storage
+- **Database Backup** -- Dump/restore with pluggable drivers (MySQL, PostgreSQL) and pluggable object storage (S3, OVH)
 - **Custom Doctrine Types** -- Money, Email, Name, Url, HtmlName, DateTime, Date
 - **API Tools** -- Request sanitization, pagination, typed parameter expectations
 - **Markdown Parser** -- Extended syntax with YouTube/Vimeo embeds, buttons, steps, timelines
@@ -54,9 +54,10 @@ REDIS_PASSWORD=
 RABBITMQ_HOST=127.0.0.1
 RABBITMQ_USER=guest
 RABBITMQ_PASSWORD=guest
-S3_KEY=your-key
-S3_SECRET=your-secret
-S3_BACKUP_BUCKET=my-backups
+OBJECT_STORAGE_KEY=your-key
+OBJECT_STORAGE_SECRET=your-secret
+OBJECT_STORAGE_REGION=eu-west-3
+BACKUP_BUCKET=my-backups
 SLACK_TOKEN=xoxb-your-token
 MAILER_DSN=null://null
 MAILER_PASSWORD=your-mailchimp-key
@@ -70,8 +71,6 @@ MUTE_OPS_ALERTS=false
 ```yaml
 # config/packages/ubee_dev_lib.yaml
 ubee_dev_lib:
-    s3_region: eu-west-3
-    s3_version: "2006-03-01"
     export_dir: "%kernel.logs_dir%/../exports"
     tmp_backup_folder: /tmp/dump
 ```
@@ -111,7 +110,7 @@ class MyController extends AbstractController
 | Topic | Description |
 |-------|-------------|
 | [Configuration](docs/configuration.md) | Environment variables, bundle parameters, package configs |
-| [Services](docs/services.md) | MediaManager, Mailer, S3, Slack, Markdown, PDF, Backup |
+| [Services](docs/services.md) | MediaManager, Mailer, Object Storage, Slack, Markdown, PDF, Backup |
 | [Database](docs/database.md) | Custom Doctrine types, backup/restore, migrations |
 | [Messaging](docs/messaging.md) | RabbitMQ producers/consumers, async email, Slack |
 | [Traits](docs/traits.md) | DateTime, Money, PhoneNumber, String, Video, Process |
