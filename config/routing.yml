@@ -1,6 +1,11 @@
+ubee_dev_lib_image_resize:
+  resource: UbeeDev\LibBundle\Controller\ImageResizeController
+  type: attribute
+  prefix: /media
+
 when@test:
   ubee_dev_lib_render_iframe:
     resource: UbeeDev\LibBundle\Controller\RenderIframeController
-    
+
   ubee_dev_lib_dummy_controller:
     resource: UbeeDev\LibBundle\Tests\Helper\DummyController

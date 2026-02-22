@@ -6,6 +6,7 @@ namespace UbeeDev\LibBundle\Tests\Service;
 use UbeeDev\LibBundle\Entity\Media;
 use UbeeDev\LibBundle\Exception\InvalidArgumentException;
 use UbeeDev\LibBundle\Service\MediaManager;
+use UbeeDev\LibBundle\Service\MediaStorage\LocalMediaStorage;
 use UbeeDev\LibBundle\Tests\AbstractWebTestCase;
 use UbeeDev\LibBundle\Tests\Helper\Factory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -182,7 +183,8 @@ class MediaManagerTest extends AbstractWebTestCase
             'contentType' => 'application/pdf',
         ]);
         $this->initManager(mockEntityManager: true);
-        $this->emMock
+        $this->emMock->expects($this->once())->method('persist');
+        $this->emMock->expects($this->once())
             ->method('flush')
             ->willThrowException(new Exception('test exception'));
 
@@ -280,7 +282,8 @@ class MediaManagerTest extends AbstractWebTestCase
             'contentType' => 'application/pdf',
         ]);
         $this->initManager(mockEntityManager: true);
-        $this->emMock
+        $this->emMock->expects($this->once())->method('persist');
+        $this->emMock->expects($this->once())
             ->method('flush')
             ->willThrowException(new Exception('test exception'));
 
@@ -357,7 +360,8 @@ class MediaManagerTest extends AbstractWebTestCase
         $this->mediaManager = new MediaManager(
             $this->container->get(ParameterBagInterface::class),
             $em,
-            $this->validatorMock
+            $this->validatorMock,
+            new LocalMediaStorage($this->container->get(ParameterBagInterface::class)),
         );
     }
 

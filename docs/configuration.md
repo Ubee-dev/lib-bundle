@@ -27,6 +27,7 @@ The bundle relies on environment variables and parameters to connect to external
   - [Sentry](#sentry)
   - [Monolog](#monolog)
   - [Twig](#twig)
+- [Media Storage](#media-storage)
 - [DatabaseDumper Configuration](#databasedumper-configuration)
 
 ---
@@ -479,6 +480,108 @@ You can use `mediaManager` directly in any Twig template:
 ```twig
 {{ mediaManager.getUrl(entity.image) }}
 ```
+
+---
+
+## Media Storage
+
+The bundle provides a `MediaStorageInterface` that `MediaManager` uses to store, delete, and serve media files. By default, files are stored on the local filesystem (`LocalMediaStorage`). To use S3 or OVH, switch to `ObjectStorageMediaStorage`.
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `MEDIA_BUCKET` | No | `''` | Bucket name for media files (only needed with `ObjectStorageMediaStorage`). |
+| `MEDIA_CDN_URL` | No | `''` | CDN base URL for public media files. If empty, URLs are generated directly from the storage provider. |
+
+### Bundle Parameters
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `media_presigned_url_expiry` | `3600` | Expiry time in seconds for presigned URLs (private media on S3/OVH). |
+
+### Local Storage (default)
+
+No configuration needed. Files are stored in `{projectDir}/public/` and `{projectDir}/private/`.
+
+### S3/OVH Storage
+
+Override the alias and set environment variables in your project:
+
+```yaml
+# config/services.yaml
+services:
+  UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface:
+    alias: UbeeDev\LibBundle\Service\MediaStorage\ObjectStorageMediaStorage
+```
+
+For OVH, also override the `ObjectStorageInterface`:
+
+```yaml
+  UbeeDev\LibBundle\Service\ObjectStorageInterface:
+    alias: UbeeDev\LibBundle\Service\ObjectStorage\OvhObjectStorage
+```
+
+```bash
+# .env.local
+MEDIA_BUCKET=my-media-bucket
+MEDIA_CDN_URL=                   # leave empty if no CDN
+OBJECT_STORAGE_KEY=my-key
+OBJECT_STORAGE_SECRET=my-secret
+OBJECT_STORAGE_REGION=gra
+OBJECT_STORAGE_ENDPOINT=https://s3.gra.io.cloud.ovh.net   # OVH only
+```
+
+---
+
+## Image Resize
+
+The bundle provides an `ImageResizeService` that resizes images on the fly and an `ImageResizeController` that exposes a `/media/{width}/{path}` route. Works with both local storage and S3. A CDN can be placed in front to cache resized images.
+
+### How it works
+
+```
+Mobile → CDN → Backend (/media/375/event/202602/abc123.webp)
+                  ↓
+            Check resized exists (disk or S3)
+                  ↓ yes → serve
+                  ↓ no  → download original → resize → store resized → serve
+                  ↓
+            CDN caches the response
+```
+
+### Configuration
+
+```yaml
+# config/services.yaml
+UbeeDev\LibBundle\Service\ImageResizeService:
+  arguments:
+    $mediaBucket: '%env(MEDIA_BUCKET)%'     # S3 bucket (same as media storage)
+    $publicDir: '%kernel.project_dir%/public'
+    $outputFormat: 'webp'                    # webp, jpg, png
+```
+
+Import the bundle routes. The default prefix is `/media`, configurable at import:
+
+```yaml
+# config/routes.yaml — default prefix (/media)
+ubee_dev_lib:
+  resource: '@UbeeDevLibBundle/config/routing.yml'
+
+# config/routes.yaml — custom prefix
+ubee_dev_lib_media:
+  resource: UbeeDev\LibBundle\Controller\ImageResizeController
+  type: attribute
+  prefix: /cdn-images
+```
+
+### Local mode
+
+No extra config needed. Original files are read from `{publicDir}/uploads/`, resized versions are cached in `{publicDir}/media/{width}/`.
+
+### Remote mode (S3 + CDN)
+
+Requires `ObjectStorageMediaStorage` to be configured (see [Media Storage](#media-storage)). Resized versions are stored on S3 under `public/media/{width}/`. S3 lifecycle policies on the `media/` prefix handle expiration.
 
 ---
 

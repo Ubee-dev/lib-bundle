@@ -361,6 +361,7 @@ Because `Media` is a `MappedSuperclass`, you must create a concrete subclass in 
 | `$contentType` | `string` | -- | MIME type (e.g. `"image/webp"`, `"application/pdf"`). |
 | `$contentSize` | `int` | -- | File size in bytes. |
 | `$private` | `bool` | `false` | Whether the file is stored in the private directory. |
+| `$storagePath` | `string` | -- | Relative storage path (e.g. `"uploads/avatars/202603/a1b2c3.webp"`). |
 | `$alt` | `?string` | `null` | Alt text for images (accessibility/SEO). |
 | `$title` | `?string` | `null` | Title attribute for images. |
 | `$width` | `?int` | `null` | Image width in pixels. |

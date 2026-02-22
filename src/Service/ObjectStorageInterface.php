@@ -13,4 +13,8 @@ interface ObjectStorageInterface
     public function delete(string $bucket, string $key): bool;
 
     public function list(string $bucket, ?string $prefix = null): array;
+
+    public function getPresignedUrl(string $bucket, string $key, int $expiry = 3600): string;
+
+    public function exists(string $bucket, string $key): bool;
 }

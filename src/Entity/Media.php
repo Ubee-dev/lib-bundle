@@ -36,6 +36,9 @@ abstract class Media extends AbstractEntity
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $title = null;
 
+    #[ORM\Column(type: 'string')]
+    private string $storagePath;
+
     // Nouveaux champs pour les dimensions d'image
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $width = null;
@@ -103,6 +106,17 @@ abstract class Media extends AbstractEntity
     public function setPrivate(bool $private): self
     {
         $this->private = $private;
+        return $this;
+    }
+
+    public function getStoragePath(): string
+    {
+        return $this->storagePath;
+    }
+
+    public function setStoragePath(string $storagePath): self
+    {
+        $this->storagePath = $storagePath;
         return $this;
     }
 

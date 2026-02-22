@@ -6,6 +6,8 @@ The services layer provides the main building blocks of the bundle -- autowirabl
 
 - [Media & Files](#media--files)
   - [MediaManager](#mediamanager)
+  - [MediaStorage](#mediastorage)
+  - [ImageResizeService](#imageresizeservice)
   - [PdfGenerator](#pdfgenerator)
   - [ObjectStorage](#objectstorage)
   - [SpreadsheetExporter](#spreadsheetexporter)
@@ -33,13 +35,13 @@ The services layer provides the main building blocks of the bundle -- autowirabl
 
 ### MediaManager
 
-Handles file uploads, deletion, PDF generation, and image processing. Uploaded JPEG/PNG images are automatically converted to WebP format when the Imagick extension is available. Image dimensions are extracted and stored on the `Media` entity.
+Handles file uploads, deletion, PDF generation, and image processing. Delegates actual file storage to a `MediaStorageInterface` implementation (local filesystem by default, or S3/OVH via configuration). Uploaded JPEG/PNG images are automatically converted to WebP format when the Imagick extension is available. Image dimensions are extracted and stored on the `Media` entity.
 
 **Class:** `UbeeDev\LibBundle\Service\MediaManager`
 
 #### upload
 
-Uploads a file, persists a `Media` entity, and returns it. The file is stored under `public/` or `private/` depending on the `$private` flag, organized by context and year-month subdirectories.
+Uploads a file, persists a `Media` entity, and returns it. The file is stored via the configured `MediaStorageInterface` under `public/` or `private/` depending on the `$private` flag, organized by context and year-month subdirectories.
 
 ```php
 use Symfony\Component\HttpFoundation\File\File;
@@ -66,9 +68,20 @@ $mediaManager->deleteAsset($media); // remove file from disk
 $mediaManager->delete($media);      // remove entity from database
 ```
 
+#### getStorage
+
+Returns the underlying `MediaStorageInterface` implementation. Useful when you need direct access to the storage layer (e.g. to check if storage is local).
+
+```php
+$storage = $mediaManager->getStorage();
+if ($storage->isLocal()) {
+    // local filesystem
+}
+```
+
 #### deleteAsset
 
-Deletes only the physical file from disk, leaving the entity in the database.
+Deletes only the physical file from the storage backend, leaving the entity in the database.
 
 ```php
 $mediaManager->deleteAsset($media);
@@ -127,6 +140,137 @@ $media = $mediaManager->createPdfFromHtml($html, 'invoices');
 
 // Private PDF (not web-accessible)
 $media = $mediaManager->createPdfFromHtml($html, 'invoices', private: true);
+```
+
+---
+
+### MediaStorage
+
+Abstraction layer for media file storage. `MediaManager` delegates all file operations (store, delete, URL generation) to a `MediaStorageInterface` implementation. The default is `LocalMediaStorage` (filesystem). To use S3 or OVH, switch the alias to `ObjectStorageMediaStorage`.
+
+**Interface:** `UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface`
+
+**Implementations:**
+- `LocalMediaStorage` -- local filesystem (default)
+- `ObjectStorageMediaStorage` -- S3-compatible providers (AWS S3, OVH)
+
+#### LocalMediaStorage
+
+Stores files in `{projectDir}/public/` (public media) or `{projectDir}/private/` (private media). This is the default, no configuration needed.
+
+```php
+// Public media URL
+$url = $storage->getUrl($media);
+// "/uploads/avatars/202601/a1b2c3.webp"
+
+// Private media throws RuntimeException
+$storage->getUrl($privateMedia); // throws RuntimeException
+```
+
+#### ObjectStorageMediaStorage
+
+Uses `ObjectStorageInterface` (S3 or OVH) to store files in a remote bucket. Supports presigned URLs for private files and optional CDN for public files.
+
+```php
+// Public media URL (with CDN)
+$url = $storage->getUrl($media);
+// "https://cdn.example.com/public/uploads/avatars/202601/a1b2c3.webp"
+
+// Public media URL (without CDN, direct from provider)
+$url = $storage->getUrl($media);
+// "https://bucket.s3.amazonaws.com/public/uploads/avatars/202601/a1b2c3.webp"
+
+// Private media URL (presigned, expires after configured duration)
+$url = $storage->getUrl($privateMedia);
+// "https://bucket.s3.amazonaws.com/private/uploads/invoices/202601/invoice.pdf?X-Amz-Algorithm=..."
+```
+
+#### Switching storage backend
+
+By default, `LocalMediaStorage` is used. To switch to S3/OVH, override in your project:
+
+```yaml
+# config/services.yaml
+services:
+  UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface:
+    alias: UbeeDev\LibBundle\Service\MediaStorage\ObjectStorageMediaStorage
+
+  # For OVH (S3 is the default ObjectStorageInterface)
+  UbeeDev\LibBundle\Service\ObjectStorageInterface:
+    alias: UbeeDev\LibBundle\Service\ObjectStorage\OvhObjectStorage
+```
+
+And set the environment variables `MEDIA_BUCKET` and optionally `MEDIA_CDN_URL`. See [Media Storage Configuration](configuration.md#media-storage).
+
+---
+
+### ImageResizeService
+
+Resizes images on the fly with CDN support. Works in two modes: **local** (disk) and **remote** (S3). A CDN placed in front of the backend caches the resized images so the resize only happens once.
+
+**Class:** `UbeeDev\LibBundle\Service\ImageResizeService`
+
+**How it works:**
+
+1. Mobile requests `/media/{width}/event/202602/abc123.webp`
+2. CDN serves from cache if available, otherwise pulls from backend
+3. Backend checks if resized version exists (disk or S3), serves it if found
+4. Otherwise, downloads original, resizes, stores the resized version, and serves it
+5. CDN caches the response
+
+**Configuration:**
+
+```yaml
+# config/services.yaml
+UbeeDev\LibBundle\Service\ImageResizeService:
+  arguments:
+    $mediaBucket: '%env(MEDIA_BUCKET)%'
+    $publicDir: '%kernel.project_dir%/public'
+    $outputFormat: 'webp'   # webp, jpg, png
+```
+
+The bundle includes a controller (`ImageResizeController`) that handles the `/media/{width}/{path}` route automatically.
+
+#### resize
+
+Resizes an image to the nearest width bucket and returns the local file path. Returns `null` if the original is not found.
+
+```php
+$path = $imageResizeService->resize(375, 'event/202602/abc123.webp');
+// Local: /var/www/project/public/media/375/event/202602/abc123.webp
+// Remote: /tmp/resized_xxx_abc123.webp (also uploaded to S3)
+```
+
+Width buckets: `320, 375, 414, 430, 600, 860`. Requested widths are rounded up to the nearest bucket.
+
+#### deleteResized
+
+Deletes all resized versions for a given path (all width buckets).
+
+```php
+$imageResizeService->deleteResized('event/202602/abc123.webp');
+```
+
+#### Route
+
+The bundle exposes a route with a default `/media` prefix:
+
+```
+GET /media/{width}/{path}
+```
+
+The consuming app imports the bundle routes. The prefix is configurable:
+
+```yaml
+# config/routes.yaml — default prefix (/media)
+ubee_dev_lib:
+  resource: '@UbeeDevLibBundle/config/routing.yml'
+
+# config/routes.yaml — custom prefix
+ubee_dev_lib_media:
+  resource: UbeeDev\LibBundle\Controller\ImageResizeController
+  type: attribute
+  prefix: /cdn-images
 ```
 
 ---
@@ -204,6 +348,14 @@ Deletes an object. Returns `true` on success.
 $storage->delete('my-bucket', 'backups/2026/backup.sql');
 ```
 
+#### exists
+
+Checks if an object exists in a bucket. Returns `true` if it exists.
+
+```php
+$exists = $storage->exists('my-bucket', 'backups/2026/backup.sql');
+```
+
 #### list
 
 Lists object keys in a bucket, optionally filtered by prefix.
@@ -211,6 +363,19 @@ Lists object keys in a bucket, optionally filtered by prefix.
 ```php
 $keys = $storage->list('my-bucket', 'backups/2026/');
 // Returns: ["backups/2026/backup-01.sql", "backups/2026/backup-02.sql"]
+```
+
+#### getPresignedUrl
+
+Generates a temporary presigned URL for accessing a private object. The URL expires after `$expiry` seconds (default: 3600 = 1 hour). Works with both AWS S3 and OVH (S3-compatible).
+
+```php
+// Default expiry (1 hour)
+$url = $storage->getPresignedUrl('my-bucket', 'private/invoices/invoice-123.pdf');
+// Returns: "https://my-bucket.s3.amazonaws.com/private/invoices/invoice-123.pdf?X-Amz-Algorithm=..."
+
+// Custom expiry (24 hours)
+$url = $storage->getPresignedUrl('my-bucket', 'private/invoices/invoice-123.pdf', 86400);
 ```
 
 ---

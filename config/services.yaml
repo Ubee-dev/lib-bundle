@@ -11,6 +11,13 @@ parameters:
   env(TURNSTILE_SECRET_KEY): ''
   env(TURNSTILE_SITE_KEY): ''
   env(ANTI_ROBOT_DEFAULT_VERIFIER): 'honeypot' # 'turnstile' or 'honeypot'
+  env(MEDIA_BUCKET): ''
+  env(MEDIA_CDN_URL): ''
+  env(OBJECT_STORAGE_KEY): 'none'
+  env(OBJECT_STORAGE_SECRET): 'none'
+  env(OBJECT_STORAGE_REGION): 'us-east-1'
+  env(OBJECT_STORAGE_ENDPOINT): ''
+  media_presigned_url_expiry: 3600
 
 services:
   _defaults:
@@ -44,6 +51,21 @@ services:
   UbeeDev\LibBundle\Service\DatabaseDumperInterface: '@UbeeDev\LibBundle\Service\DatabaseDumper\MysqlDumper'
 
   UbeeDev\LibBundle\Service\ObjectStorageInterface: '@UbeeDev\LibBundle\Service\ObjectStorage\S3ObjectStorage'
+
+  UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface:
+    alias: UbeeDev\LibBundle\Service\MediaStorage\LocalMediaStorage
+
+  UbeeDev\LibBundle\Service\MediaStorage\ObjectStorageMediaStorage:
+    arguments:
+      $bucket: '%env(MEDIA_BUCKET)%'
+      $cdnBaseUrl: '%env(MEDIA_CDN_URL)%'
+      $presignedUrlExpiry: '%media_presigned_url_expiry%'
+
+  UbeeDev\LibBundle\Service\ImageResizeService:
+    arguments:
+      $mediaBucket: '%env(MEDIA_BUCKET)%'
+      $publicDir: '%kernel.project_dir%/public'
+      $outputFormat: 'webp'
 
   UbeeDev\LibBundle\Service\ObjectStorage\S3ObjectStorage:
     arguments:

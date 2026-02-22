@@ -21,7 +21,7 @@ abstract class AbstractS3ObjectStorage implements ObjectStorageInterface
             ],
         ];
 
-        if ($endpoint !== null) {
+        if (!empty($endpoint)) {
             $config['endpoint'] = $endpoint;
             $config['use_path_style_endpoint'] = true;
         }
@@ -90,5 +90,22 @@ abstract class AbstractS3ObjectStorage implements ObjectStorageInterface
         }
 
         return $list;
+    }
+
+    public function getPresignedUrl(string $bucket, string $key, int $expiry = 3600): string
+    {
+        $cmd = $this->s3Client->getCommand('GetObject', [
+            'Bucket' => $bucket,
+            'Key' => $key,
+        ]);
+
+        $request = $this->s3Client->createPresignedRequest($cmd, "+{$expiry} seconds");
+
+        return (string) $request->getUri();
+    }
+
+    public function exists(string $bucket, string $key): bool
+    {
+        return $this->s3Client->doesObjectExist($bucket, $key);
     }
 }

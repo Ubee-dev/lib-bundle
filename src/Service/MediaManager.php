@@ -2,9 +2,9 @@
 
 namespace UbeeDev\LibBundle\Service;
 
-use UbeeDev\LibBundle\Entity\DateTime;
 use UbeeDev\LibBundle\Entity\Media;
 use UbeeDev\LibBundle\Exception\InvalidArgumentException;
+use UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface;
 use UbeeDev\LibBundle\Validator\Validator;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
@@ -23,7 +23,8 @@ class MediaManager
     public function __construct(
         private readonly ParameterBagInterface $parameterBag,
         private readonly EntityManagerInterface $entityManager,
-        private readonly Validator $validator
+        private readonly Validator $validator,
+        private readonly MediaStorageInterface $storage,
     )
     {
         $this->fileSystem = new Filesystem();
@@ -33,7 +34,7 @@ class MediaManager
 
     public function deleteAsset(Media $media): void
     {
-        $this->fileSystem->remove($this->getRelativePath($media));
+        $this->storage->delete($media);
     }
 
     public function delete(Media $media): void
@@ -42,22 +43,14 @@ class MediaManager
         $this->entityManager->flush();
     }
 
-    /**
-     * @throws Exception
-     */
     public function getWebPath(Media $media): string
     {
-        if($media->isPrivate()) {
-            throw new \RuntimeException('Cannot get web path for private media');
-        }
-        $createdAt = $media->getCreatedAt();
-        return $this->getContextPath($media).'/'.$createdAt->format('Ym').'/'.$media->getFilename();
+        return $this->storage->getUrl($media);
     }
 
     public function getRelativePath(Media $media): string
     {
-        $createdAt = $media->getCreatedAt();
-        return $this->parameterBag->get('kernel.project_dir').'/'.($media->isPrivate() ? $this->getPrivatePath() : $this->getPublicPath()).$this->getContextPath($media).'/'.$createdAt->format('Ym').'/'.$media->getFilename();
+        return $this->storage->getAbsolutePath($media);
     }
 
     /**
@@ -74,7 +67,7 @@ class MediaManager
         $mimeType = $uploadedFile->getMimeType();
         $size = $uploadedFile->getSize();
 
-        $media =  $this->buildMedia(
+        $media = $this->buildMedia(
             fileName: $newFilename,
             fileSize: $size,
             context: $context,
@@ -82,20 +75,14 @@ class MediaManager
             isPrivate: $private,
         );
 
-        $uploadDirectory = $this->getUploadDirectoryForContext($context, $private).'/'.$media->getCreatedAt()->format('Ym');
-        $this->fileSystem->mkdir($uploadDirectory);
-        $uploadedFile->move(
-            $uploadDirectory,
-            $newFilename
-        );
+        $tempDir = sys_get_temp_dir() . '/media-upload-' . uniqid();
+        $this->fileSystem->mkdir($tempDir);
+        $uploadedFile->move($tempDir, $newFilename);
+        $filePath = $tempDir . '/' . $newFilename;
 
-        $filePath = $uploadDirectory.'/'.$newFilename;
-
-        // Convertir en WebP si c'est une image convertible (JPEG/PNG)
         if ($this->isConvertibleToWebp($mimeType)) {
             $webpPath = $this->convertToWebp($filePath);
             if ($webpPath !== null) {
-                // Supprimer l'original et mettre à jour le média
                 $this->fileSystem->remove($filePath);
                 $newFilename = pathinfo($newFilename, PATHINFO_FILENAME) . '.webp';
                 $media->setFilename($newFilename);
@@ -105,44 +92,46 @@ class MediaManager
             }
         }
 
-        // Extraire les dimensions si c'est une image
         $this->extractImageDimensions($media, $filePath);
 
-        if($andFlush) {
+        $media->setStoragePath($this->buildStoragePath($media));
+        $this->storage->store($filePath, $media);
+        $this->fileSystem->remove($tempDir);
+
+        if ($andFlush) {
             $this->entityManager->persist($media);
 
             try {
                 $this->entityManager->flush();
             } catch (\Exception $e) {
-                $this->deleteAsset($media);
+                $this->storage->delete($media);
                 throw $e;
             }
-
         }
 
         return $media;
     }
 
-    /**
-     * Met à jour les dimensions d'un média existant
-     */
     public function updateImageDimensions(Media $media): bool
     {
         if (!$media->isImage()) {
             return false;
         }
 
-        $filePath = $this->getRelativePath($media);
-        if (!file_exists($filePath)) {
+        $localPath = $this->storage->getLocalPath($media);
+        if (!file_exists($localPath)) {
             return false;
         }
 
-        return $this->extractImageDimensions($media, $filePath);
+        $result = $this->extractImageDimensions($media, $localPath);
+
+        if (!$this->storage->isLocal()) {
+            $this->fileSystem->remove($localPath);
+        }
+
+        return $result;
     }
 
-    /**
-     * Extrait et définit les dimensions d'une image
-     */
     private function extractImageDimensions(Media $media, string $filePath): bool
     {
         if (!$media->isImage() || !file_exists($filePath)) {
@@ -157,25 +146,17 @@ class MediaManager
                 return true;
             }
         } catch (\Exception $e) {
-            // Log l'erreur si nécessaire, mais ne pas faire échouer l'upload
             error_log("Failed to extract image dimensions for {$filePath}: " . $e->getMessage());
         }
 
         return false;
     }
 
-    /**
-     * Vérifie si le type MIME peut être converti en WebP
-     */
     private function isConvertibleToWebp(string $mimeType): bool
     {
         return in_array($mimeType, ['image/jpeg', 'image/png', 'image/jpg'], true);
     }
 
-    /**
-     * Convertit une image en WebP avec Imagick
-     * @return string|null Le chemin du fichier WebP ou null si échec
-     */
     private function convertToWebp(string $sourcePath, int $quality = 85): ?string
     {
         if (!class_exists(\Imagick::class)) {
@@ -190,7 +171,6 @@ class MediaManager
             $imagick->setImageFormat('webp');
             $imagick->setImageCompressionQuality($quality);
 
-            // Optimisations WebP
             $imagick->setOption('webp:lossless', 'false');
             $imagick->setOption('webp:method', '6');
 
@@ -204,34 +184,36 @@ class MediaManager
         }
     }
 
-    /**
-     * Convertit un média existant en WebP (pour migration)
-     * @return bool True si la conversion a réussi
-     */
     public function convertMediaToWebp(Media $media): bool
     {
         if (!$this->isConvertibleToWebp($media->getContentType())) {
             return false;
         }
 
-        $originalPath = $this->getRelativePath($media);
-        if (!file_exists($originalPath)) {
+        $localPath = $this->storage->getLocalPath($media);
+        if (!file_exists($localPath)) {
             return false;
         }
 
-        $webpPath = $this->convertToWebp($originalPath);
+        $webpPath = $this->convertToWebp($localPath);
         if ($webpPath === null) {
             return false;
         }
 
-        // Supprimer l'original
-        $this->fileSystem->remove($originalPath);
+        $this->storage->delete($media);
 
-        // Mettre à jour le média
         $newFilename = preg_replace('/\.(jpe?g|png)$/i', '.webp', $media->getFilename());
         $media->setFilename($newFilename);
         $media->setContentType('image/webp');
         $media->setContentSize(filesize($webpPath));
+        $media->setStoragePath($this->buildStoragePath($media));
+
+        $this->storage->store($webpPath, $media);
+
+        if (!$this->storage->isLocal()) {
+            $this->fileSystem->remove($localPath);
+            $this->fileSystem->remove($webpPath);
+        }
 
         return true;
     }
@@ -249,25 +231,21 @@ class MediaManager
             ->setContext($context)
             ->setContentType('application/pdf')
             ->setPrivate($private);
-        ;
-        // Initialize Dompdf
+
         $options = new Options();
         $options->set('isHtml5ParserEnabled', true)
             ->set('isPhpEnabled', true)
-            ->set('isRemoteEnabled', true)
-        ;
+            ->set('isRemoteEnabled', true);
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($htmlContent);
         $dompdf->setPaper('A4', 'portrait')
             ->render();
 
-        $uploadDirectory =  $this->getUploadDirectoryForContext($context, $private).'/'.$media->getCreatedAt()->format('Ym').'/';
-        $filePath = $uploadDirectory.$fileName;
+        $tempDir = sys_get_temp_dir() . '/media-pdf-' . uniqid();
+        $this->fileSystem->mkdir($tempDir);
+        $filePath = $tempDir . '/' . $fileName;
 
-
-        $this->fileSystem->mkdir($uploadDirectory);
-        // Save the generated PDF
         if (file_put_contents($filePath, $dompdf->output()) === false) {
             exit('Failed to write the PDF to file.');
         }
@@ -279,52 +257,41 @@ class MediaManager
             ->addValidation($media)
             ->validate();
 
+        $media->setStoragePath($this->buildStoragePath($media));
+        $this->storage->store($filePath, $media);
+        $this->fileSystem->remove($tempDir);
+
         $this->entityManager->persist($media);
         try {
             $this->entityManager->flush();
         } catch (\Exception $e) {
-            $this->deleteAsset($media);
+            $this->storage->delete($media);
             throw $e;
         }
 
         return $media;
     }
 
-    /**
-     * @return string
-     */
-    private function getPublicPath(): string
+    public function getStorage(): MediaStorageInterface
     {
-        return 'public';
+        return $this->storage;
     }
 
-    private function getPrivatePath(): string
+    private function buildStoragePath(Media $media): string
     {
-        return 'private';
-    }
+        $uploadDir = ltrim($this->uploadDir, '/');
 
-    private function getUploadDirectoryForContext(string $context, bool $private): string
-    {
-        return $this->parameterBag->get('kernel.project_dir').'/'.($private ? $this->getPrivatePath() : $this->getPublicPath()).$this->uploadDir.'/'.$context;
-    }
-
-    /**
-     * @param Media $media
-     * @return string
-     */
-    private function getContextPath(Media $media): string
-    {
-        return $this->uploadDir.'/'.$media->getContext();
+        return $uploadDir . '/' . $media->getContext() . '/' . $media->getCreatedAt()->format('Ym') . '/' . $media->getFilename();
     }
 
     private function generateNameForFile(File $file): string
     {
-        return sha1_file($file).uniqid().'.'.$file->guessExtension();
+        return sha1_file($file) . uniqid() . '.' . $file->guessExtension();
     }
 
     private function generateNameForContent(string $content, string $extension): string
     {
-        return sha1($content).uniqid().'.'.$extension;
+        return sha1($content) . uniqid() . '.' . $extension;
     }
 
     /**

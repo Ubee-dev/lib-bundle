@@ -152,11 +152,15 @@ class Factory implements FactoryInterface
 
     public function buildMedia(array $properties = [])
     {
+        $filename = $properties['filename'] ?? $this->randomName(true) . '.pdf';
+        $context = $properties['context'] ?? self::UPLOAD_CONTEXT;
+
         $defaultProperties = [
-            'filename' => $this->randomName(true) . '.pdf',
-            'context' => self::UPLOAD_CONTEXT,
+            'filename' => $filename,
+            'context' => $context,
             'contentType' => 'application/pdf',
-            'contentSize' => 3000
+            'contentSize' => 3000,
+            'storagePath' => 'uploads/' . $context . '/' . (new DateTime('now'))->format('Ym') . '/' . $filename,
         ];
 
         $mediaClassName = $this->parameter->get('mediaClassName');

@@ -122,4 +122,112 @@ class S3ObjectStorageTest extends TestCase
         $list = $this->storage->list('test-bucket');
         $this->assertCount(2, $list);
     }
+
+    public function testGetPresignedUrlReturnsUrl(): void
+    {
+        $commandStub = $this->createStub(\Aws\CommandInterface::class);
+        $requestMock = $this->createMock(\Psr\Http\Message\RequestInterface::class);
+        $uriStub = $this->createStub(\Psr\Http\Message\UriInterface::class);
+
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('getCommand')
+            ->with(
+                $this->equalTo('GetObject'),
+                $this->equalTo([
+                    'Bucket' => 'test-bucket',
+                    'Key' => 'tests/file.txt',
+                ])
+            )
+            ->willReturn($commandStub);
+
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('createPresignedRequest')
+            ->with(
+                $this->identicalTo($commandStub),
+                $this->equalTo('+3600 seconds')
+            )
+            ->willReturn($requestMock);
+
+        $requestMock
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uriStub);
+
+        $uriStub
+            ->method('__toString')
+            ->willReturn('https://test-bucket.s3.amazonaws.com/tests/file.txt?X-Amz-Signature=abc123');
+
+        $url = $this->storage->getPresignedUrl('test-bucket', 'tests/file.txt');
+        $this->assertEquals('https://test-bucket.s3.amazonaws.com/tests/file.txt?X-Amz-Signature=abc123', $url);
+    }
+
+    public function testGetPresignedUrlWithCustomExpiry(): void
+    {
+        $commandStub = $this->createStub(\Aws\CommandInterface::class);
+        $requestMock = $this->createMock(\Psr\Http\Message\RequestInterface::class);
+        $uriStub = $this->createStub(\Psr\Http\Message\UriInterface::class);
+
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('getCommand')
+            ->with(
+                $this->equalTo('GetObject'),
+                $this->equalTo([
+                    'Bucket' => 'test-bucket',
+                    'Key' => 'tests/file.txt',
+                ])
+            )
+            ->willReturn($commandStub);
+
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('createPresignedRequest')
+            ->with(
+                $this->identicalTo($commandStub),
+                $this->equalTo('+7200 seconds')
+            )
+            ->willReturn($requestMock);
+
+        $requestMock
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uriStub);
+
+        $uriStub
+            ->method('__toString')
+            ->willReturn('https://test-bucket.s3.amazonaws.com/tests/file.txt?X-Amz-Signature=def456');
+
+        $url = $this->storage->getPresignedUrl('test-bucket', 'tests/file.txt', 7200);
+        $this->assertEquals('https://test-bucket.s3.amazonaws.com/tests/file.txt?X-Amz-Signature=def456', $url);
+    }
+
+    public function testExistsReturnsTrueWhenObjectExists(): void
+    {
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('doesObjectExist')
+            ->with(
+                $this->equalTo('test-bucket'),
+                $this->equalTo('tests/file.txt'),
+            )
+            ->willReturn(true);
+
+        $this->assertTrue($this->storage->exists('test-bucket', 'tests/file.txt'));
+    }
+
+    public function testExistsReturnsFalseWhenObjectDoesNotExist(): void
+    {
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('doesObjectExist')
+            ->with(
+                $this->equalTo('test-bucket'),
+                $this->equalTo('tests/nonexistent.txt'),
+            )
+            ->willReturn(false);
+
+        $this->assertFalse($this->storage->exists('test-bucket', 'tests/nonexistent.txt'));
+    }
 }
