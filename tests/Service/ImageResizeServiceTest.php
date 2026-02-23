@@ -92,6 +92,7 @@ final class ImageResizeServiceTest extends TestCase
         $this->assertSame(430, $this->service->bucketWidth(415));
         $this->assertSame(600, $this->service->bucketWidth(500));
         $this->assertSame(860, $this->service->bucketWidth(700));
+        $this->assertSame(1290, $this->service->bucketWidth(1000));
     }
 
     public function testBucketWidthReturnsExactBucket(): void
@@ -99,12 +100,13 @@ final class ImageResizeServiceTest extends TestCase
         $this->assertSame(320, $this->service->bucketWidth(320));
         $this->assertSame(375, $this->service->bucketWidth(375));
         $this->assertSame(860, $this->service->bucketWidth(860));
+        $this->assertSame(1290, $this->service->bucketWidth(1290));
     }
 
     public function testBucketWidthCapsAtMaxBucket(): void
     {
-        $this->assertSame(860, $this->service->bucketWidth(1000));
-        $this->assertSame(860, $this->service->bucketWidth(2000));
+        $this->assertSame(1290, $this->service->bucketWidth(1500));
+        $this->assertSame(1290, $this->service->bucketWidth(2000));
     }
 
     // --- Local resize tests ---
@@ -357,11 +359,11 @@ final class ImageResizeServiceTest extends TestCase
         $objectStorageMock = $this->createMock(ObjectStorageInterface::class);
 
         $expectedKeys = [];
-        foreach ([320, 375, 414, 430, 600, 860] as $width) {
+        foreach ([320, 375, 414, 430, 600, 860, 1290] as $width) {
             $expectedKeys[] = 'public/media/'.$width.'/game/202602/test.webp';
         }
 
-        $objectStorageMock->expects($this->exactly(6))
+        $objectStorageMock->expects($this->exactly(7))
             ->method('delete')
             ->with(
                 $this->equalTo('my-bucket'),

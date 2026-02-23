@@ -244,7 +244,7 @@ $path = $imageResizeService->resize(375, 'event/202602/abc123.webp');
 // Remote: /tmp/resized_xxx_abc123.webp (also uploaded to S3)
 ```
 
-Width buckets: `320, 375, 414, 430, 600, 860`. Requested widths are rounded up to the nearest bucket.
+Width buckets: `320, 375, 414, 430, 600, 860, 1290`. Requested widths are rounded up to the nearest bucket. The `1290` bucket supports Retina x3 displays (430 × 3).
 
 #### deleteResized
 

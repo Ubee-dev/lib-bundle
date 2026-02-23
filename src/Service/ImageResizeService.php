@@ -9,7 +9,7 @@ use UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface;
 class ImageResizeService
 {
     private const int QUALITY = 100;
-    private const array WIDTH_BUCKETS = [320, 375, 414, 430, 600, 860];
+    private const array WIDTH_BUCKETS = [320, 375, 414, 430, 600, 860, 1290];
 
     public function __construct(
         private readonly MediaStorageInterface $storage,
