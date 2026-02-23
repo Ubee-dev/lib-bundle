@@ -84,11 +84,11 @@ Object storage is used for database backups and file storage. The bundle support
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `OBJECT_STORAGE_KEY` | Yes | -- | Access key ID for the storage provider. |
-| `OBJECT_STORAGE_SECRET` | Yes | -- | Secret access key for the storage provider. |
-| `OBJECT_STORAGE_REGION` | Yes | -- | Region of the storage provider (e.g. `eu-west-3`). |
+| `OBJECT_STORAGE_KEY` | No | `'none'` | Access key ID for the storage provider. Required when using S3/OVH storage. |
+| `OBJECT_STORAGE_SECRET` | No | `'none'` | Secret access key for the storage provider. Required when using S3/OVH storage. |
+| `OBJECT_STORAGE_REGION` | No | `'us-east-1'` | Region of the storage provider (e.g. `eu-west-3`). |
 | `BACKUP_BUCKET` | Yes | -- | Bucket name used for database backups. |
-| `OBJECT_STORAGE_ENDPOINT` | No | -- | Custom endpoint URL (required for OVH and other S3-compatible providers). |
+| `OBJECT_STORAGE_ENDPOINT` | No | `''` | Custom endpoint URL (required for OVH and other S3-compatible providers). |
 
 **AWS S3:**
 
@@ -492,7 +492,7 @@ The bundle provides a `MediaStorageInterface` that `MediaManager` uses to store,
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `MEDIA_BUCKET` | No | `''` | Bucket name for media files (only needed with `ObjectStorageMediaStorage`). |
-| `MEDIA_CDN_URL` | No | `''` | CDN base URL for public media files. If empty, URLs are generated directly from the storage provider. |
+| `MEDIA_CDN_URL` | No | `''` | CDN base URL for public media files. Used by `MediaManager::getWebPath()` to prefix relative paths. If empty, relative paths are returned as-is (backward compatible). Example: `https://cdn.example.com`. |
 
 ### Bundle Parameters
 

@@ -25,6 +25,7 @@ class MediaManager
         private readonly EntityManagerInterface $entityManager,
         private readonly Validator $validator,
         private readonly MediaStorageInterface $storage,
+        private readonly string $mediaCdnUrl = '',
     )
     {
         $this->fileSystem = new Filesystem();
@@ -45,7 +46,13 @@ class MediaManager
 
     public function getWebPath(Media $media): string
     {
-        return $this->storage->getUrl($media);
+        $url = $this->storage->getUrl($media);
+
+        if ($this->mediaCdnUrl && !str_starts_with($url, 'http')) {
+            return $this->mediaCdnUrl . $url;
+        }
+
+        return $url;
     }
 
     public function getRelativePath(Media $media): string

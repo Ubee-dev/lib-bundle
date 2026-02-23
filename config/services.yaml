@@ -61,6 +61,10 @@ services:
       $cdnBaseUrl: '%env(MEDIA_CDN_URL)%'
       $presignedUrlExpiry: '%media_presigned_url_expiry%'
 
+  UbeeDev\LibBundle\Service\MediaManager:
+    arguments:
+      $mediaCdnUrl: '%env(MEDIA_CDN_URL)%'
+
   UbeeDev\LibBundle\Service\ImageResizeService:
     arguments:
       $mediaBucket: '%env(MEDIA_BUCKET)%'

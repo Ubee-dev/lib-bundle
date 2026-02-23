@@ -89,12 +89,15 @@ $mediaManager->deleteAsset($media);
 
 #### getWebPath
 
-Returns the public URL path for a media file. Throws a `RuntimeException` if the media is private.
+Returns the public URL for a media file. If a CDN URL is configured via the `MEDIA_CDN_URL` environment variable, relative paths are automatically prefixed with the CDN URL. Throws a `RuntimeException` if the media is private.
 
 ```php
 $url = $mediaManager->getWebPath($media);
-// e.g. "/uploads/avatars/202601/a1b2c3d4.webp"
+// Without CDN: "/uploads/avatars/202601/a1b2c3d4.webp"
+// With CDN:    "https://cdn.example.com/uploads/avatars/202601/a1b2c3d4.webp"
 ```
+
+When the storage backend returns absolute URLs (e.g. `ObjectStorageMediaStorage` with its own CDN), those URLs are returned as-is without double-prefixing.
 
 #### getRelativePath
 

@@ -94,6 +94,16 @@ class MediaManagerTest extends AbstractWebTestCase
         $this->mediaManager->getWebPath($this->privateMedia);
     }
 
+    public function testGetWebPathWithCdnUrl(): void
+    {
+        $this->initManager(mediaCdnUrl: 'https://cdn.example.com');
+
+        $this->assertEquals(
+            'https://cdn.example.com/uploads/tests/' . $this->dateTime()->format('Ym') . '/testpublicfile.txt',
+            $this->mediaManager->getWebPath($this->publicMedia),
+        );
+    }
+
     /**
      * @throws Exception
      */
@@ -349,7 +359,7 @@ class MediaManagerTest extends AbstractWebTestCase
         return $this->projectDir.'/private' . $this->container->getParameter('upload_dir') . '/' . Factory::UPLOAD_CONTEXT . '/' . $this->dateTime()->format('Ym') . '/' . $media->getFilename();
     }
 
-    private function initManager(bool $mockEntityManager = false): void
+    private function initManager(bool $mockEntityManager = false, string $mediaCdnUrl = ''): void
     {
         if ($mockEntityManager) {
             $em = $this->emMock = $this->getMockedClass(EntityManagerInterface::class);
@@ -362,6 +372,7 @@ class MediaManagerTest extends AbstractWebTestCase
             $em,
             $this->validatorMock,
             new LocalMediaStorage($this->container->get(ParameterBagInterface::class)),
+            $mediaCdnUrl,
         );
     }
 
