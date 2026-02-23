@@ -50,10 +50,10 @@ services:
   
   UbeeDev\LibBundle\Service\DatabaseDumperInterface: '@UbeeDev\LibBundle\Service\DatabaseDumper\MysqlDumper'
 
-  UbeeDev\LibBundle\Service\ObjectStorageInterface: '@UbeeDev\LibBundle\Service\ObjectStorage\S3ObjectStorage'
+  UbeeDev\LibBundle\Service\ObjectStorageInterface: '@UbeeDev\LibBundle\Service\ObjectStorage\OvhObjectStorage'
 
   UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface:
-    alias: UbeeDev\LibBundle\Service\MediaStorage\LocalMediaStorage
+    alias: UbeeDev\LibBundle\Service\MediaStorage\ObjectStorageMediaStorage
 
   UbeeDev\LibBundle\Service\MediaStorage\ObjectStorageMediaStorage:
     arguments:
@@ -217,7 +217,10 @@ when@test:
     UbeeDev\LibBundle\Tests\Helper\ContextStateInterface: '@UbeeDev\LibBundle\Tests\Helper\ContextState'
     UbeeDev\LibBundle\Service\EmailProviderInterface: '@UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider'
     UbeeDev\LibBundle\Service\EmailProvider\EmailProviderInterface: '@UbeeDev\LibBundle\Tests\Helper\FakeEmailProvider'
-    
+
+    UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface:
+      alias: UbeeDev\LibBundle\Service\MediaStorage\LocalMediaStorage
+
     UbeeDev\LibBundle\Tests\Helper\HttpMock:
       arguments:
         $testToken: '%env(TEST_TOKEN)%'
