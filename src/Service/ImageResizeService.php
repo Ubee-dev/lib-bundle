@@ -11,24 +11,34 @@ class ImageResizeService
     private const int QUALITY = 100;
     private const array WIDTH_BUCKETS = [320, 375, 414, 430, 600, 860, 1290];
 
+    /** @var int[] */
+    private readonly array $widthBuckets;
+
+    /**
+     * @param int[] $widthBuckets Overrides the default width buckets when provided
+     */
     public function __construct(
         private readonly MediaStorageInterface $storage,
         private readonly ObjectStorageInterface $objectStorage,
         private readonly string $mediaBucket,
         private readonly string $publicDir,
         private readonly string $outputFormat = 'webp',
+        array $widthBuckets = [],
     ) {
+        $buckets = [] !== $widthBuckets ? $widthBuckets : self::WIDTH_BUCKETS;
+        sort($buckets);
+        $this->widthBuckets = $buckets;
     }
 
     public function bucketWidth(int $width): int
     {
-        foreach (self::WIDTH_BUCKETS as $bucket) {
+        foreach ($this->widthBuckets as $bucket) {
             if ($width <= $bucket) {
                 return $bucket;
             }
         }
 
-        return self::WIDTH_BUCKETS[array_key_last(self::WIDTH_BUCKETS)];
+        return $this->widthBuckets[array_key_last($this->widthBuckets)];
     }
 
     public function resize(int $width, string $relativePath): ?string
@@ -156,7 +166,7 @@ class ImageResizeService
 
     private function deleteResizedLocal(string $relativePath): void
     {
-        foreach (self::WIDTH_BUCKETS as $width) {
+        foreach ($this->widthBuckets as $width) {
             $cachePath = $this->publicDir.'/media/'.$width.'/'.$relativePath;
             if (file_exists($cachePath)) {
                 unlink($cachePath);
@@ -166,7 +176,7 @@ class ImageResizeService
 
     private function deleteResizedRemote(string $relativePath): void
     {
-        foreach (self::WIDTH_BUCKETS as $width) {
+        foreach ($this->widthBuckets as $width) {
             $this->objectStorage->delete(
                 $this->mediaBucket,
                 'public/media/'.$width.'/'.$relativePath,

@@ -559,7 +559,10 @@ UbeeDev\LibBundle\Service\ImageResizeService:
     $mediaBucket: '%env(MEDIA_BUCKET)%'     # S3 bucket (same as media storage)
     $publicDir: '%kernel.project_dir%/public'
     $outputFormat: 'webp'                    # webp, jpg, png
+    $widthBuckets: []                        # Override default width buckets (empty = defaults)
 ```
+
+**Width buckets:** Default: `[320, 375, 414, 430, 600, 860, 1290]`. Pass a non-empty `$widthBuckets` array to replace the defaults entirely (e.g. `[64, 160, 320, 375, 414, 430, 600, 860, 1290]` to add thumbnail sizes).
 
 Import the bundle routes. The default prefix is `/media`, configurable at import:
 

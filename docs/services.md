@@ -230,9 +230,26 @@ UbeeDev\LibBundle\Service\ImageResizeService:
     $mediaBucket: '%env(MEDIA_BUCKET)%'
     $publicDir: '%kernel.project_dir%/public'
     $outputFormat: 'webp'   # webp, jpg, png
+    $widthBuckets: []       # Override default width buckets (empty = use defaults)
 ```
 
 The bundle includes a controller (`ImageResizeController`) that handles the `/media/{width}/{path}` route automatically.
+
+#### Custom width buckets
+
+The default buckets (`320, 375, 414, 430, 600, 860, 1290`) cover common screen widths. If your app needs different sizes (e.g. small thumbnails), override them via `$widthBuckets`:
+
+```yaml
+# config/services.yaml
+UbeeDev\LibBundle\Service\ImageResizeService:
+  arguments:
+    $mediaBucket: '%env(MEDIA_BUCKET)%'
+    $publicDir: '%kernel.project_dir%/public'
+    $outputFormat: 'webp'
+    $widthBuckets: [64, 160, 320, 375, 414, 430, 600, 860, 1290]
+```
+
+When `$widthBuckets` is provided (non-empty array), it **replaces** the defaults entirely. The values are automatically sorted. When empty (default), the built-in buckets are used. Custom buckets also apply to `deleteResized` (all bucket sizes are cleaned up).
 
 #### resize
 
@@ -244,7 +261,7 @@ $path = $imageResizeService->resize(375, 'event/202602/abc123.webp');
 // Remote: /tmp/resized_xxx_abc123.webp (also uploaded to S3)
 ```
 
-Width buckets: `320, 375, 414, 430, 600, 860, 1290`. Requested widths are rounded up to the nearest bucket. The `1290` bucket supports Retina x3 displays (430 × 3).
+Default width buckets: `320, 375, 414, 430, 600, 860, 1290`. Requested widths are rounded up to the nearest bucket. The `1290` bucket supports Retina x3 displays (430 × 3). Override via the `$widthBuckets` constructor parameter.
 
 #### deleteResized
 

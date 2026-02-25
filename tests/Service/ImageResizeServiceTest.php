@@ -109,6 +109,53 @@ final class ImageResizeServiceTest extends TestCase
         $this->assertSame(1290, $this->service->bucketWidth(2000));
     }
 
+    public function testCustomWidthBucketsOverrideDefaults(): void
+    {
+        $storageMock = $this->createStub(MediaStorageInterface::class);
+        $storageMock->method('isLocal')->willReturn(true);
+
+        $service = new ImageResizeService(
+            storage: $storageMock,
+            objectStorage: $this->createStub(ObjectStorageInterface::class),
+            mediaBucket: '',
+            publicDir: $this->tempDir,
+            outputFormat: 'webp',
+            widthBuckets: [80, 160, 320],
+        );
+
+        $this->assertSame(80, $service->bucketWidth(50));
+        $this->assertSame(80, $service->bucketWidth(80));
+        $this->assertSame(160, $service->bucketWidth(100));
+        $this->assertSame(320, $service->bucketWidth(200));
+        // 430 is NOT a bucket anymore — caps at 320
+        $this->assertSame(320, $service->bucketWidth(430));
+    }
+
+    public function testDeleteResizedUsesCustomBuckets(): void
+    {
+        $storageMock = $this->createStub(MediaStorageInterface::class);
+        $storageMock->method('isLocal')->willReturn(true);
+
+        $service = new ImageResizeService(
+            storage: $storageMock,
+            objectStorage: $this->createStub(ObjectStorageInterface::class),
+            mediaBucket: '',
+            publicDir: $this->tempDir,
+            outputFormat: 'webp',
+            widthBuckets: [80],
+        );
+
+        $path = $this->createTestImage(1280, 1280);
+
+        $cachedPath = $service->resize(80, $path);
+        $this->assertNotNull($cachedPath);
+        $this->assertStringContainsString('/media/80/', $cachedPath);
+        $this->assertFileExists($cachedPath);
+
+        $service->deleteResized($path);
+        $this->assertFileDoesNotExist($cachedPath);
+    }
+
     // --- Local resize tests ---
 
     public function testResizeCreatesResizedImage(): void
