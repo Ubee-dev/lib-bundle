@@ -53,7 +53,7 @@ services:
   UbeeDev\LibBundle\Service\ObjectStorageInterface: '@UbeeDev\LibBundle\Service\ObjectStorage\OvhObjectStorage'
 
   UbeeDev\LibBundle\Service\MediaStorage\MediaStorageInterface:
-    alias: UbeeDev\LibBundle\Service\MediaStorage\ObjectStorageMediaStorage
+    alias: UbeeDev\LibBundle\Service\MediaStorage\LocalMediaStorage
 
   UbeeDev\LibBundle\Service\MediaStorage\ObjectStorageMediaStorage:
     arguments:

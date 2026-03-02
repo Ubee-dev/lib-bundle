@@ -29,13 +29,19 @@ abstract class AbstractS3ObjectStorage implements ObjectStorageInterface
         $this->s3Client = new AmazonS3Client($config);
     }
 
-    public function upload(string $localFilePath, string $bucket, string $remotePath): string
+    public function upload(string $localFilePath, string $bucket, string $remotePath, bool $private = false): string
     {
-        $result = $this->s3Client->putObject([
+        $params = [
             'Bucket' => $bucket,
             'Key' => $remotePath,
             'SourceFile' => $localFilePath,
-        ]);
+        ];
+
+        if (!$private) {
+            $params['ACL'] = 'public-read';
+        }
+
+        $result = $this->s3Client->putObject($params);
 
         return $result->get('ObjectURL');
     }

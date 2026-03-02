@@ -21,7 +21,26 @@ class S3ObjectStorageTest extends TestCase
         $reflection->setValue($this->storage, $this->amazonS3ClientMock);
     }
 
-    public function testUploadReturnsObjectUrl(): void
+    public function testUploadPublicSetsAclPublicRead(): void
+    {
+        $result = new Result(['ObjectURL' => 'https://bucket.s3.eu-west-1.amazonaws.com/tests/file.txt']);
+
+        $this->amazonS3ClientMock
+            ->expects($this->once())
+            ->method('__call')
+            ->with('putObject', [[
+                'Bucket' => 'test-bucket',
+                'Key' => 'tests/file.txt',
+                'SourceFile' => '/tmp/file.txt',
+                'ACL' => 'public-read',
+            ]])
+            ->willReturn($result);
+
+        $url = $this->storage->upload('/tmp/file.txt', 'test-bucket', 'tests/file.txt');
+        $this->assertEquals('https://bucket.s3.eu-west-1.amazonaws.com/tests/file.txt', $url);
+    }
+
+    public function testUploadPrivateDoesNotSetAcl(): void
     {
         $result = new Result(['ObjectURL' => 'https://bucket.s3.eu-west-1.amazonaws.com/tests/file.txt']);
 
@@ -35,7 +54,7 @@ class S3ObjectStorageTest extends TestCase
             ]])
             ->willReturn($result);
 
-        $url = $this->storage->upload('/tmp/file.txt', 'test-bucket', 'tests/file.txt');
+        $url = $this->storage->upload('/tmp/file.txt', 'test-bucket', 'tests/file.txt', private: true);
         $this->assertEquals('https://bucket.s3.eu-west-1.amazonaws.com/tests/file.txt', $url);
     }
 

@@ -24,7 +24,8 @@ class ObjectStorageMediaStorageTest extends TestCase
             ->with(
                 $this->equalTo('/tmp/source.webp'),
                 $this->equalTo($this->bucket),
-                $this->equalTo('public/uploads/avatars/202603/abc123.webp')
+                $this->equalTo('public/uploads/avatars/202603/abc123.webp'),
+                $this->equalTo(false)
             );
 
         $storage->store('/tmp/source.webp', $media);
@@ -41,7 +42,8 @@ class ObjectStorageMediaStorageTest extends TestCase
             ->with(
                 $this->equalTo('/tmp/invoice.pdf'),
                 $this->equalTo($this->bucket),
-                $this->equalTo('private/uploads/invoices/202603/invoice.pdf')
+                $this->equalTo('private/uploads/invoices/202603/invoice.pdf'),
+                $this->equalTo(true)
             );
 
         $storage->store('/tmp/invoice.pdf', $media);

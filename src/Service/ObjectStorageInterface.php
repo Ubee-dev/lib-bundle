@@ -4,7 +4,7 @@ namespace UbeeDev\LibBundle\Service;
 
 interface ObjectStorageInterface
 {
-    public function upload(string $localFilePath, string $bucket, string $remotePath): string;
+    public function upload(string $localFilePath, string $bucket, string $remotePath, bool $private = false): string;
 
     public function download(string $bucket, string $key, string $localFolder, string $localFileName): string;
 

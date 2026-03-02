@@ -334,13 +334,16 @@ To switch provider, see [ObjectStorage Configuration](configuration.md#objectsto
 
 #### upload
 
-Uploads a local file and returns the public object URL.
+Uploads a local file and returns the object URL. By default, the object is uploaded with `public-read` ACL. Pass `private: true` to keep it private (no ACL set, object inherits bucket default).
 
 ```php
 /** @var \UbeeDev\LibBundle\Service\ObjectStorageInterface $storage */
 
-$objectUrl = $storage->upload('/tmp/backup.sql', 'my-bucket', 'backups/2026/backup.sql');
-// Returns: "https://my-bucket.s3.amazonaws.com/backups/2026/backup.sql"
+// Public upload (default) — sets ACL public-read on the object
+$objectUrl = $storage->upload('/tmp/avatar.webp', 'my-bucket', 'public/avatars/avatar.webp');
+
+// Private upload — no ACL, object stays private
+$objectUrl = $storage->upload('/tmp/backup.sql', 'my-bucket', 'backups/2026/backup.sql', private: true);
 ```
 
 #### get

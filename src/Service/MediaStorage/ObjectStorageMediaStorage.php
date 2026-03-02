@@ -17,7 +17,7 @@ class ObjectStorageMediaStorage implements MediaStorageInterface
 
     public function store(string $localFilePath, Media $media): void
     {
-        $this->objectStorage->upload($localFilePath, $this->bucket, $this->buildRemoteKey($media));
+        $this->objectStorage->upload($localFilePath, $this->bucket, $this->buildRemoteKey($media), $media->isPrivate());
     }
 
     public function delete(Media $media): void

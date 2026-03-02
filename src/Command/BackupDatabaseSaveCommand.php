@@ -44,7 +44,7 @@ class BackupDatabaseSaveCommand extends AbstractMonitoredCommand
         $output->writeln("<info>Uploading to bucket <fg=yellow;>{$this->backupBucket}</>...</info>");
         $output->writeln("  Remote path: $remotePath");
 
-        $url = $this->objectStorage->upload($tmpDatabaseFileName, $this->backupBucket, $remotePath);
+        $url = $this->objectStorage->upload($tmpDatabaseFileName, $this->backupBucket, $remotePath, private: true);
 
         $output->writeln("<fg=green;>Upload complete:</> $url");
     }
